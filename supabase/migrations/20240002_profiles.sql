@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   stripe_customer_id    TEXT,
   stripe_payment_id     TEXT,
 
-  -- Pacto del emprendedor
+  -- Pacto del empresario
   entrepreneur_pact     BOOLEAN        DEFAULT false,
   pact_signed_at        TIMESTAMPTZ,
 
