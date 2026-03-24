@@ -1,9 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useFormState } from 'react-dom'
 import Link from 'next/link'
 import { loginAction, type LoginState } from '../actions'
-import { Button } from '@/components/ui/button'
+import SubmitButton from '../../_components/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -17,12 +17,8 @@ import {
 
 const initialState: LoginState = { error: null }
 
-export default function LoginForm({
-  redirectTo,
-}: {
-  redirectTo: string
-}) {
-  const [state, formAction, pending] = useActionState(loginAction, initialState)
+export default function LoginForm({ redirectTo }: { redirectTo: string }) {
+  const [state, formAction] = useFormState(loginAction, initialState)
 
   return (
     <Card className="w-full max-w-md">
@@ -69,9 +65,7 @@ export default function LoginForm({
         </CardContent>
 
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? 'Accediendo...' : 'Entrar'}
-          </Button>
+          <SubmitButton label="Entrar" pendingLabel="Accediendo..." />
 
           <p className="text-center text-sm text-muted-foreground">
             ¿No tienes cuenta?{' '}

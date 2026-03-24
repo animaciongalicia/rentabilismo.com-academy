@@ -1,9 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useFormState } from 'react-dom'
 import Link from 'next/link'
 import { registerAction, type RegisterState } from '../actions'
-import { Button } from '@/components/ui/button'
+import SubmitButton from '../../_components/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -18,7 +18,7 @@ import {
 const initialState: RegisterState = { error: null, success: false, email: '' }
 
 export default function RegisterForm() {
-  const [state, formAction, pending] = useActionState(registerAction, initialState)
+  const [state, formAction] = useFormState(registerAction, initialState)
 
   if (state.success) {
     return (
@@ -110,9 +110,7 @@ export default function RegisterForm() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? 'Creando cuenta...' : 'Crear cuenta'}
-          </Button>
+          <SubmitButton label="Crear cuenta" pendingLabel="Creando cuenta..." />
 
           <p className="text-center text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{' '}
