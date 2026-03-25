@@ -3,11 +3,10 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover',
-})
-
 export async function POST(request: Request): Promise<Response> {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2026-02-25.clover',
+  })
   // Leer el body crudo ANTES de cualquier parseo — crítico para verificar la firma
   const rawBody = await request.text()
   const signature = request.headers.get('stripe-signature')

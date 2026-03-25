@@ -1,11 +1,10 @@
 import Stripe from 'stripe'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover',
-})
-
 export async function POST(request: Request): Promise<Response> {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2026-02-25.clover',
+  })
   try {
     // Verificar sesión del usuario
     const supabase = await getSupabaseServerClient()
