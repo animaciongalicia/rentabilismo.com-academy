@@ -1,5 +1,7 @@
-import RegisterForm from './_components/register-form'
-
 export default function RegisterPage() {
-  return <RegisterForm />
+  return (
+    <div style={{padding: '40px', background: 'red', color: 'white', fontSize: '24px'}}>
+      ESTO ES UN TEST - SI VES ESTO FUNCIONA
+    </div>
+  )
 }
