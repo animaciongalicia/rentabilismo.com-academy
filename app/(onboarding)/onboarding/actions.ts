@@ -33,7 +33,7 @@ export async function saveOnboarding(
       onboarding_q4: data.q4,
       entrepreneur_pact: true,
       pact_signed_at: new Date().toISOString(),
-      onboarding_completed_at: new Date().toISOString(),
+      onboarding_completed: true,
     })
     .eq('id', user.id)
 

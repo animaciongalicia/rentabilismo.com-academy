@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -234,9 +233,12 @@ export default async function DashboardPage() {
                   Accede a los 11 módulos, la comunidad y el seguimiento diario.
                 </p>
               </div>
-              <Button asChild className="shrink-0">
-                <Link href="/pricing">Ver planes</Link>
-              </Button>
+              <Link
+                href="/pricing"
+                className="shrink-0 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-8 px-4 text-sm font-medium hover:bg-primary/80 transition-colors"
+              >
+                Ver planes
+              </Link>
             </CardContent>
           </Card>
         )}
