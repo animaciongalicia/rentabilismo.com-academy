@@ -1,7 +1,10 @@
+import RegisterForm from './_components/register-form'
+
+export const metadata = {
+  title: 'Registro - Rentabilismo Academy',
+  description: 'Crea tu cuenta y empieza tu camino hacia la rentabilidad',
+}
+
 export default function RegisterPage() {
-  return (
-    <div style={{padding: '40px', background: 'red', color: 'white', fontSize: '24px'}}>
-      ESTO ES UN TEST - SI VES ESTO FUNCIONA
-    </div>
-  )
+  return <RegisterForm />
 }
