@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { CheckCircle2, Lock } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -87,46 +87,56 @@ function ModuleCard({
   module: Module
   status: ModuleStatus
 }) {
-  const isLocked = status === 'locked'
-
   return (
     <Card
-      className={[
-        'relative flex flex-col transition-colors',
-        isLocked ? 'bg-muted/30 opacity-60' : 'bg-background',
-        status === 'completed' ? 'border-green-500/30 bg-green-500/5' : '',
-        status === 'free' ? 'border-primary/40' : '',
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      className={cn(
+        'flex flex-col transition-colors',
+        status === 'available' && 'cursor-pointer hover:border-foreground/30',
+        status === 'completed' && 'border-green-500/30 bg-green-500/5',
+        status === 'free' && 'border-primary/40',
+        status === 'locked' && 'bg-muted/20 border-border/40',
+      )}
     >
       <CardHeader className="pb-2 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-xs text-muted-foreground">
+          <span
+            className={cn(
+              'font-mono text-xs',
+              status === 'locked'
+                ? 'text-muted-foreground/50'
+                : 'text-muted-foreground',
+            )}
+          >
             {pad(module.order_number)}
           </span>
           {status === 'completed' && (
-            <Badge variant="completed">
-              <CheckCircle2 className="size-3" />
-              Completado
-            </Badge>
+            <Badge variant="completed">Completado</Badge>
           )}
           {status === 'free' && <Badge variant="free">Gratis</Badge>}
           {status === 'locked' && (
-            <Badge variant="locked">
-              <Lock className="size-3" />
-              Acceso completo
-            </Badge>
+            <Badge variant="locked">Acceso completo</Badge>
           )}
           {status === 'available' && (
             <Badge variant="outline">Disponible</Badge>
           )}
         </div>
-        <CardTitle className="text-base leading-snug">{module.title}</CardTitle>
+        <CardTitle
+          className={cn(
+            'text-base leading-snug',
+            status === 'locked' && 'text-muted-foreground',
+          )}
+        >
+          {module.title}
+        </CardTitle>
       </CardHeader>
 
       <CardContent>
-        <CardDescription className="line-clamp-2 text-sm leading-relaxed">
+        <CardDescription
+          className={cn(
+            'line-clamp-2 text-sm leading-relaxed',
+            status === 'locked' && 'opacity-50',
+          )}
+        >
           {module.description}
         </CardDescription>
       </CardContent>
@@ -185,23 +195,20 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-5xl px-4 py-10 space-y-10">
 
         {/* ── Cabecera ── */}
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <div>
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-3xl font-bold tracking-tight">
               Hola, {firstName}
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Tu programa de transformación empresarial
-            </p>
+            {streak > 0 && (
+              <Badge variant="secondary" className="text-sm px-3 py-1">
+                {streak} {streak === 1 ? 'día' : 'días'} seguidos
+              </Badge>
+            )}
           </div>
-          {streak > 0 && (
-            <Badge
-              variant="secondary"
-              className="self-start sm:self-auto text-sm px-3 py-1"
-            >
-              {streak} {streak === 1 ? 'día' : 'días'} seguidos
-            </Badge>
-          )}
+          <p className="text-muted-foreground mt-1">
+            Tu programa de transformación empresarial
+          </p>
         </div>
 
         {/* ── Progreso general ── */}
