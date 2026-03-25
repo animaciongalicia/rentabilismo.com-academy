@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Brain, BarChart2, Settings, TrendingUp, type LucideIcon } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -116,9 +115,12 @@ export default async function MentalidadPage() {
           </ul>
         </CardContent>
         <CardFooter>
-          <Button asChild size="lg" className="w-full">
-            <Link href="/pricing">Ver planes y precios</Link>
-          </Button>
+          <Link
+            href="/pricing"
+            className="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground h-11 px-8 text-sm font-medium hover:bg-primary/90"
+          >
+            Ver planes y precios
+          </Link>
         </CardFooter>
       </Card>
     </div>
