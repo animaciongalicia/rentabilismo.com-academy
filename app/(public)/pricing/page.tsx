@@ -6,12 +6,12 @@ export const metadata = {
 }
 
 const BENEFITS = [
-  '11 módulos de transformación empresarial, de por vida',
-  'Metodología probada: mentalidad, números, procesos, ventas y estrategia',
+  '90 días para transformar tu negocio, con metodología y acompañamiento',
+  '30 días trabajando el programa — mentalidad, números, procesos, ventas y estrategia',
+  '60 días analizando y corrigiendo — aplicas, mides y ajustas',
+  '90 días en mejora continua — construyes el sistema que sostiene el crecimiento',
   'Cuartel General — comunidad privada de empresarios reales',
   'El Muro — accountability diario para no perder el ritmo',
-  'Acceso directo al mentor durante el programa',
-  'Actualizaciones de contenido incluidas sin coste adicional',
 ]
 
 export default function PricingPage() {
@@ -25,10 +25,10 @@ export default function PricingPage() {
             Acceso completo
           </p>
           <h1 className="text-4xl font-bold leading-tight tracking-tight">
-            Un único pago.<br />Acceso de por vida.
+            Un único pago.<br />90 días para transformar tu negocio.
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            Sin mensualidades. Sin sorpresas. Pagas una vez y el programa es tuyo.
+            Sin mensualidades. Sin sorpresas. Pagas una vez y empiezas hoy.
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export default function PricingPage() {
 
             {/* Nota acceso limitado */}
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong>Primeros 50 accesos:</strong> precio de por vida garantizado.
+              <strong>Primeros 50 accesos:</strong> precio garantizado para siempre.
               A partir del acceso 51, el precio pasa a ser anual. Reserva tu plaza ahora.
             </p>
           </CardContent>
