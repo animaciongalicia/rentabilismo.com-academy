@@ -38,6 +38,7 @@ export async function saveOnboarding(
     .eq('id', user.id)
 
   if (error) {
+    console.error('saveOnboarding error:', error)
     return { error: 'Error al guardar el perfil. Inténtalo de nuevo.' }
   }
 
