@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Progress } from '@/components/ui/progress'
 import { saveOnboarding, type OnboardingInput } from '../actions'
 import StepWelcome from './steps/step-1-welcome'
@@ -18,6 +19,7 @@ interface OnboardingWizardProps {
 type FormData = Omit<OnboardingInput, never>
 
 export default function OnboardingWizard({ fullName }: OnboardingWizardProps) {
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
     q1: '',
@@ -57,8 +59,10 @@ export default function OnboardingWizard({ fullName }: OnboardingWizardProps) {
     setSignError(null)
     startTransition(async () => {
       const result = await saveOnboarding(formData)
-      if (result?.error) {
+      if ('error' in result) {
         setSignError(result.error)
+      } else {
+        router.push('/onboarding/mentalidad')
       }
     })
   }

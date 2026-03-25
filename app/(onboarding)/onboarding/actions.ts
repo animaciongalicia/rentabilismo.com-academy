@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 
 export type OnboardingInput = {
@@ -10,11 +9,11 @@ export type OnboardingInput = {
   q4: string
 }
 
-export type OnboardingResult = { error: string }
+export type OnboardingResult = { error: string } | { ok: true }
 
 export async function saveOnboarding(
   data: OnboardingInput
-): Promise<OnboardingResult | void> {
+): Promise<OnboardingResult> {
   const supabase = await getSupabaseServerClient()
 
   const {
@@ -42,5 +41,5 @@ export async function saveOnboarding(
     return { error: 'Error al guardar el perfil. Inténtalo de nuevo.' }
   }
 
-  redirect('/onboarding/mentalidad')
+  return { ok: true }
 }

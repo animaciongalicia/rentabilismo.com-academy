@@ -107,6 +107,13 @@ export default function StepCommitment({
               />
             ))}
           </div>
+          {q4 === 'Necesito pensarlo más' && (
+            <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-muted-foreground/30 pl-3">
+              Mientras lo piensas, tu competencia no para. Cada mes sin sistematizar
+              tu negocio es dinero que se escapa. No te pido que te lo creas — te
+              pido 90 días para demostrártelo.
+            </p>
+          )}
         </div>
       </CardContent>
 
@@ -115,7 +122,7 @@ export default function StepCommitment({
           Atrás
         </Button>
         <Button onClick={handleSubmit} disabled={!isValid}>
-          Continuar
+          {q4 === 'Necesito pensarlo más' ? 'Lo entiendo, voy a intentarlo' : 'Continuar'}
         </Button>
       </CardFooter>
     </Card>
