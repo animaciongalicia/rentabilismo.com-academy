@@ -51,10 +51,8 @@ function getModuleStatus(
 
 function HeroModuleCard({
   module,
-  status,
 }: {
   module: Module
-  status: ModuleStatus
 }) {
   return (
     <Card className="border-primary/60 bg-primary/5 transition-colors">
@@ -249,7 +247,6 @@ export default async function DashboardPage() {
           {modules[0] && (
             <HeroModuleCard
               module={modules[0]}
-              status={getModuleStatus(modules[0], completedIds, hasActiveAccess)}
             />
           )}
 
