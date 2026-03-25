@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { Brain, BarChart2, Settings, TrendingUp, type LucideIcon } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,27 +16,33 @@ export const metadata = {
   title: 'Tu próximo paso - Rentabilismo Academy',
 }
 
-const PILLARS = [
+type Pillar = {
+  icon: LucideIcon
+  title: string
+  description: string
+}
+
+const PILLARS: Pillar[] = [
   {
-    icon: '🧠',
+    icon: Brain,
     title: 'Mentalidad de empresario',
     description:
       'Aprende a tomar decisiones con claridad, sin dejarte llevar por el estrés del día a día.',
   },
   {
-    icon: '📊',
+    icon: BarChart2,
     title: 'Números que importan',
     description:
       'Entiende los 5 indicadores que determinan si tu negocio crece o se estanca.',
   },
   {
-    icon: '⚙️',
+    icon: Settings,
     title: 'Sistemas y procesos',
     description:
       'Construye un negocio que funcione sin que tú estés presente en cada decisión.',
   },
   {
-    icon: '🚀',
+    icon: TrendingUp,
     title: 'Escala sin caos',
     description:
       'Metodología paso a paso para crecer de forma ordenada y predecible.',
@@ -80,7 +87,7 @@ export default async function MentalidadPage() {
         {PILLARS.map((pillar) => (
           <Card key={pillar.title} className="border bg-muted/30">
             <CardHeader className="pb-2">
-              <div className="text-3xl mb-1">{pillar.icon}</div>
+              <pillar.icon className="size-6 text-primary mb-1" />
               <CardTitle className="text-base">{pillar.title}</CardTitle>
             </CardHeader>
             <CardContent>
