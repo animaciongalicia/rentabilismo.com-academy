@@ -25,11 +25,11 @@ export async function middleware(request: NextRequest) {
   if (user && isProtectedPath(pathname)) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('onboarding_completed_at, has_paid, access_expires_at')
+      .select('onboarding_completed, has_paid, access_expires_at')
       .eq('id', user.id)
       .single()
 
-    const completedOnboarding = !!profile?.onboarding_completed_at
+    const completedOnboarding = !!profile?.onboarding_completed
     const accessExpired = profile?.access_expires_at
       ? new Date(profile.access_expires_at) < new Date()
       : false
