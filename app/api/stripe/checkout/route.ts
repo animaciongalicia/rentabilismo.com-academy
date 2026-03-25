@@ -5,6 +5,7 @@ export async function POST(request: Request): Promise<Response> {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2026-02-25.clover',
   })
+  console.log('STRIPE_KEY prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7) ?? 'UNDEFINED')
   try {
     // Verificar sesión del usuario
     const supabase = await getSupabaseServerClient()
