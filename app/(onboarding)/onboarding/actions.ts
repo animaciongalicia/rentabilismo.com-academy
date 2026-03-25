@@ -14,34 +14,40 @@ export type OnboardingResult = { error: string } | { ok: true }
 export async function saveOnboarding(
   data: OnboardingInput
 ): Promise<OnboardingResult> {
-  const supabase = await getSupabaseServerClient()
+  try {
+    console.log('saveOnboarding: iniciando')
+    const supabase = await getSupabaseServerClient()
+    console.log('saveOnboarding: cliente creado')
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    console.log('saveOnboarding: user:', user?.id, 'authError:', authError)
 
-  if (!user) {
-    return { error: 'No hay sesión activa. Por favor, inicia sesión de nuevo.' }
-  }
+    if (!user) {
+      return { error: 'No hay sesión activa. Por favor, inicia sesión de nuevo.' }
+    }
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      onboarding_q1: data.q1,
-      onboarding_q2: data.q2,
-      onboarding_q3: data.q3,
-      onboarding_q4: data.q4,
-      entrepreneur_pact: true,
-      pact_signed_at: new Date().toISOString(),
-      onboarding_completed_at: new Date().toISOString(),
-    })
-    .eq('id', user.id)
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        onboarding_q1: data.q1,
+        onboarding_q2: data.q2,
+        onboarding_q3: data.q3,
+        onboarding_q4: data.q4,
+        entrepreneur_pact: true,
+        pact_signed_at: new Date().toISOString(),
+        onboarding_completed_at: new Date().toISOString(),
+      })
+      .eq('id', user.id)
 
-  if (error) {
-    console.error('saveOnboarding error | code:', error.code, '| message:', error.message, '| details:', error.details, '| hint:', error.hint)
-    console.error('saveOnboarding user_id:', user.id)
+    console.log('saveOnboarding: update error:', error)
+
+    if (error) {
+      return { error: 'Error al guardar el perfil. Inténtalo de nuevo.' }
+    }
+
+    return { ok: true }
+  } catch (e) {
+    console.error('saveOnboarding CATCH:', e)
     return { error: 'Error al guardar el perfil. Inténtalo de nuevo.' }
   }
-
-  return { ok: true }
 }
