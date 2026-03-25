@@ -47,7 +47,38 @@ function getModuleStatus(
   return 'locked'
 }
 
-// ── Componente de tarjeta de módulo ────────────────────────────────────────
+// ── Tarjeta héroe — módulo 00 (ancho completo) ────────────────────────────
+
+function HeroModuleCard({
+  module,
+  status,
+}: {
+  module: Module
+  status: ModuleStatus
+}) {
+  return (
+    <Card className="border-primary/60 bg-primary/5 transition-colors">
+      <CardHeader className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-mono text-sm text-primary/70 font-semibold">
+            {pad(module.order_number)}
+          </span>
+          <Badge variant="free" className="text-sm px-3 py-0.5">
+            Gratis — empieza aquí
+          </Badge>
+        </div>
+        <CardTitle className="text-2xl leading-snug">{module.title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CardDescription className="text-base leading-relaxed">
+          {module.description}
+        </CardDescription>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Tarjeta estándar — módulos 01-10 ──────────────────────────────────────
 
 function ModuleCard({
   module,
@@ -206,13 +237,24 @@ export default async function DashboardPage() {
         )}
 
         {/* ── Grid de módulos ── */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {modules.map((module) => {
-            const status = getModuleStatus(module, completedIds, hasActiveAccess)
-            return (
-              <ModuleCard key={module.id} module={module} status={status} />
-            )
-          })}
+        <div className="space-y-4">
+          {/* Módulo 00 — héroe, ancho completo */}
+          {modules[0] && (
+            <HeroModuleCard
+              module={modules[0]}
+              status={getModuleStatus(modules[0], completedIds, hasActiveAccess)}
+            />
+          )}
+
+          {/* Módulos 01-10 — grid 2 columnas */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {modules.slice(1).map((module) => {
+              const status = getModuleStatus(module, completedIds, hasActiveAccess)
+              return (
+                <ModuleCard key={module.id} module={module} status={status} />
+              )
+            })}
+          </div>
         </div>
 
       </div>
