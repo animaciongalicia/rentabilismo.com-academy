@@ -1,21 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
+// Rutas que requieren autenticación
 const PROTECTED_PREFIXES = ['/dashboard', '/onboarding']
-
-const PUBLIC_PATHS = [
-  '/',
-  '/como-funciona',
-  '/dolores',
-  '/mentalidad',
-  '/programa',
-  '/cuartel-general',
-  '/el-muro',
-  '/pricing',
-  '/login',
-  '/register',
-  '/auth/callback',
-]
 
 function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
@@ -26,7 +13,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Rutas protegidas: redirigir al login si no hay sesión
+  // 1. Sin sesión → login (solo para rutas protegidas)
   if (isProtectedPath(pathname) && !user) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
@@ -34,27 +21,40 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Lógica de onboarding para usuarios autenticados
-  if (
-    user &&
-    (pathname.startsWith('/onboarding') || pathname.startsWith('/dashboard'))
-  ) {
+  // 2-4. Usuario autenticado en rutas protegidas → comprobar estado de perfil
+  if (user && isProtectedPath(pathname)) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('onboarding_completed_at')
+      .select('onboarding_completed_at, has_paid, access_expires_at')
       .eq('id', user.id)
       .single()
 
-    const completed = !!profile?.onboarding_completed_at
+    const completedOnboarding = !!profile?.onboarding_completed_at
+    const accessExpired = profile?.access_expires_at
+      ? new Date(profile.access_expires_at) < new Date()
+      : false
+    const hasActiveAccess = !!profile?.has_paid && !accessExpired
 
-    // Ya completó onboarding → saltar al dashboard
-    if (pathname.startsWith('/onboarding') && completed) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+    // — Wizard de onboarding (/onboarding exacto) —
+    if (pathname === '/onboarding') {
+      if (!completedOnboarding) return response // dejar pasar al wizard
+      if (hasActiveAccess) return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/onboarding/mentalidad', request.url))
     }
 
-    // Aún no completó onboarding → forzar onboarding
-    if (pathname.startsWith('/dashboard') && !completed) {
-      return NextResponse.redirect(new URL('/onboarding', request.url))
+    // — Sub-rutas de onboarding (/onboarding/*) —
+    // Ej: /onboarding/mentalidad — zona post-onboarding, pre-pago
+    if (pathname.startsWith('/onboarding/')) {
+      if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
+      if (hasActiveAccess) return NextResponse.redirect(new URL('/dashboard', request.url))
+      return response // completó onboarding, aún sin pagar → dejar pasar
+    }
+
+    // — Dashboard (requiere pago activo) —
+    if (pathname.startsWith('/dashboard')) {
+      if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
+      if (!hasActiveAccess) return NextResponse.redirect(new URL('/onboarding/mentalidad', request.url))
+      return response
     }
   }
 

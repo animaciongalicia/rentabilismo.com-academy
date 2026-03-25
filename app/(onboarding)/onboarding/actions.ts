@@ -42,5 +42,5 @@ export async function saveOnboarding(
     return { error: 'Error al guardar el perfil. Inténtalo de nuevo.' }
   }
 
-  redirect('/dashboard')
+  redirect('/onboarding/mentalidad')
 }
