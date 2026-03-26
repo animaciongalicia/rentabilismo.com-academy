@@ -15,12 +15,8 @@ export async function saveOnboarding(
   data: OnboardingInput
 ): Promise<OnboardingResult> {
   try {
-    console.log('saveOnboarding: iniciando')
     const supabase = await getSupabaseServerClient()
-    console.log('saveOnboarding: cliente creado')
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('saveOnboarding: user:', user?.id, 'authError:', authError)
+    const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
       return { error: 'No hay sesión activa. Por favor, inicia sesión de nuevo.' }
@@ -39,9 +35,8 @@ export async function saveOnboarding(
       })
       .eq('id', user.id)
 
-    console.log('saveOnboarding: update error:', error)
-
     if (error) {
+      console.error('saveOnboarding error:', error.code, error.message)
       return { error: 'Error al guardar el perfil. Inténtalo de nuevo.' }
     }
 
