@@ -401,7 +401,7 @@ export default function LessonTabs({
         {/* Ejercicios */}
         <TabsContent value="ejercicios" className="mt-6 space-y-8 max-w-[720px]">
           {contextoEjercicios && (
-            <p className="text-sm leading-relaxed text-muted-foreground border-l-2 border-border pl-4">
+            <p className="text-sm leading-relaxed text-muted-foreground italic">
               {contextoEjercicios}
             </p>
           )}
@@ -422,13 +422,13 @@ export default function LessonTabs({
               </div>
             ))
           )}
-          {!mejoraExercise && <CompleteButton />}
+          {!mejoraExercise && CompleteButton()}
         </TabsContent>
 
         {/* Mejora */}
         <TabsContent value="mejora" className="mt-6 space-y-8 max-w-[720px]">
           {contextoMejora && (
-            <p className="text-sm leading-relaxed text-muted-foreground border-l-2 border-border pl-4">
+            <p className="text-sm leading-relaxed text-muted-foreground italic">
               {contextoMejora}
             </p>
           )}
@@ -440,7 +440,7 @@ export default function LessonTabs({
           {cierreMejora && (
             <p className="text-sm leading-relaxed text-foreground/70 italic">{cierreMejora}</p>
           )}
-          <CompleteButton />
+          {CompleteButton()}
         </TabsContent>
       </Tabs>
     </div>
