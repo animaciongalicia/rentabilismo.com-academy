@@ -15,7 +15,7 @@ export default async function MentalidadPage() {
   } = await supabase.auth.getUser()
 
   const [moduleResult, lessonsResult, countResult] = await Promise.all([
-    supabase.from('modules').select('id, title, description, vimeo_id').eq('id', 0).single(),
+    supabase.from('modules').select('id, title, description, vimeo_id, video_intro_text').eq('id', 0).single(),
     supabase
       .from('lessons')
       .select('id, title, slug, order_number')
@@ -61,6 +61,7 @@ export default async function MentalidadPage() {
           <ModuleTabs
             vimeoId={mod?.vimeo_id ?? null}
             description={mod?.description ?? null}
+            videoIntroText={mod?.video_intro_text ?? null}
             lessons={lessons}
             showCta={showCta}
             paymentsCount={paymentsCount}
