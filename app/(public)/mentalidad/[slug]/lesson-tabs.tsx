@@ -264,6 +264,11 @@ export default function LessonTabs({
   const [error, setError] = useState<string | null>(null)
   const [responses, setResponses] = useState<Responses>(() => initResponses(exercises))
   const [completed, setCompleted] = useState(isAlreadyCompleted)
+  const [navigateTo, setNavigateTo] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (navigateTo) router.push(navigateTo)
+  }, [navigateTo, router])
 
   const regularExercises = exercises.filter((e) => !e.is_kaizen)
   const mejoraExercise = exercises.find((e) => e.is_kaizen)
@@ -281,7 +286,7 @@ export default function LessonTabs({
         return
       }
       setCompleted(true)
-      router.push(nextSlug ? `/mentalidad/${nextSlug}` : '/mentalidad')
+      setNavigateTo(nextSlug ? `/mentalidad/${nextSlug}` : '/mentalidad')
     })
   }
 
