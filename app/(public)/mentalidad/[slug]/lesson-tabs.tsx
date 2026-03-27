@@ -112,7 +112,7 @@ function OpenReflection({
         value={(responses[exercise.id]?.value as string) ?? ''}
         onChange={(e) => onSet(exercise.id, 'value', e.target.value)}
         rows={4}
-        className="resize-none"
+        className="resize-none bg-background"
       />
       {cfg.note && <p className="text-xs text-muted-foreground italic">{cfg.note}</p>}
     </div>
@@ -143,6 +143,7 @@ function TextInputExercise({
             placeholder={field.placeholder}
             value={(responses[exercise.id]?.[field.id] as string) ?? ''}
             onChange={(e) => onSet(exercise.id, field.id, e.target.value)}
+            className="bg-background"
           />
         </div>
       ))}
@@ -192,7 +193,7 @@ function ChecklistExercise({
             value={(responses[exercise.id]?.follow_up as string) ?? ''}
             onChange={(e) => onSet(exercise.id, 'follow_up', e.target.value)}
             rows={3}
-            className="resize-none"
+            className="resize-none bg-background"
           />
         </div>
       )}
@@ -233,7 +234,7 @@ function MejoraStep({
           value={(responses[exercise.id]?.value as string) ?? ''}
           onChange={(e) => onSet(exercise.id, 'value', e.target.value)}
           rows={3}
-          className="resize-none bg-background/60"
+          className="resize-none bg-background"
         />
       </div>
     </div>

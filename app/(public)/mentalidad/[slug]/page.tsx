@@ -74,10 +74,10 @@ export default async function LessonPage({ params }: Props) {
         <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">
           <Link
             href={prevLesson ? `/mentalidad/${prevLesson.slug}` : '/mentalidad'}
-            className="flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Lección anterior"
           >
-            ←
+            <span className="text-lg">←</span>
           </Link>
           <span className="text-sm font-medium">
             Lección {lesson.order_number} de {allLessons.length}
@@ -85,13 +85,13 @@ export default async function LessonPage({ params }: Props) {
           {nextLesson ? (
             <Link
               href={`/mentalidad/${nextLesson.slug}`}
-              className="flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               aria-label="Siguiente lección"
             >
-              →
+              <span className="text-lg">→</span>
             </Link>
           ) : (
-            <div className="w-9" aria-hidden="true" />
+            <div className="w-11" aria-hidden="true" />
           )}
         </div>
 
