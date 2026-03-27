@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import React, { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -51,6 +50,20 @@ type ChecklistConfig = {
   follow_up?: { type: string; label: string; placeholder: string }
 }
 type MejoraConfig = { action_prompt: string; deadline_label: string }
+
+// ── Bold parser — renderiza **texto** como <strong> ───────────────────────
+
+function renderBold(text: string): React.ReactNode[] {
+  return text.split(/\*\*(.*?)\*\*/g).map((part, i) =>
+    i % 2 === 1 ? (
+      <strong key={i} className="font-semibold text-foreground">
+        {part}
+      </strong>
+    ) : (
+      part
+    )
+  )
+}
 
 // ── State init ─────────────────────────────────────────────────────────────
 
@@ -361,17 +374,11 @@ export default function LessonTabs({
           Lección {lessonOrder}
         </p>
         <h1 className="text-3xl font-bold tracking-tight leading-snug">{lessonTitle}</h1>
-        {completed && (
-          <span className="inline-flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400 font-medium">
-            ✓ Lección completada
-          </span>
-        )}
       </div>
 
       {/* Tabs */}
-      <div className="overflow-x-auto pb-0.5">
-        <Tabs defaultValue="explicacion">
-          <TabsList className={cn('flex-shrink-0')}>
+      <Tabs defaultValue="explicacion">
+          <TabsList>
             <TabsTrigger value="explicacion">📄 Explicación</TabsTrigger>
             <TabsTrigger value="video">🎬 Vídeo</TabsTrigger>
             <TabsTrigger value="audio">🎧 Audio</TabsTrigger>
@@ -388,11 +395,16 @@ export default function LessonTabs({
               <div className="space-y-4">
                 {apertura.split('\n\n').map((para, i) => (
                   <p key={i} className="text-base leading-relaxed text-foreground/90">
-                    {para}
+                    {renderBold(para)}
                   </p>
                 ))}
               </div>
             )}
+            <div className="border-t border-border/40 pt-2">
+              <p className="text-xs text-muted-foreground">
+                Continúa con las pestañas Vídeo, Audio y Ejercicios.
+              </p>
+            </div>
           </TabsContent>
 
           {/* Vídeo */}
@@ -453,8 +465,7 @@ export default function LessonTabs({
             )}
             <CompleteButton />
           </TabsContent>
-        </Tabs>
-      </div>
+      </Tabs>
     </div>
   )
 }
