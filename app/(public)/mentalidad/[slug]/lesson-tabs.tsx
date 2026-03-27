@@ -104,8 +104,8 @@ function OpenReflection({
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <p className="font-semibold text-sm">{exercise.title}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="font-semibold text-base">{exercise.title}</p>
+        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <Textarea
         placeholder={cfg.placeholder}
@@ -132,8 +132,8 @@ function TextInputExercise({
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <p className="font-semibold text-sm">{exercise.title}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="font-semibold text-base">{exercise.title}</p>
+        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
       </div>
       {cfg.fields.map((field) => (
         <div key={field.id} className="space-y-1.5">
@@ -164,8 +164,8 @@ function ChecklistExercise({
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <p className="font-semibold text-sm">{exercise.title}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="font-semibold text-base">{exercise.title}</p>
+        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <div className="space-y-2.5">
         {cfg.items.map((item) => (
@@ -177,7 +177,7 @@ function ChecklistExercise({
             />
             <label
               htmlFor={`${exercise.id}-${item.id}`}
-              className="text-sm leading-none cursor-pointer"
+              className="text-base leading-snug cursor-pointer"
             >
               {item.label}
             </label>
@@ -223,8 +223,8 @@ function MejoraStep({
         </Badge>
       </div>
       <div className="space-y-1">
-        <p className="font-semibold text-sm">{exercise.title}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="font-semibold text-base">{exercise.title}</p>
+        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor={`${exercise.id}-mejora`}>{cfg.action_prompt}</Label>
@@ -373,7 +373,7 @@ export default function LessonTabs({
               </span>
             </div>
             {textoAudio && (
-              <p className="text-sm leading-relaxed text-foreground/90">{textoAudio}</p>
+              <p className="text-base leading-relaxed text-foreground/90">{textoAudio}</p>
             )}
             {audioUrl ? (
               <audio controls src={audioUrl} className="w-full mt-1" />
@@ -402,7 +402,7 @@ export default function LessonTabs({
         {/* Ejercicios */}
         <TabsContent value="ejercicios" className="mt-6 space-y-8 max-w-[720px]">
           {contextoEjercicios && (
-            <p className="text-sm leading-relaxed text-muted-foreground italic">
+            <p className="text-base leading-relaxed text-muted-foreground italic">
               {contextoEjercicios}
             </p>
           )}
@@ -429,7 +429,7 @@ export default function LessonTabs({
         {/* Mejora */}
         <TabsContent value="mejora" className="mt-6 space-y-8 max-w-[720px]">
           {contextoMejora && (
-            <p className="text-sm leading-relaxed text-muted-foreground italic">
+            <p className="text-base leading-relaxed text-muted-foreground italic">
               {contextoMejora}
             </p>
           )}
@@ -439,7 +439,7 @@ export default function LessonTabs({
             <p className="text-sm text-muted-foreground">No hay paso de mejora para esta lección.</p>
           )}
           {cierreMejora && (
-            <p className="text-sm leading-relaxed text-foreground/70 italic">{cierreMejora}</p>
+            <p className="text-base leading-relaxed text-foreground/70 italic">{cierreMejora}</p>
           )}
           {CompleteButton()}
         </TabsContent>
