@@ -72,7 +72,7 @@ export default async function LessonPage({ params }: Props) {
 
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, title, slug, order_number, frase_clave, vimeo_id, audio_url, module_id')
+    .select('id, title, slug, order_number, frase_clave, apertura, vimeo_id, audio_url, module_id')
     .eq('slug', params.slug)
     .single()
 
@@ -133,6 +133,17 @@ export default async function LessonPage({ params }: Props) {
             {lesson.frase_clave}
           </blockquote>
         </div>
+
+        {/* ── Apertura — texto introductorio de la lección ── */}
+        {lesson.apertura && (
+          <div className="space-y-4">
+            {lesson.apertura.split('\n\n').map((paragraph: string, i: number) => (
+              <p key={i} className="text-base leading-relaxed text-foreground/90">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        )}
 
         {/* ── Vídeo ── */}
         {lesson.vimeo_id ? null /* TODO: embed Vimeo */ : <VideoPlaceholder />}
