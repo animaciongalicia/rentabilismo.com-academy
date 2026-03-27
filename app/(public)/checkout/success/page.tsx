@@ -9,7 +9,7 @@ const POLL_INTERVAL = 2000
 
 export default function CheckoutSuccessPage() {
   const router = useRouter()
-  const [attempt, setAttempt] = useState(0)
+  const [, setAttempt] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
