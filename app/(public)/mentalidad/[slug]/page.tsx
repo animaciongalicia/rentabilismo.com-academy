@@ -35,7 +35,7 @@ export default async function LessonPage({ params }: Props) {
 
   if (!lesson) notFound()
 
-  const [exercisesResult, allLessonsResult, progressResult] = await Promise.all([
+  const [exercisesResult, allLessonsResult, progressResult, countResult, profileResult] = await Promise.all([
     supabase
       .from('exercises')
       .select('id, type, title, description, config, order_number, is_kaizen')
@@ -49,12 +49,18 @@ export default async function LessonPage({ params }: Props) {
     user
       ? supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id)
       : Promise.resolve({ data: [] as { lesson_id: string }[] }),
+    supabase.rpc('get_completed_payments_count'),
+    user
+      ? supabase.from('profiles').select('has_paid').eq('id', user.id).single()
+      : Promise.resolve({ data: null }),
   ])
 
   const exercises = (exercisesResult.data ?? []) as Exercise[]
   const allLessons = allLessonsResult.data ?? []
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
   const isAlreadyCompleted = completedIds.includes(lesson.id)
+  const paymentsCount = Number(countResult.data ?? 0)
+  const hasPaid = (profileResult.data as { has_paid: boolean } | null)?.has_paid ?? false
 
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
@@ -109,6 +115,8 @@ export default async function LessonPage({ params }: Props) {
             cierreMejora={lesson.cierre_mejora ?? null}
             exercises={exercises}
             isAuthenticated={!!user}
+            hasPaid={hasPaid}
+            paymentsCount={paymentsCount}
             isAlreadyCompleted={isAlreadyCompleted}
             nextSlug={nextLesson?.slug ?? null}
           />

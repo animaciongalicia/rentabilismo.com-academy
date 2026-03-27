@@ -1,14 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 type Props = {
+  isAuthenticated: boolean
+  hasPaid: boolean
   paymentsCount: number
 }
 
-export default function CtaBlock({ paymentsCount }: Props) {
+export default function CtaBlock({ isAuthenticated, hasPaid, paymentsCount }: Props) {
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,10 +28,6 @@ export default function CtaBlock({ paymentsCount }: Props) {
       })
       const data = await res.json() as { url?: string; error?: string }
 
-      if (res.status === 401) {
-        window.location.href = '/register'
-        return
-      }
       if (!res.ok || !data.url) {
         setError(data.error ?? 'Error al iniciar el pago. Inténtalo de nuevo.')
         return
@@ -39,6 +38,26 @@ export default function CtaBlock({ paymentsCount }: Props) {
     } finally {
       setIsPending(false)
     }
+  }
+
+  // Estado 3: ya tiene acceso
+  if (hasPaid) {
+    return (
+      <Card className="border-green-500/30 bg-green-500/5">
+        <CardContent className="py-6 space-y-3">
+          <p className="font-semibold">Ya tienes acceso completo.</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Todo el programa está disponible en tu dashboard.
+          </p>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-12 px-6 text-sm font-medium hover:bg-primary/80 transition-colors"
+          >
+            Ir al dashboard →
+          </Link>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -92,19 +111,31 @@ export default function CtaBlock({ paymentsCount }: Props) {
             : `${paymentsCount} de 50 plazas lifetime ocupadas`}
         </div>
 
-        {/* Botón CTA */}
+        {/* Botón CTA — 2 estados: registrarse o pagar */}
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={handleCheckout}
-          disabled={isPending}
-        >
-          {isPending ? 'Redirigiendo a Stripe...' : 'Entrar en la consultoría — 799€'}
-        </Button>
+
+        {isAuthenticated ? (
+          <Button
+            size="lg"
+            className="w-full h-12"
+            onClick={handleCheckout}
+            disabled={isPending}
+          >
+            {isPending ? 'Redirigiendo a Stripe...' : 'Entrar en la consultoría — 799€'}
+          </Button>
+        ) : (
+          <Link
+            href="/register"
+            className="flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-12 px-6 text-sm font-medium hover:bg-primary/80 transition-colors w-full"
+          >
+            Quiero entrar — Registrarme
+          </Link>
+        )}
 
         <p className="text-xs text-center text-muted-foreground">
-          Pago único · IVA incluido · Acceso inmediato
+          {isAuthenticated
+            ? 'Pago único · IVA incluido · Acceso inmediato'
+            : 'Registro gratuito · Sin compromiso de compra'}
         </p>
 
       </CardContent>

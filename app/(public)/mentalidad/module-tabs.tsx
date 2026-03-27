@@ -14,6 +14,8 @@ type Props = {
   lessons: Lesson[]
   showCta: boolean
   paymentsCount: number
+  isAuthenticated: boolean
+  hasPaid: boolean
 }
 
 function renderBold(text: string): React.ReactNode[] {
@@ -48,6 +50,8 @@ export default function ModuleTabs({
   lessons,
   showCta,
   paymentsCount,
+  isAuthenticated,
+  hasPaid,
 }: Props) {
   return (
     <Tabs defaultValue="explicacion">
@@ -68,6 +72,12 @@ export default function ModuleTabs({
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">Descripción no disponible.</p>
+        )}
+
+        {showCta && (
+          <div className="border-t border-border pt-8 max-w-[720px]">
+            <CtaBlock isAuthenticated={isAuthenticated} hasPaid={hasPaid} paymentsCount={paymentsCount} />
+          </div>
         )}
 
         {/* Lista de lecciones — solo visible en móvil (sidebar oculto) */}
@@ -121,7 +131,7 @@ export default function ModuleTabs({
 
         {showCta && (
           <div className="border-t border-border pt-8 max-w-[720px]">
-            <CtaBlock paymentsCount={paymentsCount} />
+            <CtaBlock isAuthenticated={isAuthenticated} hasPaid={hasPaid} paymentsCount={paymentsCount} />
           </div>
         )}
       </TabsContent>

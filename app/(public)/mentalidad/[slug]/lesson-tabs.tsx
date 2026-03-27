@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { completeLesson } from './actions'
+import CtaBlock from '../cta-block'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -40,6 +41,8 @@ type Props = {
   cierreMejora: string | null
   exercises: Exercise[]
   isAuthenticated: boolean
+  hasPaid: boolean
+  paymentsCount: number
   isAlreadyCompleted: boolean
   nextSlug: string | null
 }
@@ -256,9 +259,12 @@ export default function LessonTabs({
   cierreMejora,
   exercises,
   isAuthenticated,
+  hasPaid,
+  paymentsCount,
   isAlreadyCompleted,
   nextSlug,
 }: Props) {
+  const isLastLesson = nextSlug === null
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -286,7 +292,13 @@ export default function LessonTabs({
         return
       }
       setCompleted(true)
-      setNavigateTo(nextSlug ? `/mentalidad/${nextSlug}` : '/mentalidad')
+      if (!isLastLesson) {
+        setNavigateTo(`/mentalidad/${nextSlug}`)
+      } else if (hasPaid) {
+        setNavigateTo('/dashboard')
+      } else {
+        setNavigateTo('/pricing')
+      }
     })
   }
 
@@ -295,7 +307,7 @@ export default function LessonTabs({
       return (
         <div className="flex items-center gap-3 text-sm pt-4 border-t border-border/50">
           <span className="text-green-600 dark:text-green-400 font-medium">✓ Lección completada</span>
-          {nextSlug && (
+          {!isLastLesson && nextSlug && (
             <Link
               href={`/mentalidad/${nextSlug}`}
               className="text-primary underline underline-offset-4 hover:no-underline text-sm"
@@ -303,11 +315,39 @@ export default function LessonTabs({
               Siguiente lección →
             </Link>
           )}
+          {isLastLesson && hasPaid && (
+            <Link href="/dashboard" className="text-primary underline underline-offset-4 hover:no-underline text-sm">
+              Ir al dashboard →
+            </Link>
+          )}
+          {isLastLesson && !hasPaid && isAuthenticated && (
+            <Link href="/pricing" className="text-primary underline underline-offset-4 hover:no-underline text-sm">
+              Ver acceso completo →
+            </Link>
+          )}
         </div>
       )
     }
 
     if (!isAuthenticated) {
+      if (isLastLesson) {
+        return (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="py-5 space-y-3">
+              <p className="font-semibold text-sm">¿Listo para operar tu negocio?</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Regístrate gratis para guardar tu progreso y acceder al programa completo.
+              </p>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-11 px-5 text-sm font-medium hover:bg-primary/80 transition-colors"
+              >
+                Quiero entrar — Registrarme
+              </Link>
+            </CardContent>
+          </Card>
+        )
+      }
       return (
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="py-5 space-y-3">
@@ -402,6 +442,11 @@ export default function LessonTabs({
               </div>
             )}
           </div>
+          {isLastLesson && (
+            <div className="border-t border-border pt-6 max-w-[720px]">
+              <CtaBlock isAuthenticated={isAuthenticated} hasPaid={hasPaid} paymentsCount={paymentsCount} />
+            </div>
+          )}
         </TabsContent>
 
         {/* Ejercicios */}

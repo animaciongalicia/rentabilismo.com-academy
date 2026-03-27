@@ -29,15 +29,17 @@ export default async function MentalidadPage() {
   const paymentsCount = Number(countResult.data ?? 0)
 
   const completedIds: string[] = []
+  let hasPaid = false
   if (user) {
-    const { data: progress } = await supabase
-      .from('lesson_progress')
-      .select('lesson_id')
-      .eq('user_id', user.id)
-    for (const row of progress ?? []) completedIds.push(row.lesson_id)
+    const [progressResult, profileResult] = await Promise.all([
+      supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id),
+      supabase.from('profiles').select('has_paid').eq('id', user.id).single(),
+    ])
+    for (const row of progressResult.data ?? []) completedIds.push(row.lesson_id)
+    hasPaid = profileResult.data?.has_paid ?? false
   }
 
-  const showCta = !!user && completedIds.length >= lessons.length && lessons.length > 0
+  const showCta = completedIds.length >= lessons.length && lessons.length > 0
 
   return (
     <div className="min-h-screen bg-background md:flex">
@@ -65,6 +67,8 @@ export default async function MentalidadPage() {
             lessons={lessons}
             showCta={showCta}
             paymentsCount={paymentsCount}
+            isAuthenticated={!!user}
+            hasPaid={hasPaid}
           />
         </div>
       </main>
