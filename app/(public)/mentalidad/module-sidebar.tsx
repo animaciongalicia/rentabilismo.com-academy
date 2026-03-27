@@ -14,7 +14,7 @@ export default function ModuleSidebar({ modTitle, lessons, completedIds, activeS
   const completed = new Set(completedIds)
 
   return (
-    <aside className="hidden md:flex flex-col sticky top-0 h-screen w-[280px] shrink-0 border-r border-border bg-muted/30 overflow-y-auto">
+    <aside className="hidden md:flex flex-col sticky top-0 h-screen w-[300px] shrink-0 border-r border-border bg-muted/40 overflow-y-auto">
       <div className="p-5 space-y-6">
 
         {/* Módulo header */}
@@ -54,7 +54,7 @@ export default function ModuleSidebar({ modTitle, lessons, completedIds, activeS
                 <span className="font-mono text-xs shrink-0 mt-0.5 tabular-nums w-5 text-right">
                   {String(lesson.order_number).padStart(2, '0')}
                 </span>
-                <span className="leading-snug flex-1 min-w-0">{lesson.title}</span>
+                <span className="leading-snug flex-1 min-w-0 line-clamp-2">{lesson.title}</span>
                 {isCompleted && (
                   <span className="shrink-0 mt-0.5 text-xs text-green-600 dark:text-green-400 font-bold">
                     ✓

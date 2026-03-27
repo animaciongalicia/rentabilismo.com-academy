@@ -184,3 +184,20 @@ Campos que lee el middleware: `onboarding_completed_at`, `has_paid`, `access_exp
 
 > El MCP de Supabase necesita token actualizado para acceder a `rkhqopgsscevpfvyrgza`.
 > Token PAT: actualizar en Claude Code → Settings → MCP → Supabase.
+
+---
+
+## Estándares de UX — reglas permanentes
+
+- Sidebar: 300px fijo, fondo gris suave (`bg-muted/40`), `sticky top-0 h-screen`
+- Contenido: `max-w-[1040px] px-8 py-6`, pegado al sidebar sin espacio vacío (sin `mx-auto`)
+- Vídeo player: `max-w-[720px]`, proporción 16:9
+- Pestañas: activa con `border-b-2` color primario + `font-semibold`; inactivas en `text-muted-foreground/70`
+- `line-clamp-2` en títulos de sidebar para evitar cortes feos
+- Sin badge de "completada" en contenido — solo ✓ en sidebar
+- Negritas en 2-3 ideas clave por bloque: usar `**texto**` en el contenido de la BD, el frontend lo renderiza con `renderBold()`
+- Color de texto homogéneo: `text-foreground/90` para cuerpo, `text-muted-foreground` para secundario
+- Botones táctiles: mínimo `h-12` en móvil
+- Sin scroll horizontal en ninguna página (`overflow-x-auto` en barra de pestañas)
+- Mobile-first siempre
+- CTA siempre al final del contenido, nunca interrumpiendo el flujo
