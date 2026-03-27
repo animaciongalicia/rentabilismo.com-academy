@@ -187,6 +187,27 @@ Campos que lee el middleware: `onboarding_completed_at`, `has_paid`, `access_exp
 
 ---
 
+## Enfoque Rentabilista — reglas de tono y contenido
+
+- Esta plataforma NO es un curso, es una operación quirúrgica sobre el negocio del usuario.
+- Vendemos ilusión realista: pasar de autoempleo carísimo y bombero 24/7, a negocio que genera margen, tiempo y decisiones con datos.
+- Solo un 10-20% exprimirá el método. Todo el mensaje habla PARA ese 20% comprometido, no para curiosos.
+- Directo, oral, sin filtros, sin paja corporativa y sin motivación vacía: cada promesa va atada a una acción concreta.
+- El método es híbrido: contenido que da contexto + consultores que ejecutan.
+- Aquí no medimos éxito por vídeos vistos, sino por decisiones ejecutadas.
+- Siempre atacar el dolor real: tiempo, dinero, equipo, caos.
+- El primer cuello de botella es el propio dueño.
+- Ofrecer siempre un micro-paso claro hacia la vida que quiere.
+- Tono duro pero respetuoso: tratar al usuario como director general.
+
+## Módulo Mentalidad — reglas específicas
+
+- El módulo de mentalidad NO motiva: rompe el victimismo y enciende una ilusión sólida basada en acción.
+- Siempre incluir: espejo + francotirador + pasito de bebé + pacto.
+- Ejercicios de confesión: el usuario admite por escrito dónde sangra.
+- Cerrar conectando el micro-paso con la escena de vida que quiere.
+- "Esto no es para mirar vídeos. Es para operar tu negocio en directo."
+
 ## Estándares de UX — reglas permanentes
 
 - Sidebar: 300px fijo, fondo gris suave (`bg-muted/40`), `sticky top-0 h-screen`
@@ -201,3 +222,7 @@ Campos que lee el middleware: `onboarding_completed_at`, `has_paid`, `access_exp
 - Sin scroll horizontal en ninguna página (`overflow-x-auto` en barra de pestañas)
 - Mobile-first siempre
 - CTA siempre al final del contenido, nunca interrumpiendo el flujo
+- Audio integrado al final de la pestaña Explicación — NO pestaña separada
+- `/mentalidad/[slug]`: 3 pestañas únicamente — Explicación | Ejercicios | Mejora (sin Vídeo ni Audio separados)
+- `/mentalidad`: 2 pestañas — Explicación del módulo (default) | Vídeo
+- Stepper móvil: `← Lección X de N →` sticky `md:hidden` arriba del contenido en lecciones

@@ -33,8 +33,11 @@ type Props = {
   lessonOrder: number
   fraseClave: string
   apertura: string | null
-  vimeoId: string | null
   audioUrl: string | null
+  textoAudio: string | null
+  contextoEjercicios: string | null
+  contextoMejora: string | null
+  cierreMejora: string | null
   exercises: Exercise[]
   isAuthenticated: boolean
   isAlreadyCompleted: boolean
@@ -237,48 +240,6 @@ function MejoraStep({
   )
 }
 
-// ── Placeholders ───────────────────────────────────────────────────────────
-
-function VideoPlaceholder() {
-  return (
-    <div className="aspect-video w-full rounded-xl border border-border bg-muted/30 flex flex-col items-center justify-center gap-3 text-muted-foreground">
-      <div className="w-14 h-14 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center">
-        <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-      </div>
-      <p className="text-sm font-medium">Vídeo disponible próximamente</p>
-    </div>
-  )
-}
-
-function AudioPlaceholder() {
-  return (
-    <div className="w-full rounded-lg border border-border bg-muted/20 px-5 py-4 flex items-center gap-4">
-      <div className="w-9 h-9 rounded-full border border-muted-foreground/30 flex items-center justify-center shrink-0 text-muted-foreground">
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"
-          />
-        </svg>
-      </div>
-      <div>
-        <p className="text-sm font-medium">Audio — mensaje central</p>
-        <p className="text-xs text-muted-foreground mt-0.5">Disponible próximamente</p>
-      </div>
-    </div>
-  )
-}
-
 // ── Main component ─────────────────────────────────────────────────────────
 
 export default function LessonTabs({
@@ -287,8 +248,11 @@ export default function LessonTabs({
   lessonOrder,
   fraseClave,
   apertura,
-  vimeoId,
   audioUrl,
+  textoAudio,
+  contextoEjercicios,
+  contextoMejora,
+  cierreMejora,
   exercises,
   isAuthenticated,
   isAlreadyCompleted,
@@ -378,93 +342,106 @@ export default function LessonTabs({
 
       {/* Tabs */}
       <Tabs defaultValue="explicacion">
-          <TabsList>
-            <TabsTrigger value="explicacion">📄 Explicación</TabsTrigger>
-            <TabsTrigger value="video">🎬 Vídeo</TabsTrigger>
-            <TabsTrigger value="audio">🎧 Audio</TabsTrigger>
-            <TabsTrigger value="ejercicios">✏️ Ejercicios</TabsTrigger>
-            <TabsTrigger value="mejora">⚡ Mejora</TabsTrigger>
-          </TabsList>
+        <TabsList>
+          <TabsTrigger value="explicacion">📄 Explicación</TabsTrigger>
+          <TabsTrigger value="ejercicios">✏️ Ejercicios</TabsTrigger>
+          <TabsTrigger value="mejora">⚡ Mejora</TabsTrigger>
+        </TabsList>
 
-          {/* Explicación */}
-          <TabsContent value="explicacion" className="mt-6 space-y-6 max-w-[720px]">
-            <blockquote className="border-l-2 border-primary pl-4 italic text-muted-foreground leading-relaxed">
-              {fraseClave}
-            </blockquote>
-            {apertura && (
-              <div className="space-y-4">
-                {apertura.split('\n\n').map((para, i) => (
-                  <p key={i} className="text-base leading-relaxed text-foreground/90">
-                    {renderBold(para)}
-                  </p>
-                ))}
+        {/* Explicación */}
+        <TabsContent value="explicacion" className="mt-6 space-y-6 max-w-[720px]">
+          <blockquote className="border-l-2 border-primary pl-4 italic text-muted-foreground leading-relaxed">
+            {fraseClave}
+          </blockquote>
+          {apertura && (
+            <div className="space-y-4">
+              {apertura.split('\n\n').map((para, i) => (
+                <p key={i} className="text-base leading-relaxed text-foreground/90">
+                  {renderBold(para)}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Audio integrado al final de Explicación */}
+          <div className="rounded-lg border border-border bg-muted/20 p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base select-none">🎧</span>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                Audio de la lección
+              </span>
+            </div>
+            {textoAudio && (
+              <p className="text-sm leading-relaxed text-foreground/90">{textoAudio}</p>
+            )}
+            {audioUrl ? (
+              <audio controls src={audioUrl} className="w-full mt-1" />
+            ) : (
+              <div className="flex items-center gap-3 py-2 text-muted-foreground/60">
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"
+                  />
+                </svg>
+                <p className="text-sm">Audio disponible próximamente</p>
               </div>
             )}
-            <div className="border-t border-border/40 pt-2">
-              <p className="text-xs text-muted-foreground">
-                Continúa con las pestañas Vídeo, Audio y Ejercicios.
-              </p>
-            </div>
-          </TabsContent>
+          </div>
+        </TabsContent>
 
-          {/* Vídeo */}
-          <TabsContent value="video" className="mt-6">
-            <div className="max-w-[720px]">
-              {vimeoId ? (
-                <div className="aspect-video rounded-xl overflow-hidden">
-                  <iframe
-                    src={`https://player.vimeo.com/video/${vimeoId}?badge=0&autopause=0&player_id=0&app_id=58479`}
-                    className="w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    title={lessonTitle}
-                  />
-                </div>
-              ) : (
-                <VideoPlaceholder />
-              )}
-            </div>
-          </TabsContent>
+        {/* Ejercicios */}
+        <TabsContent value="ejercicios" className="mt-6 space-y-8 max-w-[720px]">
+          {contextoEjercicios && (
+            <p className="text-sm leading-relaxed text-muted-foreground border-l-2 border-border pl-4">
+              {contextoEjercicios}
+            </p>
+          )}
+          {regularExercises.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No hay ejercicios para esta lección.</p>
+          ) : (
+            regularExercises.map((ex) => (
+              <div key={ex.id}>
+                {ex.type === 'open_reflection' && (
+                  <OpenReflection exercise={ex} responses={responses} onSet={setResponse} />
+                )}
+                {ex.type === 'text_input' && (
+                  <TextInputExercise exercise={ex} responses={responses} onSet={setResponse} />
+                )}
+                {ex.type === 'checklist' && (
+                  <ChecklistExercise exercise={ex} responses={responses} onSet={setResponse} />
+                )}
+              </div>
+            ))
+          )}
+          {!mejoraExercise && <CompleteButton />}
+        </TabsContent>
 
-          {/* Audio */}
-          <TabsContent value="audio" className="mt-6 max-w-[720px]">
-            {audioUrl ? (
-              <audio controls src={audioUrl} className="w-full" />
-            ) : (
-              <AudioPlaceholder />
-            )}
-          </TabsContent>
-
-          {/* Ejercicios */}
-          <TabsContent value="ejercicios" className="mt-6 space-y-8 max-w-[720px]">
-            {regularExercises.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No hay ejercicios para esta lección.</p>
-            ) : (
-              regularExercises.map((ex) => (
-                <div key={ex.id}>
-                  {ex.type === 'open_reflection' && (
-                    <OpenReflection exercise={ex} responses={responses} onSet={setResponse} />
-                  )}
-                  {ex.type === 'text_input' && (
-                    <TextInputExercise exercise={ex} responses={responses} onSet={setResponse} />
-                  )}
-                  {ex.type === 'checklist' && (
-                    <ChecklistExercise exercise={ex} responses={responses} onSet={setResponse} />
-                  )}
-                </div>
-              ))
-            )}
-            {!mejoraExercise && <CompleteButton />}
-          </TabsContent>
-
-          {/* Mejora */}
-          <TabsContent value="mejora" className="mt-6 space-y-8 max-w-[720px]">
-            {mejoraExercise ? (
-              <MejoraStep exercise={mejoraExercise} responses={responses} onSet={setResponse} />
-            ) : (
-              <p className="text-sm text-muted-foreground">No hay paso de mejora para esta lección.</p>
-            )}
-            <CompleteButton />
-          </TabsContent>
+        {/* Mejora */}
+        <TabsContent value="mejora" className="mt-6 space-y-8 max-w-[720px]">
+          {contextoMejora && (
+            <p className="text-sm leading-relaxed text-muted-foreground border-l-2 border-border pl-4">
+              {contextoMejora}
+            </p>
+          )}
+          {mejoraExercise ? (
+            <MejoraStep exercise={mejoraExercise} responses={responses} onSet={setResponse} />
+          ) : (
+            <p className="text-sm text-muted-foreground">No hay paso de mejora para esta lección.</p>
+          )}
+          {cierreMejora && (
+            <p className="text-sm leading-relaxed text-foreground/70 italic">{cierreMejora}</p>
+          )}
+          <CompleteButton />
+        </TabsContent>
       </Tabs>
     </div>
   )

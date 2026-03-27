@@ -29,7 +29,7 @@ export default async function LessonPage({ params }: Props) {
 
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, title, slug, order_number, frase_clave, apertura, vimeo_id, audio_url, module_id')
+    .select('id, title, slug, order_number, frase_clave, apertura, audio_url, texto_audio, contexto_ejercicios, contexto_mejora, cierre_mejora, module_id')
     .eq('slug', params.slug)
     .single()
 
@@ -102,8 +102,11 @@ export default async function LessonPage({ params }: Props) {
             lessonOrder={lesson.order_number}
             fraseClave={lesson.frase_clave}
             apertura={lesson.apertura ?? null}
-            vimeoId={lesson.vimeo_id ?? null}
             audioUrl={lesson.audio_url ?? null}
+            textoAudio={lesson.texto_audio ?? null}
+            contextoEjercicios={lesson.contexto_ejercicios ?? null}
+            contextoMejora={lesson.contexto_mejora ?? null}
+            cierreMejora={lesson.cierre_mejora ?? null}
             exercises={exercises}
             isAuthenticated={!!user}
             isAlreadyCompleted={isAlreadyCompleted}
