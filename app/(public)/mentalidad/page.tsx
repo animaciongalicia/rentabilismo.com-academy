@@ -1,5 +1,6 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import MentalidadLayout, { type Exercise, type LessonData, type ModuleData } from './mentalidad-layout'
+import ModuleSidebar from './module-sidebar'
+import ModuleTabs from './module-tabs'
 
 export const metadata = {
   title: 'Tu Cabeza Manda — Módulo 0 · Rentabilismo Academy',
@@ -14,42 +15,19 @@ export default async function MentalidadPage() {
   } = await supabase.auth.getUser()
 
   const [moduleResult, lessonsResult, countResult] = await Promise.all([
-    supabase
-      .from('modules')
-      .select('id, title, description, vimeo_id')
-      .eq('id', 0)
-      .single(),
+    supabase.from('modules').select('id, title, description, vimeo_id').eq('id', 0).single(),
     supabase
       .from('lessons')
-      .select('id, title, slug, order_number, frase_clave, apertura, audio_url')
+      .select('id, title, slug, order_number')
       .eq('module_id', 0)
       .order('order_number'),
     supabase.rpc('get_completed_payments_count'),
   ])
 
-  const mod = moduleResult.data as ModuleData | null
-  const lessons = (lessonsResult.data ?? []) as LessonData[]
+  const mod = moduleResult.data
+  const lessons = lessonsResult.data ?? []
   const paymentsCount = Number(countResult.data ?? 0)
 
-  // Exercises for all lessons in one query
-  const lessonIds = lessons.map((l) => l.id)
-  const { data: exercisesData } =
-    lessonIds.length > 0
-      ? await supabase
-          .from('exercises')
-          .select('id, lesson_id, type, title, description, config, order_number, is_kaizen')
-          .in('lesson_id', lessonIds)
-          .order('order_number')
-      : { data: [] as Exercise[] }
-
-  // Group exercises by lesson_id
-  const exercisesByLesson: Record<string, Exercise[]> = {}
-  for (const ex of exercisesData ?? []) {
-    if (!exercisesByLesson[ex.lesson_id]) exercisesByLesson[ex.lesson_id] = []
-    exercisesByLesson[ex.lesson_id].push(ex as Exercise)
-  }
-
-  // User progress
   const completedIds: string[] = []
   if (user) {
     const { data: progress } = await supabase
@@ -59,14 +37,36 @@ export default async function MentalidadPage() {
     for (const row of progress ?? []) completedIds.push(row.lesson_id)
   }
 
+  const showCta = !!user && completedIds.length >= lessons.length && lessons.length > 0
+
   return (
-    <MentalidadLayout
-      mod={mod}
-      lessons={lessons}
-      exercisesByLesson={exercisesByLesson}
-      completedIds={completedIds}
-      isAuthenticated={!!user}
-      paymentsCount={paymentsCount}
-    />
+    <div className="min-h-screen bg-background md:flex">
+      <ModuleSidebar
+        modTitle={mod?.title ?? 'Tu Cabeza Manda'}
+        lessons={lessons}
+        completedIds={completedIds}
+        activeSlug={null}
+      />
+
+      <main className="flex-1 min-w-0">
+        <div className="max-w-[1040px] px-8 py-10">
+          {/* Header */}
+          <div className="space-y-3 mb-8">
+            <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+              Módulo 0
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight">{mod?.title}</h1>
+          </div>
+
+          <ModuleTabs
+            vimeoId={mod?.vimeo_id ?? null}
+            description={mod?.description ?? null}
+            lessons={lessons}
+            showCta={showCta}
+            paymentsCount={paymentsCount}
+          />
+        </div>
+      </main>
+    </div>
   )
 }
