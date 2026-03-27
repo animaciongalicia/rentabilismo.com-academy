@@ -68,7 +68,7 @@ export default async function LessonPage({ params }: Props) {
       />
 
       <main className="flex-1 min-w-0">
-        <div className="max-w-[1040px] px-8 py-10">
+        <div className="max-w-[1040px] px-8 py-6">
           <LessonTabs
             lessonId={lesson.id}
             lessonTitle={lesson.title}

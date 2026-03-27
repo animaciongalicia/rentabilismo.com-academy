@@ -49,7 +49,7 @@ export default async function MentalidadPage() {
       />
 
       <main className="flex-1 min-w-0">
-        <div className="max-w-[1040px] px-8 py-10">
+        <div className="max-w-[1040px] px-8 py-6">
           {/* Header */}
           <div className="space-y-3 mb-8">
             <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
