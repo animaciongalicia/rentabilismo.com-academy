@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import ModuleSidebar from '../module-sidebar'
@@ -56,6 +57,7 @@ export default async function LessonPage({ params }: Props) {
   const isAlreadyCompleted = completedIds.includes(lesson.id)
 
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
+  const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
   return (
@@ -68,6 +70,31 @@ export default async function LessonPage({ params }: Props) {
       />
 
       <main className="flex-1 min-w-0">
+        {/* Mobile stepper — only visible on mobile, sticky */}
+        <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">
+          <Link
+            href={prevLesson ? `/mentalidad/${prevLesson.slug}` : '/mentalidad'}
+            className="flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            aria-label="Lección anterior"
+          >
+            ←
+          </Link>
+          <span className="text-sm font-medium">
+            Lección {lesson.order_number} de {allLessons.length}
+          </span>
+          {nextLesson ? (
+            <Link
+              href={`/mentalidad/${nextLesson.slug}`}
+              className="flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Siguiente lección"
+            >
+              →
+            </Link>
+          ) : (
+            <div className="w-9" aria-hidden="true" />
+          )}
+        </div>
+
         <div className="max-w-[1040px] px-8 py-6">
           <LessonTabs
             lessonId={lesson.id}

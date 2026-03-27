@@ -29,14 +29,14 @@ export function Tabs({ defaultValue, children, className }: TabsProps) {
 
 export function TabsList({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div
-      role="tablist"
-      className={cn(
-        'flex items-stretch border-b border-border overflow-x-auto scrollbar-none',
-        className
-      )}
-    >
-      {children}
+    // Wrapper externo: full-width, border-b visible, scroll horizontal sin afectar al layout
+    <div className="w-full overflow-x-auto scrollbar-none border-b border-border">
+      <div
+        role="tablist"
+        className={cn('flex items-stretch min-w-max', className)}
+      >
+        {children}
+      </div>
     </div>
   )
 }
