@@ -1,9 +1,19 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { cn } from '@/lib/utils'
 import ExerciseForm, { type Exercise } from './exercise-form'
 
 type Props = { params: { slug: string } }
+
+type LessonSummary = {
+  id: string
+  slug: string
+  order_number: number
+  title: string
+}
+
+// ── Metadata ───────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: Props) {
   const supabase = await getSupabaseServerClient()
@@ -61,6 +71,112 @@ function AudioPlaceholder() {
   )
 }
 
+// ── Sidebar (desktop) ──────────────────────────────────────────────────────
+
+function Sidebar({
+  lessons,
+  currentSlug,
+  completedIds,
+  isAuthenticated,
+}: {
+  lessons: LessonSummary[]
+  currentSlug: string
+  completedIds: Set<string>
+  isAuthenticated: boolean
+}) {
+  return (
+    <aside className="hidden md:flex flex-col sticky top-0 h-screen w-64 shrink-0 border-r border-border bg-background overflow-y-auto">
+      <div className="p-5 space-y-6">
+        {/* Módulo */}
+        <Link href="/mentalidad" className="block group">
+          <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+            Módulo 0
+          </p>
+          <p className="font-semibold text-sm mt-1 leading-snug group-hover:text-primary transition-colors">
+            Tu Cabeza Manda
+          </p>
+        </Link>
+
+        {/* Lista de lecciones */}
+        <nav className="space-y-0.5">
+          {lessons.map((lesson) => {
+            const isActive = lesson.slug === currentSlug
+            const isCompleted = completedIds.has(lesson.id)
+            return (
+              <Link
+                key={lesson.id}
+                href={`/mentalidad/${lesson.slug}`}
+                className={cn(
+                  'flex items-start gap-2.5 rounded-md px-3 py-2.5 text-sm transition-colors',
+                  isActive
+                    ? 'bg-muted text-foreground font-medium'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                )}
+              >
+                <span className="font-mono text-xs shrink-0 mt-0.5 tabular-nums w-5 text-right">
+                  {String(lesson.order_number).padStart(2, '0')}
+                </span>
+                <span className="leading-snug flex-1 min-w-0">{lesson.title}</span>
+                {isAuthenticated && isCompleted && (
+                  <span
+                    className="shrink-0 mt-0.5 text-xs text-green-600 dark:text-green-400 font-bold"
+                    aria-label="Completada"
+                  >
+                    ✓
+                  </span>
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+    </aside>
+  )
+}
+
+// ── Mobile stepper (fijo arriba en móvil) ─────────────────────────────────
+
+function MobileStepper({
+  currentOrder,
+  total,
+  prevSlug,
+  nextSlug,
+}: {
+  currentOrder: number
+  total: number
+  prevSlug: string | null
+  nextSlug: string | null
+}) {
+  const prevHref = prevSlug ? `/mentalidad/${prevSlug}` : '/mentalidad'
+  const nextHref = nextSlug ? `/mentalidad/${nextSlug}` : null
+
+  return (
+    <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">
+      <Link
+        href={prevHref}
+        className="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        aria-label="Lección anterior"
+      >
+        ←
+      </Link>
+      <span className="text-sm font-medium">
+        Lección {currentOrder} de {total}
+      </span>
+      {nextHref ? (
+        <Link
+          href={nextHref}
+          className="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label="Siguiente lección"
+        >
+          →
+        </Link>
+      ) : (
+        <div className="w-8" aria-hidden="true" />
+      )}
+    </div>
+  )
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default async function LessonPage({ params }: Props) {
@@ -78,7 +194,7 @@ export default async function LessonPage({ params }: Props) {
 
   if (!lesson) notFound()
 
-  // Tres queries en paralelo: ejercicios, todas las lecciones del módulo, progreso del usuario
+  // Tres queries en paralelo
   const [exercisesResult, allLessonsResult, progressResult] = await Promise.all([
     supabase
       .from('exercises')
@@ -90,19 +206,19 @@ export default async function LessonPage({ params }: Props) {
       .select('id, slug, order_number, title')
       .eq('module_id', lesson.module_id)
       .order('order_number'),
+    // Obtenemos todo el progreso del usuario para mostrar estado en el sidebar
     user
       ? supabase
           .from('lesson_progress')
           .select('lesson_id')
           .eq('user_id', user.id)
-          .eq('lesson_id', lesson.id)
-          .limit(1)
       : Promise.resolve({ data: [] as { lesson_id: string }[] }),
   ])
 
   const exercises = (exercisesResult.data ?? []) as Exercise[]
-  const allLessons = allLessonsResult.data ?? []
-  const isAlreadyCompleted = (progressResult.data ?? []).length > 0
+  const allLessons = (allLessonsResult.data ?? []) as LessonSummary[]
+  const completedIds = new Set((progressResult.data ?? []).map((r) => r.lesson_id))
+  const isAlreadyCompleted = completedIds.has(lesson.id)
 
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
@@ -110,88 +226,112 @@ export default async function LessonPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl px-4 py-12 space-y-10">
 
-        {/* ── Breadcrumb ── */}
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link href="/mentalidad" className="hover:text-foreground transition-colors">
-            Tu Cabeza Manda
-          </Link>
-          <span aria-hidden="true">/</span>
-          <span className="text-foreground truncate">{lesson.title}</span>
-        </nav>
+      {/* ── Stepper móvil (oculto en md+) ── */}
+      <MobileStepper
+        currentOrder={lesson.order_number}
+        total={allLessons.length}
+        prevSlug={prevLesson?.slug ?? null}
+        nextSlug={nextLesson?.slug ?? null}
+      />
 
-        {/* ── Header ── */}
-        <div className="space-y-4">
-          <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-            Lección {lesson.order_number}
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight leading-snug">
-            {lesson.title}
-          </h1>
-          <blockquote className="border-l-2 border-primary pl-4 italic text-muted-foreground leading-relaxed">
-            {lesson.frase_clave}
-          </blockquote>
-        </div>
+      <div className="md:flex">
 
-        {/* ── Apertura — texto introductorio de la lección ── */}
-        {lesson.apertura && (
-          <div className="space-y-4">
-            {lesson.apertura.split('\n\n').map((paragraph: string, i: number) => (
-              <p key={i} className="text-base leading-relaxed text-foreground/90">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {/* ── Vídeo ── */}
-        {lesson.vimeo_id ? null /* TODO: embed Vimeo */ : <VideoPlaceholder />}
-
-        {/* ── Audio ── */}
-        {lesson.audio_url ? null /* TODO: embed audio */ : <AudioPlaceholder />}
-
-        <div className="border-t border-border/50" />
-
-        {/* ── Ejercicios + botón completar ── */}
-        <ExerciseForm
-          lessonId={lesson.id}
-          exercises={exercises}
+        {/* ── Sidebar desktop (oculto en móvil) ── */}
+        <Sidebar
+          lessons={allLessons}
+          currentSlug={lesson.slug}
+          completedIds={completedIds}
           isAuthenticated={!!user}
-          isAlreadyCompleted={isAlreadyCompleted}
-          nextSlug={nextLesson?.slug ?? null}
         />
 
-        {/* ── Navegación entre lecciones ── */}
-        <div className="flex justify-between gap-4 pt-4 border-t border-border">
-          {prevLesson ? (
-            <Link
-              href={`/mentalidad/${prevLesson.slug}`}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors max-w-[45%]"
-            >
-              <span aria-hidden="true">←</span>
-              <span className="truncate">{prevLesson.title}</span>
-            </Link>
-          ) : (
-            <div />
-          )}
-          {nextLesson ? (
-            <Link
-              href={`/mentalidad/${nextLesson.slug}`}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors max-w-[45%] text-right"
-            >
-              <span className="truncate">{nextLesson.title}</span>
-              <span aria-hidden="true">→</span>
-            </Link>
-          ) : (
-            <Link
-              href="/mentalidad"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← Volver al módulo
-            </Link>
-          )}
-        </div>
+        {/* ── Contenido principal ── */}
+        <main className="flex-1 min-w-0">
+          <div className="mx-auto max-w-[680px] px-4 py-10 md:py-12 space-y-10">
+
+            {/* Breadcrumb — solo desktop (el sidebar ya orienta) */}
+            <nav className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Link href="/mentalidad" className="hover:text-foreground transition-colors">
+                Tu Cabeza Manda
+              </Link>
+              <span aria-hidden="true">/</span>
+              <span className="text-foreground truncate">{lesson.title}</span>
+            </nav>
+
+            {/* ── Header ── */}
+            <div className="space-y-4">
+              <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+                Lección {lesson.order_number}
+              </p>
+              <h1 className="text-3xl font-bold tracking-tight leading-snug">
+                {lesson.title}
+              </h1>
+              <blockquote className="border-l-2 border-primary pl-4 italic text-muted-foreground leading-relaxed">
+                {lesson.frase_clave}
+              </blockquote>
+            </div>
+
+            {/* ── Apertura ── */}
+            {lesson.apertura && (
+              <div className="space-y-4">
+                {lesson.apertura.split('\n\n').map((paragraph: string, i: number) => (
+                  <p key={i} className="text-base leading-relaxed text-foreground/90">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {/* ── Vídeo ── */}
+            {lesson.vimeo_id ? null /* TODO: embed Vimeo */ : <VideoPlaceholder />}
+
+            {/* ── Audio ── */}
+            {lesson.audio_url ? null /* TODO: embed audio */ : <AudioPlaceholder />}
+
+            <div className="border-t border-border/50" />
+
+            {/* ── Ejercicios + botón completar ── */}
+            <ExerciseForm
+              lessonId={lesson.id}
+              exercises={exercises}
+              isAuthenticated={!!user}
+              isAlreadyCompleted={isAlreadyCompleted}
+              nextSlug={nextLesson?.slug ?? null}
+            />
+
+            {/* ── Navegación inferior (solo desktop) ── */}
+            <div className="hidden md:flex justify-between gap-4 pt-4 border-t border-border">
+              {prevLesson ? (
+                <Link
+                  href={`/mentalidad/${prevLesson.slug}`}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors max-w-[45%]"
+                >
+                  <span aria-hidden="true">←</span>
+                  <span className="truncate">{prevLesson.title}</span>
+                </Link>
+              ) : (
+                <div />
+              )}
+              {nextLesson ? (
+                <Link
+                  href={`/mentalidad/${nextLesson.slug}`}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors max-w-[45%] text-right"
+                >
+                  <span className="truncate">{nextLesson.title}</span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/mentalidad"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← Volver al módulo
+                </Link>
+              )}
+            </div>
+
+          </div>
+        </main>
 
       </div>
     </div>
