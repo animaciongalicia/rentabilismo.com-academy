@@ -7,7 +7,7 @@
 -- Agentes GPT vinculados a módulos. Solo accesible para usuarios con pago.
 CREATE TABLE IF NOT EXISTS public.gpt_agents (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id   INTEGER     NOT NULL REFERENCES public.modules(id) ON DELETE CASCADE,
+  module_id   UUID        NOT NULL,
   name        TEXT        NOT NULL,
   agent_url   TEXT        NOT NULL,
   description TEXT,
@@ -85,15 +85,15 @@ CREATE TRIGGER community_wall_updated_at
 
 
 -- ── 3. evolution_reports ──────────────────────────────────────────────────
--- Informes de evolución generados por módulo para cada usuario.
+-- Informes de evolución por tipo (motivational, midpoint, final) para cada usuario.
 CREATE TABLE IF NOT EXISTS public.evolution_reports (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  module_id   INTEGER     NOT NULL REFERENCES public.modules(id) ON DELETE CASCADE,
+  report_type TEXT        NOT NULL,
   report_data JSONB       NOT NULL DEFAULT '{}'::jsonb,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  CONSTRAINT evolution_reports_user_module_unique UNIQUE (user_id, module_id)
+  CONSTRAINT evolution_reports_user_type_unique UNIQUE (user_id, report_type)
 );
 
 ALTER TABLE public.evolution_reports ENABLE ROW LEVEL SECURITY;
