@@ -48,7 +48,7 @@ export async function POST(request: Request): Promise<Response> {
       metadata: {
         supabase_user_id: user.id,
       },
-      success_url: `${appUrl}/checkout/success`,
+      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing`,
     }
 
