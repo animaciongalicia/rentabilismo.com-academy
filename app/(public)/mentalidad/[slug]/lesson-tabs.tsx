@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { completeLesson } from './actions'
+import { completeLesson, saveExerciseResponse } from './actions'
 import CtaBlock from '../cta-block'
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -27,6 +27,7 @@ export type Exercise = {
 }
 
 type Responses = Record<string, Record<string, string | boolean>>
+type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
 type Props = {
   lessonId: string
@@ -92,16 +93,64 @@ function initResponses(exercises: Exercise[]): Responses {
   return init
 }
 
+// ── Save button helper ─────────────────────────────────────────────────────
+
+function SaveButton({
+  isAuthenticated,
+  saveState,
+  onSave,
+  label = 'Guardar',
+}: {
+  isAuthenticated: boolean
+  saveState: SaveState
+  onSave: () => void
+  label?: string
+}) {
+  if (!isAuthenticated) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        <Link href="/register" className="underline underline-offset-2 hover:text-foreground">
+          Inicia sesión
+        </Link>{' '}
+        para guardar tus respuestas.
+      </p>
+    )
+  }
+  if (saveState === 'saved') {
+    return <p className="text-sm font-medium text-green-600 dark:text-green-400">Guardado ✓</p>
+  }
+  if (saveState === 'error') {
+    return <p className="text-sm text-destructive">Error al guardar. Inténtalo de nuevo.</p>
+  }
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={onSave}
+      disabled={saveState === 'saving'}
+      className="h-9"
+    >
+      {saveState === 'saving' ? 'Guardando...' : label}
+    </Button>
+  )
+}
+
 // ── Exercise renderers ─────────────────────────────────────────────────────
 
 function OpenReflection({
   exercise,
   responses,
   onSet,
+  isAuthenticated,
+  saveState,
+  onSave,
 }: {
   exercise: Exercise
   responses: Responses
   onSet: (id: string, key: string, val: string) => void
+  isAuthenticated: boolean
+  saveState: SaveState
+  onSave: (id: string) => void
 }) {
   const cfg = exercise.config as OpenReflectionConfig
   return (
@@ -118,6 +167,7 @@ function OpenReflection({
         className="resize-none bg-background"
       />
       {cfg.note && <p className="text-xs text-muted-foreground italic">{cfg.note}</p>}
+      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
   )
 }
@@ -126,10 +176,16 @@ function TextInputExercise({
   exercise,
   responses,
   onSet,
+  isAuthenticated,
+  saveState,
+  onSave,
 }: {
   exercise: Exercise
   responses: Responses
   onSet: (id: string, key: string, val: string) => void
+  isAuthenticated: boolean
+  saveState: SaveState
+  onSave: (id: string) => void
 }) {
   const cfg = exercise.config as TextInputConfig
   return (
@@ -150,6 +206,7 @@ function TextInputExercise({
           />
         </div>
       ))}
+      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
   )
 }
@@ -158,10 +215,16 @@ function ChecklistExercise({
   exercise,
   responses,
   onSet,
+  isAuthenticated,
+  saveState,
+  onSave,
 }: {
   exercise: Exercise
   responses: Responses
   onSet: (id: string, key: string, val: string | boolean) => void
+  isAuthenticated: boolean
+  saveState: SaveState
+  onSave: (id: string) => void
 }) {
   const cfg = exercise.config as ChecklistConfig
   return (
@@ -200,6 +263,7 @@ function ChecklistExercise({
           />
         </div>
       )}
+      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
   )
 }
@@ -208,10 +272,16 @@ function MejoraStep({
   exercise,
   responses,
   onSet,
+  isAuthenticated,
+  saveState,
+  onSave,
 }: {
   exercise: Exercise
   responses: Responses
   onSet: (id: string, key: string, val: string) => void
+  isAuthenticated: boolean
+  saveState: SaveState
+  onSave: (id: string) => void
 }) {
   const cfg = exercise.config as MejoraConfig
   return (
@@ -240,6 +310,12 @@ function MejoraStep({
           className="resize-none bg-background"
         />
       </div>
+      <SaveButton
+        isAuthenticated={isAuthenticated}
+        saveState={saveState}
+        onSave={() => onSave(exercise.id)}
+        label="Guardar y marcar como hecho"
+      />
     </div>
   )
 }
@@ -278,9 +354,26 @@ export default function LessonTabs({
 
   const regularExercises = exercises.filter((e) => !e.is_kaizen)
   const mejoraExercise = exercises.find((e) => e.is_kaizen)
+  const [saveStates, setSaveStates] = useState<Record<string, SaveState>>({})
 
   function setResponse(id: string, key: string, value: string | boolean) {
     setResponses((prev) => ({ ...prev, [id]: { ...prev[id], [key]: value } }))
+  }
+
+  function handleSave(exerciseId: string) {
+    setSaveStates((prev) => ({ ...prev, [exerciseId]: 'saving' }))
+    startTransition(async () => {
+      const result = await saveExerciseResponse(exerciseId, responses[exerciseId] ?? {})
+      if ('error' in result) {
+        setSaveStates((prev) => ({ ...prev, [exerciseId]: 'error' }))
+        return
+      }
+      setSaveStates((prev) => ({ ...prev, [exerciseId]: 'saved' }))
+      // Vuelve a idle tras 3 segundos
+      setTimeout(() => {
+        setSaveStates((prev) => ({ ...prev, [exerciseId]: 'idle' }))
+      }, 3000)
+    })
   }
 
   function handleComplete() {
@@ -462,13 +555,16 @@ export default function LessonTabs({
             regularExercises.map((ex) => (
               <div key={ex.id}>
                 {ex.type === 'open_reflection' && (
-                  <OpenReflection exercise={ex} responses={responses} onSet={setResponse} />
+                  <OpenReflection exercise={ex} responses={responses} onSet={setResponse}
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
                 )}
                 {ex.type === 'text_input' && (
-                  <TextInputExercise exercise={ex} responses={responses} onSet={setResponse} />
+                  <TextInputExercise exercise={ex} responses={responses} onSet={setResponse}
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
                 )}
                 {ex.type === 'checklist' && (
-                  <ChecklistExercise exercise={ex} responses={responses} onSet={setResponse} />
+                  <ChecklistExercise exercise={ex} responses={responses} onSet={setResponse}
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
                 )}
               </div>
             ))
@@ -484,7 +580,8 @@ export default function LessonTabs({
             </p>
           )}
           {mejoraExercise ? (
-            <MejoraStep exercise={mejoraExercise} responses={responses} onSet={setResponse} />
+            <MejoraStep exercise={mejoraExercise} responses={responses} onSet={setResponse}
+              isAuthenticated={isAuthenticated} saveState={saveStates[mejoraExercise.id] ?? 'idle'} onSave={handleSave} />
           ) : (
             <p className="text-sm text-muted-foreground">No hay paso de mejora para esta lección.</p>
           )}

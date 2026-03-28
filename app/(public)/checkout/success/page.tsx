@@ -1,68 +1,49 @@
-'use client'
+import { redirect } from 'next/navigation'
+import Stripe from 'stripe'
+import SuccessPoller from './success-poller'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+export const dynamic = 'force-dynamic'
 
-const MAX_ATTEMPTS = 15  // 15 × 2s = 30s máximo
-const POLL_INTERVAL = 2000
+type Props = { searchParams: { session_id?: string } }
 
-export default function CheckoutSuccessPage() {
-  const router = useRouter()
-  const [, setAttempt] = useState(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+export default async function CheckoutSuccessPage({ searchParams }: Props) {
+  const sessionId = searchParams.session_id
 
-  useEffect(() => {
-    const supabase = getSupabaseBrowserClient()
+  if (!sessionId) redirect('/pricing')
 
-    async function checkPayment() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.replace('/login')
-        return
-      }
+  // Verificar con Stripe server-side que el pago es real
+  let paymentOk = false
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2026-02-25.clover',
+    })
+    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    paymentOk = session.payment_status === 'paid'
+  } catch {
+    paymentOk = false
+  }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('has_paid')
-        .eq('id', user.id)
-        .single()
-
-      if (profile?.has_paid) {
-        if (intervalRef.current) clearInterval(intervalRef.current)
-        router.replace('/dashboard')
-        return
-      }
-
-      setAttempt((prev) => {
-        const next = prev + 1
-        if (next >= MAX_ATTEMPTS) {
-          if (intervalRef.current) clearInterval(intervalRef.current)
-          // Timeout — redirigir igualmente, el dashboard mostrará el estado real
-          router.replace('/dashboard')
-        }
-        return next
-      })
-    }
-
-    // Primer check inmediato
-    checkPayment()
-    intervalRef.current = setInterval(checkPayment, POLL_INTERVAL)
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [router])
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 px-4">
-      <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-        <h1 className="text-2xl font-bold">Confirmando tu pago…</h1>
-        <p className="text-muted-foreground text-sm">
-          Estamos activando tu acceso. Esto solo tarda unos segundos.
-        </p>
+  if (!paymentOk) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="text-4xl">⚠️</div>
+          <h1 className="text-2xl font-bold">No pudimos confirmar tu pago</h1>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Si realizaste un pago, puede que tarde unos minutos en procesarse.
+            Si el problema persiste, contáctanos.
+          </p>
+          <a
+            href="/pricing"
+            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-10 px-5 text-sm font-medium hover:bg-primary/80 transition-colors"
+          >
+            Volver a precios
+          </a>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // Stripe confirmó el pago — renderizar cliente que espera al webhook
+  return <SuccessPoller />
 }
