@@ -27,7 +27,7 @@ export type Exercise = {
 }
 
 type Responses = Record<string, Record<string, string | boolean>>
-type SaveState = 'idle' | 'saving' | 'saved' | 'error'
+type SaveState = 'idle' | 'saving' | 'saved' | 'error' | 'no-session'
 
 type Props = {
   lessonId: string
@@ -106,10 +106,11 @@ function SaveButton({
   onSave: () => void
   label?: string
 }) {
-  if (!isAuthenticated) {
+  // Sin sesión (inicial o detectado en runtime): nunca simular guardado
+  if (!isAuthenticated || saveState === 'no-session') {
     return (
       <p className="text-sm text-muted-foreground">
-        <Link href="/register" className="underline underline-offset-2 hover:text-foreground">
+        <Link href="/login" className="underline underline-offset-2 hover:text-foreground">
           Inicia sesión
         </Link>{' '}
         para guardar tus respuestas.
@@ -120,7 +121,11 @@ function SaveButton({
     return <p className="text-sm font-medium text-green-600 dark:text-green-400">Guardado ✓</p>
   }
   if (saveState === 'error') {
-    return <p className="text-sm text-destructive">Error al guardar. Inténtalo de nuevo.</p>
+    return (
+      <p className="text-sm text-destructive">
+        Error al guardar. Inténtalo de nuevo.
+      </p>
+    )
   }
   return (
     <Button
@@ -360,20 +365,23 @@ export default function LessonTabs({
     setResponses((prev) => ({ ...prev, [id]: { ...prev[id], [key]: value } }))
   }
 
-  function handleSave(exerciseId: string) {
+  async function handleSave(exerciseId: string) {
+    // Guardia: nunca llamar al servidor si no hay sesión
+    if (!isAuthenticated) {
+      setSaveStates((prev) => ({ ...prev, [exerciseId]: 'no-session' }))
+      return
+    }
     setSaveStates((prev) => ({ ...prev, [exerciseId]: 'saving' }))
-    startTransition(async () => {
-      const result = await saveExerciseResponse(exerciseId, responses[exerciseId] ?? {})
-      if ('error' in result) {
-        setSaveStates((prev) => ({ ...prev, [exerciseId]: 'error' }))
-        return
-      }
-      setSaveStates((prev) => ({ ...prev, [exerciseId]: 'saved' }))
-      // Vuelve a idle tras 3 segundos
-      setTimeout(() => {
-        setSaveStates((prev) => ({ ...prev, [exerciseId]: 'idle' }))
-      }, 3000)
-    })
+    const result = await saveExerciseResponse(exerciseId, responses[exerciseId] ?? {})
+    if ('error' in result) {
+      const nextState: SaveState = result.error === 'no-session' ? 'no-session' : 'error'
+      setSaveStates((prev) => ({ ...prev, [exerciseId]: nextState }))
+      return
+    }
+    setSaveStates((prev) => ({ ...prev, [exerciseId]: 'saved' }))
+    setTimeout(() => {
+      setSaveStates((prev) => ({ ...prev, [exerciseId]: 'idle' }))
+    }, 3000)
   }
 
   function handleComplete() {
