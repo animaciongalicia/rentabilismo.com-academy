@@ -7,7 +7,7 @@
 -- Agentes GPT vinculados a módulos. Solo accesible para usuarios con pago.
 CREATE TABLE IF NOT EXISTS public.gpt_agents (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id   UUID        NOT NULL,
+  module_id   UUID        REFERENCES public.modules(id) ON DELETE SET NULL,
   name        TEXT        NOT NULL,
   agent_url   TEXT        NOT NULL,
   description TEXT,
