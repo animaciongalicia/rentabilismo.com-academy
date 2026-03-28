@@ -19,7 +19,7 @@ export const metadata = {
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
 type Module = {
-  id: number
+  id: string
   order_number: number
   title: string
   description: string
@@ -37,7 +37,7 @@ function pad(n: number): string {
 
 function getModuleStatus(
   module: Module,
-  completedIds: Set<number>,
+  completedIds: Set<string>,
   hasActiveAccess: boolean
 ): ModuleStatus {
   if (completedIds.has(module.id)) return 'completed'
@@ -172,8 +172,8 @@ export default async function DashboardPage() {
 
   const profile = profileResult.data
   const modules: Module[] = modulesResult.data ?? []
-  const completedIds = new Set<number>(
-    (progressResult.data ?? []).map((r) => r.module_id)
+  const completedIds = new Set<string>(
+    (progressResult.data ?? []).map((r) => r.module_id as string)
   )
 
   const firstName = (profile?.full_name ?? 'Empresario').split(' ')[0]
