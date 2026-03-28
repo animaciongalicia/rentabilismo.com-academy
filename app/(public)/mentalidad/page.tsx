@@ -14,17 +14,23 @@ export default async function MentalidadPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const [moduleResult, lessonsResult, countResult] = await Promise.all([
-    supabase.from('modules').select('id, title, description, vimeo_id, video_intro_text').eq('id', 0).single(),
+  const moduleResult = await supabase
+    .from('modules')
+    .select('id, title, description, vimeo_id, video_intro_text')
+    .eq('slug', 'mentalidad')
+    .single()
+
+  const mod = moduleResult.data
+
+  const [lessonsResult, countResult] = await Promise.all([
     supabase
       .from('lessons')
       .select('id, title, slug, order_number')
-      .eq('module_id', 0)
+      .eq('module_id', mod?.id ?? '')
       .order('order_number'),
     supabase.rpc('get_completed_payments_count'),
   ])
 
-  const mod = moduleResult.data
   const lessons = lessonsResult.data ?? []
   const paymentsCount = Number(countResult.data ?? 0)
 
