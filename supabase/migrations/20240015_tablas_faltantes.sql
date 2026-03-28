@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS public.affiliates (
   id               UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   referral_code    TEXT        NOT NULL UNIQUE,
-  referred_count   INTEGER     NOT NULL DEFAULT 0,
+  referred_count   UUID     NOT NULL DEFAULT 0,
   commission_total NUMERIC(10,2) NOT NULL DEFAULT 0.00,
   paid_out_total   NUMERIC(10,2) NOT NULL DEFAULT 0.00,
   is_active        BOOLEAN     NOT NULL DEFAULT true,
@@ -181,7 +181,7 @@ CREATE TRIGGER business_thermometer_updated_at
 -- Biblioteca de casos de negocio. Solo usuarios con pago ven casos publicados.
 CREATE TABLE IF NOT EXISTS public.case_library (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id    INTEGER     REFERENCES public.modules(id) ON DELETE SET NULL,
+  module_id    UUID     REFERENCES public.modules(id) ON DELETE SET NULL,
   title        TEXT        NOT NULL,
   description  TEXT,
   content      JSONB       NOT NULL DEFAULT '{}'::jsonb,
