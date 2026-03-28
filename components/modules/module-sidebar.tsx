@@ -4,13 +4,24 @@ import { cn } from '@/lib/utils'
 type Lesson = { id: string; slug: string; order_number: number; title: string }
 
 type Props = {
+  moduleLabel: string
   modTitle: string
+  moduleHref: string
+  lessonHrefPrefix: string
   lessons: Lesson[]
   completedIds: string[]
   activeSlug?: string | null
 }
 
-export default function ModuleSidebar({ modTitle, lessons, completedIds, activeSlug }: Props) {
+export default function ModuleSidebar({
+  moduleLabel,
+  modTitle,
+  moduleHref,
+  lessonHrefPrefix,
+  lessons,
+  completedIds,
+  activeSlug,
+}: Props) {
   const completed = new Set(completedIds)
 
   return (
@@ -19,7 +30,7 @@ export default function ModuleSidebar({ modTitle, lessons, completedIds, activeS
 
         {/* Módulo header */}
         <Link
-          href="/mentalidad"
+          href={moduleHref}
           className={cn(
             'block rounded-md px-2 py-1 -mx-2 transition-colors',
             !activeSlug
@@ -28,7 +39,7 @@ export default function ModuleSidebar({ modTitle, lessons, completedIds, activeS
           )}
         >
           <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-            Módulo 0
+            {moduleLabel}
           </p>
           <p className={cn('font-semibold text-sm mt-1 leading-snug', !activeSlug && 'text-foreground')}>
             {modTitle}
@@ -43,7 +54,7 @@ export default function ModuleSidebar({ modTitle, lessons, completedIds, activeS
             return (
               <Link
                 key={lesson.id}
-                href={`/mentalidad/${lesson.slug}`}
+                href={`${lessonHrefPrefix}/${lesson.slug}`}
                 className={cn(
                   'flex items-start gap-2.5 rounded-md px-3 py-2.5 text-sm transition-colors',
                   isActive

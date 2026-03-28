@@ -3,7 +3,6 @@
 import React from 'react'
 import Link from 'next/link'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import CtaBlock from './cta-block'
 
 type Lesson = { id: string; slug: string; order_number: number; title: string }
 
@@ -12,13 +11,11 @@ type Props = {
   description: string | null
   videoIntroText: string | null
   lessons: Lesson[]
-  showCta: boolean
-  paymentsCount: number
-  isAuthenticated: boolean
-  hasPaid: boolean
+  lessonHrefPrefix: string
+  cta?: React.ReactNode
 }
 
-function renderBold(text: string): React.ReactNode[] {
+export function renderBold(text: string): React.ReactNode[] {
   return text.split(/\*\*(.*?)\*\*/g).map((part, i) =>
     i % 2 === 1 ? (
       <strong key={i} className="font-semibold text-foreground">
@@ -48,10 +45,8 @@ export default function ModuleTabs({
   description,
   videoIntroText,
   lessons,
-  showCta,
-  paymentsCount,
-  isAuthenticated,
-  hasPaid,
+  lessonHrefPrefix,
+  cta,
 }: Props) {
   return (
     <Tabs defaultValue="explicacion">
@@ -74,13 +69,13 @@ export default function ModuleTabs({
           <p className="text-sm text-muted-foreground">Descripción no disponible.</p>
         )}
 
-        {showCta && (
+        {cta && (
           <div className="border-t border-border pt-8 max-w-[720px]">
-            <CtaBlock isAuthenticated={isAuthenticated} hasPaid={hasPaid} paymentsCount={paymentsCount} />
+            {cta}
           </div>
         )}
 
-        {/* Lista de lecciones — solo visible en móvil (sidebar oculto) */}
+        {/* Lista de lecciones — solo visible en móvil */}
         <div className="md:hidden space-y-2">
           <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
             Lecciones del módulo
@@ -89,7 +84,7 @@ export default function ModuleTabs({
             {lessons.map((l) => (
               <Link
                 key={l.id}
-                href={`/mentalidad/${l.slug}`}
+                href={`${lessonHrefPrefix}/${l.slug}`}
                 className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               >
                 <span className="font-mono text-xs w-5 text-right tabular-nums shrink-0">
@@ -121,7 +116,7 @@ export default function ModuleTabs({
                 src={`https://player.vimeo.com/video/${vimeoId}?badge=0&autopause=0&player_id=0&app_id=58479`}
                 className="w-full h-full"
                 allow="autoplay; fullscreen; picture-in-picture"
-                title="Tu Cabeza Manda — introducción"
+                title="Introducción al módulo"
               />
             </div>
           ) : (
@@ -129,9 +124,9 @@ export default function ModuleTabs({
           )}
         </div>
 
-        {showCta && (
+        {cta && (
           <div className="border-t border-border pt-8 max-w-[720px]">
-            <CtaBlock isAuthenticated={isAuthenticated} hasPaid={hasPaid} paymentsCount={paymentsCount} />
+            {cta}
           </div>
         )}
       </TabsContent>

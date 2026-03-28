@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import ModuleSidebar from '../module-sidebar'
+import ModuleSidebar from '@/components/modules/module-sidebar'
 import LessonTabs, { type Exercise } from './lesson-tabs'
 
 type Props = { params: { slug: string } }
@@ -69,7 +69,10 @@ export default async function LessonPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-background md:flex">
       <ModuleSidebar
+        moduleLabel="Módulo 0"
         modTitle="Tu Cabeza Manda"
+        moduleHref="/mentalidad"
+        lessonHrefPrefix="/mentalidad"
         lessons={allLessons}
         completedIds={completedIds}
         activeSlug={lesson.slug}
