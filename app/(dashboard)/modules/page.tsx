@@ -167,10 +167,10 @@ export default async function ModulesPage() {
 
   // Calcular progreso por módulo
   const lessonCounts = new Map<string, LessonCount>()
-  for (const module of modules) {
-    const moduleLessons = allLessons.filter((l) => l.module_id === module.id)
+  for (const mod of modules) {
+    const moduleLessons = allLessons.filter((l) => l.module_id === mod.id)
     const completed = moduleLessons.filter((l) => completedLessonIds.has(l.id)).length
-    lessonCounts.set(module.id, { module_id: module.id, total: moduleLessons.length, completed })
+    lessonCounts.set(mod.id, { module_id: mod.id, total: moduleLessons.length, completed })
   }
 
   const nextRecommendedId = getNextRecommended(modules, lessonCounts)
