@@ -35,6 +35,12 @@ export async function middleware(request: NextRequest) {
       : false
     const hasActiveAccess = !!profile?.has_paid && !accessExpired
 
+    console.log('[middleware] profile.id:', profile?.id)
+    console.log('[middleware] profile.has_paid:', profile?.has_paid)
+    console.log('[middleware] accessExpired:', accessExpired)
+    console.log('[middleware] hasActiveAccess:', hasActiveAccess)
+    console.log('[middleware] completedOnboarding:', completedOnboarding)
+
     // — Wizard de onboarding (/onboarding exacto) —
     if (pathname === '/onboarding') {
       if (!completedOnboarding) return response
