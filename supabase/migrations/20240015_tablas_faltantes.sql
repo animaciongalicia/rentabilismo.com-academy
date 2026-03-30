@@ -7,7 +7,7 @@
 -- Agentes GPT vinculados a módulos. Solo accesible para usuarios con pago.
 CREATE TABLE IF NOT EXISTS public.gpt_agents (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id   UUID        REFERENCES public.modules(id) ON DELETE SET NULL,
+  module_id   UUID,
   name        TEXT        NOT NULL,
   agent_url   TEXT        NOT NULL,
   description TEXT,
@@ -181,7 +181,7 @@ CREATE TRIGGER business_thermometer_updated_at
 -- Biblioteca de casos de negocio. Solo usuarios con pago ven casos publicados.
 CREATE TABLE IF NOT EXISTS public.case_library (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id    INTEGER     REFERENCES public.modules(id) ON DELETE SET NULL,
+  module_id    UUID,
   title        TEXT        NOT NULL,
   description  TEXT,
   content      JSONB       NOT NULL DEFAULT '{}'::jsonb,
