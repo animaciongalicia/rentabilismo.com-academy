@@ -2,10 +2,10 @@
 -- 20240016_fix_modules_uuid.sql
 -- Migra modules.id de INTEGER a UUID y actualiza las FKs dependientes.
 --
--- Tablas afectadas:   modules, lessons, user_progress
+-- Tablas afectadas:   modules, lessons, user_progress, gpt_agents, case_library
 -- Tablas NO tocadas:  exercises, exercise_responses, lesson_progress,
 --                     payments, profiles
--- Las tablas de 20240015 aún no existen en BD → no se tocan aquí.
+-- gpt_agents y case_library: FK añadida al final (creadas sin FK en 20240015).
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- PASO 1: Eliminar FKs existentes (IF EXISTS → idempotente)
@@ -62,7 +62,16 @@ ALTER TABLE public.user_progress
   ADD CONSTRAINT user_progress_module_id_fkey
   FOREIGN KEY (module_id) REFERENCES public.modules(id) ON DELETE CASCADE;
 
--- PASO 8: Verificación final
+-- PASO 8: Añadir FKs de tablas creadas en 20240015 (module_id ya era UUID pero sin FK)
+ALTER TABLE public.gpt_agents
+  ADD CONSTRAINT gpt_agents_module_id_fkey
+  FOREIGN KEY (module_id) REFERENCES public.modules(id) ON DELETE SET NULL;
+
+ALTER TABLE public.case_library
+  ADD CONSTRAINT case_library_module_id_fkey
+  FOREIGN KEY (module_id) REFERENCES public.modules(id) ON DELETE SET NULL;
+
+-- PASO 9: Verificación final
 -- Ejecutar esta SELECT para confirmar que todo es UUID:
 SELECT table_name, column_name, data_type
 FROM information_schema.columns

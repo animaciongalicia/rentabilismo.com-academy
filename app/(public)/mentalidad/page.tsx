@@ -1,6 +1,7 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import ModuleSidebar from './module-sidebar'
-import ModuleTabs from './module-tabs'
+import ModuleSidebar from '@/components/modules/module-sidebar'
+import ModuleTabs from '@/components/modules/module-tabs'
+import CtaBlock from './cta-block'
 
 export const metadata = {
   title: 'Tu Cabeza Manda — Módulo 0 · Rentabilismo Academy',
@@ -50,7 +51,10 @@ export default async function MentalidadPage() {
   return (
     <div className="min-h-screen bg-background md:flex">
       <ModuleSidebar
+        moduleLabel="Módulo 0"
         modTitle={mod?.title ?? 'Tu Cabeza Manda'}
+        moduleHref="/mentalidad"
+        lessonHrefPrefix="/mentalidad"
         lessons={lessons}
         completedIds={completedIds}
         activeSlug={null}
@@ -58,7 +62,6 @@ export default async function MentalidadPage() {
 
       <main className="flex-1 min-w-0">
         <div className="max-w-[1040px] px-8 py-6">
-          {/* Header */}
           <div className="space-y-3 mb-8">
             <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
               Módulo 0
@@ -71,10 +74,10 @@ export default async function MentalidadPage() {
             description={mod?.description ?? null}
             videoIntroText={mod?.video_intro_text ?? null}
             lessons={lessons}
-            showCta={showCta}
-            paymentsCount={paymentsCount}
-            isAuthenticated={!!user}
-            hasPaid={hasPaid}
+            lessonHrefPrefix="/mentalidad"
+            cta={showCta ? (
+              <CtaBlock isAuthenticated={!!user} hasPaid={hasPaid} paymentsCount={paymentsCount} />
+            ) : undefined}
           />
         </div>
       </main>

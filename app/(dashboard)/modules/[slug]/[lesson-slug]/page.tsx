@@ -1,40 +1,63 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import ModuleSidebar from '@/components/modules/module-sidebar'
 import LessonTabs, { type Exercise } from '@/components/modules/lesson-tabs'
-import CtaBlock from '../cta-block'
 
-type Props = { params: { slug: string } }
+type Props = { params: { slug: string; 'lesson-slug': string } }
 
 export async function generateMetadata({ params }: Props) {
   const supabase = await getSupabaseServerClient()
   const { data: lesson } = await supabase
     .from('lessons')
     .select('title')
-    .eq('slug', params.slug)
+    .eq('slug', params['lesson-slug'])
     .single()
   return {
     title: lesson
-      ? `${lesson.title} — Tu Cabeza Manda · Rentabilismo Academy`
+      ? `${lesson.title} · Rentabilismo Academy`
       : 'Rentabilismo Academy',
   }
 }
 
-export default async function LessonPage({ params }: Props) {
+export default async function DashboardLessonPage({ params }: Props) {
   const supabase = await getSupabaseServerClient()
 
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
+  // Verificar acceso de pago
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('has_paid, access_expires_at')
+    .eq('id', user.id)
+    .single()
+
+  const accessExpired = profile?.access_expires_at
+    ? new Date(profile.access_expires_at) < new Date()
+    : false
+  if (!profile?.has_paid || accessExpired) redirect('/pricing')
+
+  // Módulo por slug (para validar que la lección pertenece a este módulo)
+  const { data: mod } = await supabase
+    .from('modules')
+    .select('id, order_number, slug, title')
+    .eq('slug', params.slug)
+    .single()
+
+  if (!mod) notFound()
+
+  // Lección por slug
   const { data: lesson } = await supabase
     .from('lessons')
     .select('id, title, slug, order_number, frase_clave, apertura, audio_url, texto_audio, contexto_ejercicios, contexto_mejora, cierre_mejora, module_id')
-    .eq('slug', params.slug)
+    .eq('slug', params['lesson-slug'])
+    .eq('module_id', mod.id)
     .single()
 
   if (!lesson) notFound()
 
-  const [exercisesResult, allLessonsResult, progressResult, countResult, profileResult] = await Promise.all([
+  const [exercisesResult, allLessonsResult, progressResult] = await Promise.all([
     supabase
       .from('exercises')
       .select('id, type, title, description, config, order_number, is_kaizen')
@@ -43,38 +66,34 @@ export default async function LessonPage({ params }: Props) {
     supabase
       .from('lessons')
       .select('id, slug, order_number, title')
-      .eq('module_id', lesson.module_id)
+      .eq('module_id', mod.id)
       .order('order_number'),
-    user
-      ? supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id)
-      : Promise.resolve({ data: [] as { lesson_id: string }[] }),
-    supabase.rpc('get_completed_payments_count'),
-    user
-      ? supabase.from('profiles').select('has_paid').eq('id', user.id).single()
-      : Promise.resolve({ data: null }),
+    supabase
+      .from('lesson_progress')
+      .select('lesson_id')
+      .eq('user_id', user.id),
   ])
 
   const exercises = (exercisesResult.data ?? []) as Exercise[]
   const allLessons = allLessonsResult.data ?? []
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
   const isAlreadyCompleted = completedIds.includes(lesson.id)
-  const paymentsCount = Number(countResult.data ?? 0)
-  const hasPaid = (profileResult.data as { has_paid: boolean } | null)?.has_paid ?? false
 
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
-  const completionRedirect = hasPaid ? '/dashboard' : '/pricing'
-  const completionLabel = hasPaid ? 'Ir al dashboard →' : 'Ver acceso completo →'
+  const moduleHref = `/dashboard/modules/${mod.slug}`
+  const lessonHrefPrefix = `/dashboard/modules/${mod.slug}`
+  const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
 
   return (
     <div className="min-h-screen bg-background md:flex">
       <ModuleSidebar
-        moduleLabel="Módulo 0"
-        modTitle="Tu Cabeza Manda"
-        moduleHref="/mentalidad"
-        lessonHrefPrefix="/mentalidad"
+        moduleLabel={moduleLabel}
+        modTitle={mod.title}
+        moduleHref={moduleHref}
+        lessonHrefPrefix={lessonHrefPrefix}
         lessons={allLessons}
         completedIds={completedIds}
         activeSlug={lesson.slug}
@@ -84,7 +103,7 @@ export default async function LessonPage({ params }: Props) {
         {/* Mobile stepper */}
         <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">
           <Link
-            href={prevLesson ? `/mentalidad/${prevLesson.slug}` : '/mentalidad'}
+            href={prevLesson ? `${lessonHrefPrefix}/${prevLesson.slug}` : moduleHref}
             className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Lección anterior"
           >
@@ -95,7 +114,7 @@ export default async function LessonPage({ params }: Props) {
           </span>
           {nextLesson ? (
             <Link
-              href={`/mentalidad/${nextLesson.slug}`}
+              href={`${lessonHrefPrefix}/${nextLesson.slug}`}
               className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               aria-label="Siguiente lección"
             >
@@ -119,13 +138,13 @@ export default async function LessonPage({ params }: Props) {
             contextoMejora={lesson.contexto_mejora ?? null}
             cierreMejora={lesson.cierre_mejora ?? null}
             exercises={exercises}
-            isAuthenticated={!!user}
+            isAuthenticated={true}
             isAlreadyCompleted={isAlreadyCompleted}
             nextSlug={nextLesson?.slug ?? null}
-            lessonHrefPrefix="/mentalidad"
-            completionRedirect={completionRedirect}
-            completionLabel={completionLabel}
-            cta={<CtaBlock isAuthenticated={!!user} hasPaid={hasPaid} paymentsCount={paymentsCount} />}
+            lessonHrefPrefix={lessonHrefPrefix}
+            completionRedirect={moduleHref}
+            completionLabel="Volver al módulo →"
+            moduleId={mod.id}
           />
         </div>
       </main>
