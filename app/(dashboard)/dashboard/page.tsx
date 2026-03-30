@@ -21,6 +21,7 @@ export const metadata = {
 type Module = {
   id: string
   order_number: number
+  slug: string | null
   title: string
   description: string
   is_free: boolean
@@ -48,49 +49,43 @@ function getModuleStatus(
 
 // ── Tarjeta héroe — módulo 00 (ancho completo) ────────────────────────────
 
-function HeroModuleCard({
-  module,
-}: {
-  module: Module
-}) {
+function HeroModuleCard({ module }: { module: Module }) {
   return (
-    <Card className="border-primary/60 bg-primary/5 transition-colors">
-      <CardHeader className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-sm text-primary/70 font-semibold">
-            {pad(module.order_number)}
-          </span>
-          <Badge variant="free" className="text-sm px-3 py-0.5">
-            Gratis — empieza aquí
-          </Badge>
-        </div>
-        <CardTitle className="text-2xl leading-snug">{module.title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <CardDescription className="text-base leading-relaxed">
-          {module.description}
-        </CardDescription>
-      </CardContent>
-    </Card>
+    <Link href="/mentalidad" className="block group">
+      <Card className="border-primary/60 bg-primary/5 transition-colors group-hover:border-primary">
+        <CardHeader className="space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-sm text-primary/70 font-semibold">
+              {pad(module.order_number)}
+            </span>
+            <Badge variant="secondary" className="text-sm px-3 py-0.5">
+              Gratis — empieza aquí
+            </Badge>
+          </div>
+          <CardTitle className="text-2xl leading-snug">{module.title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription className="text-base leading-relaxed">
+            {module.description}
+          </CardDescription>
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
 
 // ── Tarjeta estándar — módulos 01-10 ──────────────────────────────────────
 
-function ModuleCard({
-  module,
-  status,
-}: {
-  module: Module
-  status: ModuleStatus
-}) {
-  return (
+function ModuleCard({ module, status }: { module: Module; status: ModuleStatus }) {
+  const isClickable = (status === 'available' || status === 'completed') && !!module.slug
+  const href = `/dashboard/modules/${module.slug}`
+
+  const card = (
     <Card
       className={cn(
-        'flex flex-col transition-colors',
-        status === 'available' && 'cursor-pointer hover:border-foreground/30',
+        'flex flex-col transition-colors h-full',
+        isClickable && 'group-hover:border-foreground/30',
         status === 'completed' && 'border-green-500/30 bg-green-500/5',
-        status === 'free' && 'border-primary/40',
         status === 'locked' && 'bg-muted/20 border-border/40',
       )}
     >
@@ -99,22 +94,19 @@ function ModuleCard({
           <span
             className={cn(
               'font-mono text-xs',
-              status === 'locked'
-                ? 'text-muted-foreground/50'
-                : 'text-muted-foreground',
+              status === 'locked' ? 'text-muted-foreground/50' : 'text-muted-foreground',
             )}
           >
             {pad(module.order_number)}
           </span>
           {status === 'completed' && (
-            <Badge variant="completed">Completado</Badge>
+            <Badge variant="outline" className="border-green-500/50 text-green-600 text-xs">✓ Completado</Badge>
           )}
-          {status === 'free' && <Badge variant="free">Gratis</Badge>}
           {status === 'locked' && (
-            <Badge variant="locked">Acceso completo</Badge>
+            <Badge variant="secondary" className="text-xs">Acceso completo</Badge>
           )}
           {status === 'available' && (
-            <Badge variant="outline">Disponible</Badge>
+            <Badge variant="outline" className="text-xs">Disponible</Badge>
           )}
         </div>
         <CardTitle
@@ -126,7 +118,6 @@ function ModuleCard({
           {module.title}
         </CardTitle>
       </CardHeader>
-
       <CardContent>
         <CardDescription
           className={cn(
@@ -139,6 +130,15 @@ function ModuleCard({
       </CardContent>
     </Card>
   )
+
+  if (isClickable) {
+    return (
+      <Link href={href} className="block group h-full">
+        {card}
+      </Link>
+    )
+  }
+  return card
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
       .single(),
     supabase
       .from('modules')
-      .select('id, order_number, title, description, is_free, is_active')
+      .select('id, order_number, slug, title, description, is_free, is_active')
       .eq('is_active', true)
       .order('order_number'),
     supabase
@@ -183,8 +183,9 @@ export default async function DashboardPage() {
     : false
   const hasActiveAccess = !!profile?.has_paid && !accessExpired
 
-  const totalModules = 11
-  const completedCount = completedIds.size
+  const paidModules = modules.filter((m) => !m.is_free)
+  const totalModules = paidModules.length || 10
+  const completedCount = paidModules.filter((m) => completedIds.has(m.id)).length
   const progressPercent = Math.round((completedCount / totalModules) * 100)
 
   return (
