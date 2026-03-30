@@ -55,6 +55,35 @@ function getNextRecommended(modules: Module[], lessonCounts: Map<string, LessonC
   return notStarted?.id ?? null
 }
 
+// ── Tarjeta Mentalidad (módulo 00 — zona pública) ─────────────────────────
+
+function MentalidadCard({ module }: { module: Module }) {
+  return (
+    <Link
+      href="/mentalidad"
+      className="group flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:border-foreground/30"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="font-mono text-sm text-muted-foreground font-semibold">
+          {pad(module.order_number)}
+        </span>
+        <Badge variant="secondary" className="text-xs">
+          Gratis — empieza aquí
+        </Badge>
+      </div>
+
+      <div className="space-y-1.5 flex-1">
+        <h3 className="font-semibold text-base leading-snug group-hover:text-foreground/80 transition-colors">
+          {module.title}
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+          {module.description}
+        </p>
+      </div>
+    </Link>
+  )
+}
+
 // ── Componente de tarjeta ──────────────────────────────────────────────────
 
 function ModuleCard({
@@ -145,12 +174,12 @@ export default async function ModulesPage() {
     : false
   if (!profile?.has_paid || accessExpired) redirect('/pricing')
 
-  // Módulos 1-10 (el 0 es mentalidad, acceso libre)
+  // Módulos 0-10 (el 0 es mentalidad, zona pública)
   const [modulesResult, lessonsResult, progressResult] = await Promise.all([
     supabase
       .from('modules')
       .select('id, order_number, slug, title, description')
-      .gte('order_number', 1)
+      .gte('order_number', 0)
       .order('order_number'),
     supabase
       .from('lessons')
@@ -161,22 +190,29 @@ export default async function ModulesPage() {
       .eq('user_id', user.id),
   ])
 
-  const modules: Module[] = (modulesResult.data ?? []).filter((m) => m.slug)
+  const allModules: Module[] = (modulesResult.data ?? []).filter((m) => m.slug)
+  const mentalidadModule = allModules.find((m) => m.order_number === 0) ?? null
+  const paidModules = allModules.filter((m) => m.order_number > 0)
+
   const allLessons = lessonsResult.data ?? []
   const completedLessonIds = new Set((progressResult.data ?? []).map((r) => r.lesson_id))
 
-  // Calcular progreso por módulo
+  // Calcular progreso por módulo (solo módulos de pago)
   const lessonCounts = new Map<string, LessonCount>()
-  for (const mod of modules) {
+  for (const mod of paidModules) {
     const moduleLessons = allLessons.filter((l) => l.module_id === mod.id)
     const completed = moduleLessons.filter((l) => completedLessonIds.has(l.id)).length
     lessonCounts.set(mod.id, { module_id: mod.id, total: moduleLessons.length, completed })
   }
 
-  const nextRecommendedId = getNextRecommended(modules, lessonCounts)
+  const nextRecommendedId = getNextRecommended(paidModules, lessonCounts)
 
-  const totalLessons = allLessons.length
-  const totalCompleted = completedLessonIds.size
+  // Progreso total excluye lecciones del módulo 0 (zona pública)
+  const paidLessons = mentalidadModule
+    ? allLessons.filter((l) => l.module_id !== mentalidadModule.id)
+    : allLessons
+  const totalLessons = paidLessons.length
+  const totalCompleted = paidLessons.filter((l) => completedLessonIds.has(l.id)).length
   const overallPercent = totalLessons > 0 ? Math.round((totalCompleted / totalLessons) * 100) : 0
 
   return (
@@ -202,7 +238,10 @@ export default async function ModulesPage() {
 
         {/* Grid de módulos */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {modules.map((module) => {
+          {mentalidadModule && (
+            <MentalidadCard key={mentalidadModule.id} module={mentalidadModule} />
+          )}
+          {paidModules.map((module) => {
             const lc = lessonCounts.get(module.id) ?? { module_id: module.id, total: 0, completed: 0 }
             return (
               <ModuleCard
