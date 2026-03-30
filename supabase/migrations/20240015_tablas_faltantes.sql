@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS public.affiliates (
   id               UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   referral_code    TEXT        NOT NULL UNIQUE,
-  referred_count   INTEGER     NOT NULL DEFAULT 0,
+  referred_count   UUID     NOT NULL DEFAULT 0,
   commission_total NUMERIC(10,2) NOT NULL DEFAULT 0.00,
   paid_out_total   NUMERIC(10,2) NOT NULL DEFAULT 0.00,
   is_active        BOOLEAN     NOT NULL DEFAULT true,
