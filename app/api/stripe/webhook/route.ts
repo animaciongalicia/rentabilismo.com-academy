@@ -104,7 +104,10 @@ export async function POST(request: Request): Promise<Response> {
       .eq('id', userId)
 
     if (profileError) {
-      throw new Error(`profiles update failed: ${profileError.message}`)
+      console.error('[webhook] profileError full:', JSON.stringify(profileError))
+      console.error('[webhook] userId:', userId)
+      console.error('[webhook] accessType:', accessType)
+      throw new Error(`profiles update failed: ${profileError.message} (code: ${profileError.code}, details: ${profileError.details})`)
     }
 
     return new Response('OK', { status: 200 })
