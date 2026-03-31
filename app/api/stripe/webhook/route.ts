@@ -48,7 +48,6 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     // Insertar el pago. payment_number es SERIAL — Postgres lo asigna atómicamente.
-    // ON CONFLICT DO NOTHING garantiza idempotencia si Stripe reenvía el evento.
     const { data: payment, error: insertError } = await supabase
       .from('payments')
       .insert({
@@ -59,22 +58,35 @@ export async function POST(request: Request): Promise<Response> {
           : null,
         amount: session.amount_total ?? 79900,
         currency: session.currency ?? 'eur',
-        // access_type se actualiza después de conocer payment_number
         access_type: 'lifetime', // valor provisional; se sobrescribe a continuación
       })
       .select('payment_number')
       .single()
 
+    let paymentNumber: number
+
     if (insertError) {
-      // Código 23505 = unique_violation (pago duplicado) — idempotente, devolver 200
       if (insertError.code === '23505') {
-        return new Response('Duplicate event ignored', { status: 200 })
+        // Pago duplicado — recuperar el payment_number existente para poder
+        // actualizar el perfil si el primer intento falló antes de llegar aquí
+        const { data: existing } = await supabase
+          .from('payments')
+          .select('payment_number')
+          .eq('stripe_session_id', session.id)
+          .single()
+        if (!existing) {
+          return new Response('Duplicate event ignored', { status: 200 })
+        }
+        paymentNumber = existing.payment_number as number
+      } else {
+        throw new Error(`payments insert failed: ${insertError.message}`)
       }
-      throw new Error(`payments insert failed: ${insertError.message}`)
+    } else {
+      if (!payment) throw new Error('payments insert returned no data')
+      paymentNumber = payment.payment_number as number
     }
 
     // Determinar tipo de acceso según número de orden (atómico, sin race condition)
-    const paymentNumber = payment.payment_number as number
     const isLifetime = paymentNumber <= 50
     const accessType = isLifetime ? 'lifetime' : 'yearly'
     const accessExpiresAt = isLifetime
