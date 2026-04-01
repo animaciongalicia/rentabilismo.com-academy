@@ -100,7 +100,9 @@ export async function POST(request: Request): Promise<Response> {
       .eq('stripe_session_id', session.id)
 
     // Actualizar perfil del usuario
-    const { error: profileError } = await supabase
+    console.log('[webhook] PRE-UPDATE userId:', userId, '| paymentNumber:', paymentNumber, '| accessType:', accessType, '| session.id:', session.id)
+
+    const { data: updatedProfiles, error: profileError } = await supabase
       .from('profiles')
       .update({
         has_paid: true,
@@ -114,14 +116,23 @@ export async function POST(request: Request): Promise<Response> {
           : null,
       })
       .eq('id', userId)
+      .select('id, has_paid, access_type')
+
+    console.log('[webhook] POST-UPDATE result:', JSON.stringify({ updatedProfiles, profileError }))
 
     if (profileError) {
       console.error('[webhook] profileError full:', JSON.stringify(profileError))
-      console.error('[webhook] userId:', userId)
-      console.error('[webhook] accessType:', accessType)
       throw new Error(`profiles update failed: ${profileError.message} (code: ${profileError.code}, details: ${profileError.details})`)
     }
 
+    if (!updatedProfiles || updatedProfiles.length === 0) {
+      console.error('[webhook] ZERO ROWS UPDATED — profiles.id no coincide con userId:', userId)
+      console.error('[webhook] Verificar que existe profiles row para este user_id en Supabase')
+      // Devolver 500 para que Stripe reintente y quede registrado
+      return new Response('Profile not found', { status: 500 })
+    }
+
+    console.log('[webhook] SUCCESS — perfil actualizado:', JSON.stringify(updatedProfiles[0]))
     return new Response('OK', { status: 200 })
   } catch (err) {
     console.error('Webhook error:', err)
