@@ -108,12 +108,7 @@ export async function POST(request: Request): Promise<Response> {
         has_paid: true,
         access_type: accessType,
         access_expires_at: accessExpiresAt,
-        stripe_customer_id: typeof session.customer === 'string'
-          ? session.customer
-          : null,
-        stripe_payment_id: typeof session.payment_intent === 'string'
-          ? session.payment_intent
-          : null,
+        paid_at: new Date().toISOString(),
       })
       .eq('id', userId)
       .select('id, has_paid, access_type')
