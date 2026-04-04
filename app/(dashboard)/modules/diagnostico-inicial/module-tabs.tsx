@@ -117,9 +117,9 @@ export default function DiagnosticoModuleTabs({
 
       {/* Explicación del módulo */}
       <TabsContent value="explicacion" className="mt-6 space-y-8">
-        {description ? (
+        {videoIntroText ? (
           <div className="space-y-4 max-w-[720px]">
-            {description.split('\n\n').map((para, i) => (
+            {videoIntroText.split('\n\n').map((para, i) => (
               <p key={i} className="text-base leading-relaxed text-foreground/90">
                 {renderBold(para)}
               </p>
@@ -136,16 +136,7 @@ export default function DiagnosticoModuleTabs({
       </TabsContent>
 
       {/* Vídeo */}
-      <TabsContent value="video" className="mt-6 space-y-6">
-        {videoIntroText && (
-          <div className="space-y-3 max-w-[720px]">
-            {videoIntroText.split('\n\n').map((para, i) => (
-              <p key={i} className="text-base leading-relaxed text-foreground/90">
-                {renderBold(para)}
-              </p>
-            ))}
-          </div>
-        )}
+      <TabsContent value="video" className="mt-6">
         <div className="max-w-[720px]">
           {vimeoId ? (
             <div className="aspect-video rounded-xl overflow-hidden">
