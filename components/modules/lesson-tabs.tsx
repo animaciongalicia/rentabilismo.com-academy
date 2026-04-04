@@ -133,7 +133,7 @@ function OpenReflection({ exercise, responses, onSet, isAuthenticated, saveState
         <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <Textarea placeholder={cfg.placeholder} value={(responses[exercise.id]?.value as string) ?? ''}
-        onChange={(e) => onSet(exercise.id, 'value', e.target.value)} rows={4} className="resize-none bg-background" />
+        onChange={(e) => onSet(exercise.id, 'value', e.target.value)} rows={4} className="resize-none bg-background border-gray-300" />
       {cfg.note && <p className="text-xs text-muted-foreground italic">{cfg.note}</p>}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
@@ -157,7 +157,7 @@ function TextInputExercise({ exercise, responses, onSet, isAuthenticated, saveSt
           <Label htmlFor={`${exercise.id}-${field.id}`}>{field.label}</Label>
           <Input id={`${exercise.id}-${field.id}`} placeholder={field.placeholder}
             value={(responses[exercise.id]?.[field.id] as string) ?? ''}
-            onChange={(e) => onSet(exercise.id, field.id, e.target.value)} className="bg-background" />
+            onChange={(e) => onSet(exercise.id, field.id, e.target.value)} className="bg-background border-gray-300" />
         </div>
       ))}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
@@ -195,7 +195,7 @@ function ChecklistExercise({ exercise, responses, onSet, isAuthenticated, saveSt
           <Textarea id={`${exercise.id}-follow-up`} placeholder={cfg.follow_up.placeholder}
             value={(responses[exercise.id]?.follow_up as string) ?? ''}
             onChange={(e) => onSet(exercise.id, 'follow_up', e.target.value)}
-            rows={3} className="resize-none bg-background" />
+            rows={3} className="resize-none bg-background border-gray-300" />
         </div>
       )}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
@@ -225,7 +225,7 @@ function MejoraStep({ exercise, responses, onSet, isAuthenticated, saveState, on
         <Textarea id={`${exercise.id}-mejora`} placeholder="Escribe aquí..."
           value={(responses[exercise.id]?.value as string) ?? ''}
           onChange={(e) => onSet(exercise.id, 'value', e.target.value)}
-          rows={3} className="resize-none bg-background" />
+          rows={3} className="resize-none bg-background border-gray-300" />
       </div>
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState}
         onSave={() => onSave(exercise.id)} label="Guardar y marcar como hecho" />
