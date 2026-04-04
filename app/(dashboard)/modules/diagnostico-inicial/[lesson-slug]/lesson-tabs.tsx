@@ -43,7 +43,7 @@ type Props = {
 // ── Config types ───────────────────────────────────────────────────────────
 
 type OpenReflectionConfig = { placeholder: string; min_chars?: number; note?: string }
-type NumberInputField = { id: string; label: string; placeholder: string; type: 'number' | 'text'; optional?: boolean }
+type NumberInputField = { id: string; label: string; placeholder: string; type: 'number' | 'text'; optional?: boolean; note?: string }
 type NumberInputConfig = { fields: NumberInputField[]; note?: string }
 type ScaleField = { id: string; label: string; type: 'scale'; min: number; max: number }
 type TextField = { id: string; label: string; placeholder: string; type: 'text' }
@@ -201,6 +201,9 @@ function NumberInputExercise({
             onChange={(e) => onSet(exercise.id, field.id, e.target.value)}
             className="bg-background max-w-xs"
           />
+          {field.note && (
+            <p className="text-xs text-foreground/70 mt-1">{field.note}</p>
+          )}
         </div>
       ))}
       {cfg.note && <p className="text-xs text-foreground/70 italic">{cfg.note}</p>}
