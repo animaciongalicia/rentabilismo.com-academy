@@ -68,7 +68,7 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
   const isAlreadyCompleted = completedIds.includes(lesson.id)
 
   // Si la lección ya está completada, cargar las respuestas guardadas para mostrarlas
-  let savedResponses: Record<string, Record<string, string | boolean>> = {}
+  const savedResponses: Record<string, Record<string, string | boolean>> = {}
   if (isAlreadyCompleted && exercises.length > 0) {
     const { data: respData } = await supabase
       .from('exercise_responses')
