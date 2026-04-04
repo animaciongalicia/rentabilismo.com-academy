@@ -15,6 +15,7 @@ type AiSection = {
 }
 
 type AiAnalysis = {
+  resumen_ejecutivo: string
   mentalidad: AiSection
   dinero: AiSection & { margen_porcentaje: number }
   clientes: AiSection
@@ -67,9 +68,12 @@ SECCIÓN 6 — TU PRIORIDAD NÚMERO UNO
 Datos: la respuesta que más le duele.
 Analiza: conecta esa respuesta con el área que más le conviene trabajar primero. Recomienda el siguiente paso concreto.
 
+IMPORTANTE: Cada interpretación debe ser de 4-6 frases, no 2-3. Profundiza. Conecta lo que ves con las consecuencias reales para el negocio. Las recomendaciones deben ser de 2-3 frases con un paso concreto y por qué importa.
+Añade un campo extra en el JSON: resumen_ejecutivo (string de 4-5 frases que resuman el estado general del negocio y la prioridad principal).
+
 FORMATO DE RESPUESTA:
 Responde SOLO en JSON válido, sin markdown, sin backticks, sin texto adicional:
-{"mentalidad":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"dinero":{"resumen":"...","interpretacion":"...","margen_porcentaje":X,"alerta":"..." o null,"recomendacion":"..."},"clientes":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"tiempo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"rumbo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"prioridad":{"resumen":"...","interpretacion":"...","modulo_recomendado":"...","siguiente_paso":"..."}}`
+{"resumen_ejecutivo":"...","mentalidad":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"dinero":{"resumen":"...","interpretacion":"...","margen_porcentaje":X,"alerta":"..." o null,"recomendacion":"..."},"clientes":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"tiempo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"rumbo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"prioridad":{"resumen":"...","interpretacion":"...","modulo_recomendado":"...","siguiente_paso":"..."}}`
 
 async function callAnthropicAnalysis(reportData: DiagnosticoReportData): Promise<AiAnalysis | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY
@@ -81,7 +85,7 @@ async function callAnthropicAnalysis(reportData: DiagnosticoReportData): Promise
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 4000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: JSON.stringify(reportData) }],
     })
@@ -125,21 +129,33 @@ function escHtml(str: string): string {
 
 // ── Generación del HTML ────────────────────────────────────────────────────
 
+const SANS = `-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`
+
+function execSummaryBlock(resumen: string): string {
+  return `
+    <div class="no-break" style="margin-bottom:40px;border-left:4px solid #D4A574;padding:20px 24px;background:#fff">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#D4A574;margin-bottom:10px;font-family:${SANS}">
+        Resumen del diagnóstico
+      </div>
+      <p style="font-size:1.05rem;color:#1a1a1a;line-height:1.8;margin:0;font-family:${SANS}">${escHtml(resumen)}</p>
+    </div>`
+}
+
 function aiSectionBlock(section: AiSection): string {
   return `
-    <div style="margin-top:20px;padding:16px;border-radius:8px;border:1px solid #e5e7eb;background:#fafafa">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-bottom:10px">
+    <div style="margin-top:24px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">
         Lo que ve el consultor
       </div>
-      <p style="font-size:13px;color:#111;line-height:1.7;margin:0 0 12px">${escHtml(section.interpretacion)}</p>
+      <p style="font-size:1rem;color:#1a1a1a;line-height:1.8;margin:0 0 16px;font-family:${SANS}">${escHtml(section.interpretacion)}</p>
       ${section.alerta ? `
-      <div style="background:#fff7ed;border:1px solid #fb923c;border-radius:6px;padding:12px 14px;margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Alerta</div>
-        <div style="font-size:13px;color:#111">${escHtml(section.alerta)}</div>
+      <div style="border-left:4px solid #F59E0B;padding:12px 16px;margin-bottom:16px;background:#fff">
+        <div style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:${SANS}">⚠ Atención</div>
+        <div style="font-size:0.9rem;color:#92400e;line-height:1.6;font-family:${SANS}">${escHtml(section.alerta)}</div>
       </div>` : ''}
-      <div style="border-left:3px solid #FF4D6A;padding:10px 14px;background:#fff">
-        <div style="font-size:11px;font-weight:700;color:#FF4D6A;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Siguiente paso</div>
-        <div style="font-size:13px;font-weight:600;color:#111">${escHtml(section.recomendacion)}</div>
+      <div style="border-left:4px solid #FF4D6A;padding:12px 16px;background:#fff">
+        <div style="font-size:10px;font-weight:700;color:#FF4D6A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-family:${SANS}">Siguiente paso</div>
+        <div style="font-size:0.95rem;font-weight:600;color:#1a1a1a;line-height:1.6;font-family:${SANS}">${escHtml(section.recomendacion)}</div>
       </div>
     </div>`
 }
@@ -188,24 +204,29 @@ function buildHtml(
   <title>Informe de Diagnóstico — ${escHtml(fullName)}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: Georgia, 'Times New Roman', serif; color: #111827; background: #fff; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color: #1a1a1a; background: #fff; }
     .report-header { margin-bottom: 32px; }
     .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1.5px; color: #6b7280; margin-bottom: 6px; }
-    .response-block { border-left: 3px solid #e5e7eb; padding: 10px 14px;
-      margin: 10px 0; background: #f9fafb; }
-    .big-number { font-size: 28px; font-weight: 800; color: #111; line-height: 1; }
+      letter-spacing: 1.5px; color: #9ca3af; margin-bottom: 6px;
+      font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+    h2.section-title { font-family: Georgia,'Times New Roman',serif; font-size: 22px;
+      font-weight: 800; color: #1a1a1a; margin: 0 0 20px; }
+    .response-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #999; margin-bottom: 6px; }
+    .response-block { border-left: 3px solid #d1d5db; padding: 8px 14px;
+      margin: 8px 0; background: #f9f9f9; font-size: 0.85rem; color: #666; line-height: 1.6; }
+    .big-number { font-size: 28px; font-weight: 800; color: #1a1a1a; line-height: 1; }
     .margen-bar { height: 8px; background: #e5e7eb; border-radius: 4px; margin: 6px 0; }
-    .margen-fill { height: 8px; background: #111; border-radius: 4px; }
-    .scale-circle { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #111;
+    .margen-fill { height: 8px; background: #1a1a1a; border-radius: 4px; }
+    .scale-circle { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #1a1a1a;
       display: flex; align-items: center; justify-content: center;
       font-size: 22px; font-weight: 800; }
     .proporcion-bar { height: 10px; background: #e5e7eb; border-radius: 5px; margin: 8px 0; }
-    .proporcion-fill { height: 10px; background: #111; border-radius: 5px; }
-    .cita { font-size: 20px; font-weight: 700; line-height: 1.4; color: #111;
-      padding: 20px 24px; border: 2px solid #111; border-radius: 8px;
-      background: #f9fafb; }
-    .diferencia-critica { background: #fff7ed; border-color: #fb923c; }
+    .proporcion-fill { height: 10px; background: #1a1a1a; border-radius: 5px; }
+    .cita { font-family: Georgia,'Times New Roman',serif; font-size: 20px; font-weight: 700;
+      line-height: 1.5; color: #1a1a1a; padding: 20px 24px;
+      border-left: 4px solid #D4A574; background: #fafafa; }
+    .diferencia-critica { border-left-color: #F59E0B !important; background: #fff; }
     @media print {
       body { font-size: 11pt; }
       .page-break { page-break-before: always; }
@@ -236,40 +257,32 @@ function buildHtml(
   ${!aiAnalysis ? `
   <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:12px;color:#92400e">
     El análisis personalizado no pudo generarse. Contacta con soporte.
-  </div>` : ''}
+  </div>` : execSummaryBlock(aiAnalysis.resumen_ejecutivo)}
 
   <!-- ══════════════════════════════════════════════════════════════
        SECCIÓN 1: Tu mentalidad de partida
   ══════════════════════════════════════════════════════════════════ -->
   <div class="no-break" style="margin-bottom:48px">
     <div class="section-label">Sección 1 de 6</div>
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 20px">Tu mentalidad de partida</h2>
+    <h2 class="section-title">Tu mentalidad de partida</h2>
 
-    <div class="no-break" style="margin-bottom:16px">
-      <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-        ¿Qué ya no estás dispuesto a seguir igual?
-      </div>
+    <div class="no-break" style="margin-bottom:14px">
+      <div class="response-label">¿Qué ya no estás dispuesto a seguir igual?</div>
       <div class="response-block">${val(data.mentalidad.punto_de_partida)}</div>
     </div>
 
-    <div class="no-break" style="margin-bottom:16px">
-      <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-        Lo que más energía te roba
-      </div>
+    <div class="no-break" style="margin-bottom:14px">
+      <div class="response-label">Lo que más energía te roba</div>
       <div class="response-block">${val(data.mentalidad.que_roba_energia)}</div>
     </div>
 
     <div class="no-break" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Área que quieres cambiar
-        </div>
+        <div class="response-label">Área que quieres cambiar</div>
         <div class="response-block">${val(data.mentalidad.area_que_quiere_cambiar)}</div>
       </div>
       <div>
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Tu primer paso
-        </div>
+        <div class="response-label">Tu primer paso</div>
         <div class="response-block">${val(data.mentalidad.paso_mas_pequeno)}</div>
       </div>
     </div>
@@ -283,26 +296,26 @@ function buildHtml(
     ${headerHtml}
     <div class="no-break" style="margin-bottom:48px">
       <div class="section-label">Sección 2 de 6</div>
-      <h2 style="font-size:20px;font-weight:800;margin:0 0 20px">Tu dinero</h2>
+      <h2 class="section-title">Tu dinero</h2>
 
       <div class="no-break" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px">
-        <div style="padding:20px;border:2px solid #111;border-radius:8px">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-bottom:6px">
+        <div style="padding:20px;border:1.5px solid #e5e7eb;border-radius:8px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-bottom:6px">
             Facturación mensual
           </div>
           <div class="big-number">${formatEuros(data.dinero.facturacion_mensual)}</div>
         </div>
-        <div style="padding:20px;border:2px solid #111;border-radius:8px">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-bottom:6px">
+        <div style="padding:20px;border:1.5px solid #e5e7eb;border-radius:8px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;margin-bottom:6px">
             Lo que te llevas a casa
           </div>
           <div class="big-number">${formatEuros(data.dinero.beneficio_neto)}</div>
         </div>
       </div>
 
-      <div class="no-break" style="padding:16px;background:#f9fafb;border-radius:8px;margin-bottom:20px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px">
-          Margen neto estimado: <strong style="font-size:16px;color:#111">${margen}</strong>
+      <div class="no-break" style="padding:16px;background:#f9f9f9;border-radius:8px;margin-bottom:20px;border-left:3px solid #d1d5db">
+        <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:8px">
+          Margen neto estimado: <strong style="font-size:16px;color:#1a1a1a">${margen}</strong>
         </div>
         <div class="margen-bar">
           <div class="margen-fill" style="width:${
@@ -317,24 +330,20 @@ function buildHtml(
         ${data.dinero.certeza ? `<div style="font-size:11px;color:#6b7280;margin-top:6px;font-style:italic">${escHtml(data.dinero.certeza)}</div>` : ''}
       </div>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Lo que más te deja / lo que más tiempo te quita
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Lo que más te deja / lo que más tiempo te quita</div>
         <div class="response-block">${val(data.dinero.lo_que_deja_vs_quita)}</div>
       </div>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Si subieras precios un 20%…
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Si subieras precios un 20%…</div>
         <div class="response-block">${val(data.dinero.prueba_20_pct)}</div>
       </div>
 
       ${data.dinero.mira_numeros_kaizen ? `
-      <div class="no-break" style="padding:14px 16px;border:1px solid #d1fae5;background:#f0fdf4;border-radius:8px">
-        <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ Paso de mejora</div>
-        <div style="font-size:13px;color:#111">${escHtml(data.dinero.mira_numeros_kaizen)}</div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Paso de mejora</div>
+        <div class="response-block">${escHtml(data.dinero.mira_numeros_kaizen)}</div>
       </div>` : ''}
     ${aiAnalysis ? aiSectionBlock(aiAnalysis.dinero) : ''}
     </div>
@@ -347,47 +356,39 @@ function buildHtml(
     ${headerHtml}
     <div class="no-break" style="margin-bottom:48px">
       <div class="section-label">Sección 3 de 6</div>
-      <h2 style="font-size:20px;font-weight:800;margin:0 0 20px">Tus clientes</h2>
+      <h2 class="section-title">Tus clientes</h2>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Tu mejor cliente
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Tu mejor cliente</div>
         <div class="response-block">${val(data.clientes.mejor_cliente)}</div>
       </div>
 
       ${data.clientes.proporcion ? `
-      <div class="no-break" style="padding:16px;background:#f9fafb;border-radius:8px;margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px">
-          Clientes así: <strong style="font-size:18px;color:#111">${escHtml(data.clientes.proporcion)} de cada 10</strong>
+      <div class="no-break" style="padding:14px 16px;background:#f9f9f9;border-left:3px solid #d1d5db;margin-bottom:14px">
+        <div style="font-size:0.85rem;color:#666;margin-bottom:8px">
+          Clientes así: <strong style="font-size:1rem;color:#1a1a1a">${escHtml(data.clientes.proporcion)} de cada 10</strong>
         </div>
         <div class="proporcion-bar">
           <div class="proporcion-fill" style="width:${Math.min(100, parseInt(data.clientes.proporcion || '0', 10) * 10)}%"></div>
         </div>
       </div>` : ''}
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Cómo te encuentran los clientes
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Cómo te encuentran los clientes</div>
         <div class="response-block">${val(data.clientes.como_encuentran)}</div>
       </div>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Qué te diferencia
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Qué te diferencia</div>
+        <div class="response-block ${!data.clientes.diferenciacion?.trim() ? 'diferencia-critica' : ''}">
+          ${val(data.clientes.diferenciacion, '⚠ Sin diferenciación clara identificada')}
         </div>
-        <div class="response-block ${!data.clientes.diferenciacion?.trim() ? 'diferencia-critica' : ''}"
-          ${!data.clientes.diferenciacion?.trim() ? 'style="border-left-color:#fb923c;background:#fff7ed"' : ''}>
-          ${val(data.clientes.diferenciacion, '⚠ Área crítica: sin diferenciación clara identificada')}
-        </div>
-        ${!data.clientes.diferenciacion?.trim() ? `<div style="font-size:11px;color:#c2410c;margin-top:4px;font-style:italic">La diferenciación es uno de los mayores palancas de margen y atracción de clientes.</div>` : ''}
       </div>
 
       ${data.clientes.kaizen_pregunta_cliente ? `
-      <div class="no-break" style="padding:14px 16px;border:1px solid #d1fae5;background:#f0fdf4;border-radius:8px">
-        <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ Lo que te dijo un cliente</div>
-        <div style="font-size:13px;color:#111">${escHtml(data.clientes.kaizen_pregunta_cliente)}</div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Lo que te dijo un cliente</div>
+        <div class="response-block">${escHtml(data.clientes.kaizen_pregunta_cliente)}</div>
       </div>` : ''}
     ${aiAnalysis ? aiSectionBlock(aiAnalysis.clientes) : ''}
     </div>
@@ -400,35 +401,33 @@ function buildHtml(
     ${headerHtml}
     <div class="no-break" style="margin-bottom:48px">
       <div class="section-label">Sección 4 de 6</div>
-      <h2 style="font-size:20px;font-weight:800;margin:0 0 20px">Tu tiempo</h2>
+      <h2 class="section-title">Tu tiempo</h2>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Tu día típico de trabajo
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Tu día típico de trabajo</div>
         <div class="response-block">${val(data.tiempo.dia_real)}</div>
       </div>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Si desaparecieras dos semanas…
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Si desaparecieras dos semanas…</div>
         <div class="response-block">${val(data.tiempo.prueba_dos_semanas)}</div>
       </div>
 
       ${data.tiempo.team_size ? `
-      <div class="no-break" style="padding:16px;background:#f9fafb;border-radius:8px;margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">Estructura del equipo</div>
-        <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:8px">${escHtml(data.tiempo.team_size)}</div>
-        ${data.tiempo.freno ? `<div style="font-size:12px;color:#374151"><strong>Freno para contratar:</strong> ${escHtml(data.tiempo.freno)}</div>` : ''}
-        ${data.tiempo.otra_razon ? `<div style="font-size:12px;color:#374151;margin-top:4px;font-style:italic">${escHtml(data.tiempo.otra_razon)}</div>` : ''}
-        ${data.tiempo.follow_up_equipo ? `<div style="font-size:12px;color:#374151;margin-top:8px">${escHtml(data.tiempo.follow_up_equipo)}</div>` : ''}
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Estructura del equipo</div>
+        <div class="response-block">
+          <strong style="color:#1a1a1a">${escHtml(data.tiempo.team_size)}</strong>
+          ${data.tiempo.freno ? `<br>Freno: ${escHtml(data.tiempo.freno)}` : ''}
+          ${data.tiempo.otra_razon ? `<br><em>${escHtml(data.tiempo.otra_razon)}</em>` : ''}
+          ${data.tiempo.follow_up_equipo ? `<br>${escHtml(data.tiempo.follow_up_equipo)}` : ''}
+        </div>
       </div>` : ''}
 
       ${data.tiempo.apunta_horas_kaizen ? `
-      <div class="no-break" style="padding:14px 16px;border:1px solid #d1fae5;background:#f0fdf4;border-radius:8px">
-        <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ Tareas donde eres prescindible</div>
-        <div style="font-size:13px;color:#111">${escHtml(data.tiempo.apunta_horas_kaizen)}</div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Tareas donde eres prescindible</div>
+        <div class="response-block">${escHtml(data.tiempo.apunta_horas_kaizen)}</div>
       </div>` : ''}
     ${aiAnalysis ? aiSectionBlock(aiAnalysis.tiempo) : ''}
     </div>
@@ -441,35 +440,28 @@ function buildHtml(
     ${headerHtml}
     <div class="no-break" style="margin-bottom:48px">
       <div class="section-label">Sección 5 de 6</div>
-      <h2 style="font-size:20px;font-weight:800;margin:0 0 20px">Tu rumbo</h2>
+      <h2 class="section-title">Tu rumbo</h2>
 
-      <div class="no-break" style="margin-bottom:16px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Tu visión a 2 años
-        </div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Tu visión a 2 años</div>
         <div class="response-block">${val(data.rumbo.vision_2_anos)}</div>
       </div>
 
-      <div class="no-break" style="margin-bottom:20px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px">
-          Lo que llevas posponiendo
-        </div>
-        <div class="response-block" style="border-left-color:#f59e0b;background:#fffbeb">${val(data.rumbo.posponiendo)}</div>
-        <div style="font-size:11px;color:#92400e;margin-top:4px;font-style:italic">Esta es tu prioridad más urgente.</div>
+      <div class="no-break" style="margin-bottom:14px">
+        <div class="response-label">Lo que llevas posponiendo</div>
+        <div class="response-block" style="border-left-color:#F59E0B">${val(data.rumbo.posponiendo)}</div>
       </div>
 
       ${data.rumbo.termometro ? `
-      <div class="no-break" style="display:flex;align-items:flex-start;gap:24px;padding:20px;background:#f9fafb;border-radius:8px;margin-bottom:16px">
+      <div class="no-break" style="display:flex;align-items:flex-start;gap:24px;padding:16px;background:#f9f9f9;border-left:3px solid #d1d5db;margin-bottom:14px">
         <div class="scale-circle">${escHtml(data.rumbo.termometro)}</div>
         <div style="flex:1">
-          <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:4px">
-            Nivel de satisfacción con tu negocio hoy
-          </div>
-          <div style="font-size:12px;color:#6b7280">1 = Nada contento → 10 = Completamente contento</div>
+          <div class="response-label">Nivel de satisfacción con tu negocio hoy</div>
+          <div style="font-size:0.8rem;color:#999">1 = Nada contento → 10 = Completamente contento</div>
           ${data.rumbo.que_falta_para_10 ? `
-          <div style="margin-top:12px">
-            <div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:4px">Para llegar al 10:</div>
-            <div style="font-size:13px;color:#111">${escHtml(data.rumbo.que_falta_para_10)}</div>
+          <div style="margin-top:10px">
+            <div class="response-label">Para llegar al 10</div>
+            <div style="font-size:0.85rem;color:#666">${escHtml(data.rumbo.que_falta_para_10)}</div>
           </div>` : ''}
         </div>
       </div>` : ''}
@@ -484,30 +476,28 @@ function buildHtml(
     ${headerHtml}
     <div class="no-break" style="margin-bottom:48px">
       <div class="section-label">Sección 6 de 6</div>
-      <h2 style="font-size:20px;font-weight:800;margin:0 0 20px">Tu prioridad</h2>
+      <h2 class="section-title">Tu prioridad</h2>
 
       <div class="no-break" style="margin-bottom:32px">
-        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:12px">
-          La respuesta que más te duele de todo el diagnóstico
-        </div>
+        <div class="response-label" style="margin-bottom:12px">La respuesta que más te duele de todo el diagnóstico</div>
         <div class="cita">${val(data.prioridad.respuesta_que_duele, 'Pendiente de completar el paso de mejora de la lección 4.')}</div>
       </div>
 
       ${aiAnalysis ? `
-      <div class="no-break" style="margin-top:20px;padding:16px;border-radius:8px;border:1px solid #e5e7eb;background:#fafafa;margin-bottom:24px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-bottom:10px">Lo que ve el consultor</div>
-        <p style="font-size:13px;color:#111;line-height:1.7;margin:0 0 16px">${escHtml(aiAnalysis.prioridad.interpretacion)}</p>
-        <div style="padding:20px;background:#111;border-radius:8px;color:#fff">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#9ca3af;margin-bottom:8px">Tu próximo módulo</div>
-          <div style="font-size:20px;font-weight:800;margin-bottom:8px">${escHtml(aiAnalysis.prioridad.modulo_recomendado)}</div>
-          <div style="font-size:13px;color:#d1d5db;line-height:1.6">${escHtml(aiAnalysis.prioridad.siguiente_paso)}</div>
+      <div class="no-break" style="margin-bottom:24px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">Lo que ve el consultor</div>
+        <p style="font-size:1rem;color:#1a1a1a;line-height:1.8;margin:0 0 20px;font-family:${SANS}">${escHtml(aiAnalysis.prioridad.interpretacion)}</p>
+        <div style="padding:24px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">Tu próximo módulo</div>
+          <div style="font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:10px;font-family:Georgia,'Times New Roman',serif">${escHtml(aiAnalysis.prioridad.modulo_recomendado)}</div>
+          <div style="font-size:0.9rem;color:#374151;line-height:1.6;font-family:${SANS}">${escHtml(aiAnalysis.prioridad.siguiente_paso)}</div>
         </div>
       </div>` : `
-      <div class="no-break" style="padding:20px;border:2px solid #111;border-radius:8px;margin-bottom:32px">
-        <p style="font-size:16px;font-weight:700;margin:0 0 8px;color:#111">
+      <div class="no-break" style="padding:20px;border:1.5px solid #e5e7eb;border-radius:8px;margin-bottom:32px">
+        <p style="font-size:16px;font-weight:700;margin:0 0 8px;color:#1a1a1a;font-family:Georgia,'Times New Roman',serif">
           Este es tu punto de partida. Ahora vamos a trabajar sobre él.
         </p>
-        <p style="font-size:13px;color:#374151;margin:0;line-height:1.6">
+        <p style="font-size:0.9rem;color:#374151;margin:0;line-height:1.6;font-family:${SANS}">
           Cada módulo que completes va a atacar uno de los puntos que acabas de identificar.
           Con método. Sin humo.
         </p>
