@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { checkDiagnosticoComplete } from '@/lib/reports/check-diagnostico-complete'
+import { InformeButton } from './informe-button'
 
 export const metadata = {
   title: 'Tu diagnóstico está listo — Rentabilismo Academy',
@@ -68,14 +69,7 @@ export default async function CierrePage() {
 
         {/* CTA */}
         <div className="flex flex-col items-center gap-4">
-          <Link
-            href={`/api/informe/diagnostico/${user.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-xl bg-primary text-primary-foreground h-14 px-8 text-base font-semibold hover:bg-primary/80 transition-colors w-full sm:w-auto"
-          >
-            Ver mi Informe de Diagnóstico →
-          </Link>
+          <InformeButton userId={user.id} />
           <Link
             href="/dashboard"
             className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"

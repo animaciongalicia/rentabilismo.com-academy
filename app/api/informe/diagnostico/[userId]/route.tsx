@@ -71,6 +71,15 @@ Analiza: conecta esa respuesta con el área que más le conviene trabajar primer
 IMPORTANTE: Cada interpretación debe ser de 4-6 frases, no 2-3. Profundiza. Conecta lo que ves con las consecuencias reales para el negocio. Las recomendaciones deben ser de 2-3 frases con un paso concreto y por qué importa.
 Añade un campo extra en el JSON: resumen_ejecutivo (string de 4-5 frases que resuman el estado general del negocio y la prioridad principal).
 
+FORMATO DE LAS INTERPRETACIONES: Escribe cada interpretación con estructura clara. Usa ** ** para poner en negrita las frases más importantes (2-3 por interpretación). Separa las ideas en párrafos cortos de 2-3 frases separados con una línea en blanco (\\n\\n). La primera frase de cada interpretación debe ser un golpe directo que resuma lo que ves. Ejemplo de formato:
+
+**Tu margen está en zona de riesgo.** De cada 100€ que entra, solo te quedan 19€. Eso no es un negocio rentable, es una rueda que gira sin avanzar.
+
+El problema no es que vendas poco. **Es que lo que vendes no te deja lo suficiente.** Y mientras sigas asumiendo que subir precios te sacaría del mercado, seguirás trabajando mucho para quedarte con poco.
+
+FORMATO DE LAS RECOMENDACIONES: También usa ** ** para destacar la acción principal. Ejemplo:
+**Haz una lista de todos tus servicios y calcula cuánto te cuesta realmente cada uno.** Probablemente hay uno o dos que casi no dejan nada y están distorsionando todo el resultado.
+
 FORMATO DE RESPUESTA:
 Responde SOLO en JSON válido, sin markdown, sin backticks, sin texto adicional:
 {"resumen_ejecutivo":"...","mentalidad":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"dinero":{"resumen":"...","interpretacion":"...","margen_porcentaje":X,"alerta":"..." o null,"recomendacion":"..."},"clientes":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"tiempo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"rumbo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"prioridad":{"resumen":"...","interpretacion":"...","modulo_recomendado":"...","siguiente_paso":"..."}}`
@@ -127,6 +136,16 @@ function escHtml(str: string): string {
     .replace(/\n/g, '<br>')
 }
 
+function renderBoldHtml(text: string): string {
+  const paragraphs = text.split(/\n\n+/)
+  return paragraphs
+    .map(p => {
+      const withBold = p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      return `<p style="margin:0 0 12px;line-height:1.8">${withBold}</p>`
+    })
+    .join('')
+}
+
 // ── Generación del HTML ────────────────────────────────────────────────────
 
 const SANS = `-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`
@@ -144,10 +163,10 @@ function execSummaryBlock(resumen: string): string {
 function aiSectionBlock(section: AiSection): string {
   return `
     <div style="margin-top:24px">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">
+      <div style="font-size:1rem;font-weight:700;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">
         Lo que ve el consultor
       </div>
-      <p style="font-size:1rem;color:#1a1a1a;line-height:1.8;margin:0 0 16px;font-family:${SANS}">${escHtml(section.interpretacion)}</p>
+      <div style="font-size:1rem;color:#1a1a1a;font-family:${SANS};margin-bottom:16px">${renderBoldHtml(section.interpretacion)}</div>
       ${section.alerta ? `
       <div style="border-left:4px solid #F59E0B;padding:12px 16px;margin-bottom:16px;background:#fff">
         <div style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:${SANS}">⚠ Atención</div>
@@ -155,7 +174,26 @@ function aiSectionBlock(section: AiSection): string {
       </div>` : ''}
       <div style="border-left:4px solid #FF4D6A;padding:12px 16px;background:#fff">
         <div style="font-size:10px;font-weight:700;color:#FF4D6A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-family:${SANS}">Siguiente paso</div>
-        <div style="font-size:0.95rem;font-weight:600;color:#1a1a1a;line-height:1.6;font-family:${SANS}">${escHtml(section.recomendacion)}</div>
+        <div style="font-size:0.95rem;color:#1a1a1a;line-height:1.6;font-family:${SANS}">${renderBoldHtml(section.recomendacion)}</div>
+      </div>
+    </div>`
+}
+
+function closingBlock(): string {
+  const text = [
+    'Acabas de hacer lo más difícil — mirarte con honestidad. La mayoría nunca llega hasta aquí.',
+    'Ahora tienes algo que no tenías: **claridad.** Sabes dónde estás, dónde sangra tu negocio, qué te frena y hacia dónde quieres ir.',
+    'A partir de aquí, cada módulo que trabajes va a partir de esta fotografía. **No vas a mejorar todo a la vez.** Vas a mejorar una cosa cada vez. Un paso, una semana, un cambio.',
+    'Y cuando mires atrás dentro de tres meses, no vas a reconocer cómo gestionabas tu negocio antes.',
+    '**No hay milagros. Hay método. Y ahora tienes los dos.**',
+  ].join('\n\n')
+  return `
+    <div class="no-break" style="margin-top:40px;margin-bottom:32px;border-left:4px solid #D4A574;padding:20px 24px;background:#fff">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#D4A574;margin-bottom:14px;font-family:${SANS}">
+        Lo que viene ahora
+      </div>
+      <div style="font-size:1.05rem;color:#1a1a1a;line-height:1.8;font-family:${SANS}">
+        ${renderBoldHtml(text)}
       </div>
     </div>`
 }
@@ -485,12 +523,12 @@ function buildHtml(
 
       ${aiAnalysis ? `
       <div class="no-break" style="margin-bottom:24px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">Lo que ve el consultor</div>
-        <p style="font-size:1rem;color:#1a1a1a;line-height:1.8;margin:0 0 20px;font-family:${SANS}">${escHtml(aiAnalysis.prioridad.interpretacion)}</p>
+        <div style="font-size:1rem;font-weight:700;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">Lo que ve el consultor</div>
+        <div style="font-size:1rem;color:#1a1a1a;font-family:${SANS};margin-bottom:20px">${renderBoldHtml(aiAnalysis.prioridad.interpretacion)}</div>
         <div style="padding:24px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#FF4D6A;margin-bottom:10px;font-family:${SANS}">Tu próximo módulo</div>
           <div style="font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:10px;font-family:Georgia,'Times New Roman',serif">${escHtml(aiAnalysis.prioridad.modulo_recomendado)}</div>
-          <div style="font-size:0.9rem;color:#374151;line-height:1.6;font-family:${SANS}">${escHtml(aiAnalysis.prioridad.siguiente_paso)}</div>
+          <div style="font-size:0.9rem;color:#374151;line-height:1.6;font-family:${SANS}">${renderBoldHtml(aiAnalysis.prioridad.siguiente_paso)}</div>
         </div>
       </div>` : `
       <div class="no-break" style="padding:20px;border:1.5px solid #e5e7eb;border-radius:8px;margin-bottom:32px">
@@ -503,6 +541,8 @@ function buildHtml(
         </p>
       </div>`}
     </div>
+
+    ${closingBlock()}
 
     <!-- Pie del informe -->
     <div style="padding-top:24px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;line-height:1.8">
