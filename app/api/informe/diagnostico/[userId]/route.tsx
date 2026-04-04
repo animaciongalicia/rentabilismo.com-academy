@@ -5,6 +5,95 @@ import type { DiagnosticoReportData } from '@/lib/reports/get-diagnostico-report
 
 type Props = { params: { userId: string } }
 
+// ── Tipos análisis IA ─────────────────────────────────────────────────────
+
+type AiSection = {
+  resumen: string
+  interpretacion: string
+  alerta: string | null
+  recomendacion: string
+}
+
+type AiAnalysis = {
+  mentalidad: AiSection
+  dinero: AiSection & { margen_porcentaje: number }
+  clientes: AiSection
+  tiempo: AiSection
+  rumbo: AiSection
+  prioridad: {
+    resumen: string
+    interpretacion: string
+    modulo_recomendado: string
+    siguiente_paso: string
+  }
+}
+
+// ── Análisis de IA ─────────────────────────────────────────────────────────
+
+const SYSTEM_PROMPT = `Eres un consultor de negocio con 25 años de experiencia trabajando con autónomos y pymes de 1 a 20 empleados. Negocios locales, físicos, híbridos y online: restaurantes, clínicas, gimnasios, empresas de limpieza, tiendas, talleres, consultoras, negocios digitales.
+
+Recibes los datos de un diagnóstico inicial de un empresario. Tu trabajo es analizar sus respuestas y generar un informe personalizado con estas 6 secciones. Para cada sección:
+
+1. Resume lo que el empresario dijo (en 1-2 frases)
+2. Interpreta qué significa eso para su negocio (lo que un consultor vería)
+3. Identifica la señal de alerta principal si la hay
+4. Da una recomendación concreta de un solo paso
+
+Tono: directo, cercano, sin humo. Como un consultor que se sienta enfrente con un café. Usa "tú" siempre. No uses palabras como estrategia, metodología, empoderamiento, mindset.
+
+SECCIONES:
+
+SECCIÓN 1 — TU MENTALIDAD DE PARTIDA
+Datos: lo que ya no quiere que siga igual, el área que quiere cambiar, qué le roba energía.
+Analiza: su nivel de conciencia sobre sus problemas y su disposición al cambio.
+
+SECCIÓN 2 — TU DINERO
+Datos: facturación mensual, beneficio neto, qué le deja más, qué le quita más, qué pasaría si sube precios.
+Analiza: calcula el % de margen (beneficio/facturación × 100). Si es menor del 30%, señálalo como crítico. Interpreta si sabe realmente cuánto gana o está navegando a ciegas. Analiza su relación con el precio.
+
+SECCIÓN 3 — TUS CLIENTES
+Datos: descripción de su mejor cliente, proporción (X de 10), cómo le llegan, qué le diferencia.
+Analiza: si tiene menos de 4/10 clientes ideales, tiene un problema de captación. Si no sabe qué le diferencia, tiene un problema de posicionamiento. Si depende del boca a boca, no tiene sistema.
+
+SECCIÓN 4 — TU TIEMPO
+Datos: su día típico, qué se rompe sin él, situación de equipo (solo/con gente) y qué le frena.
+Analiza: identifica qué porcentaje de su día son tareas que no generan dinero. Si todo se rompe sin él, es un autoempleo, no un negocio. Si está solo por falta de confianza, ese es su freno real.
+
+SECCIÓN 5 — TU RUMBO
+Datos: visión a 2 años, lo que lleva posponiendo, satisfacción 1-10, qué falta para ser un 10.
+Analiza: si la visión es vaga, no tiene dirección. Lo que lleva posponiendo es su prioridad real. La puntuación dice todo.
+
+SECCIÓN 6 — TU PRIORIDAD NÚMERO UNO
+Datos: la respuesta que más le duele.
+Analiza: conecta esa respuesta con el área que más le conviene trabajar primero. Recomienda el siguiente paso concreto.
+
+FORMATO DE RESPUESTA:
+Responde SOLO en JSON válido, sin markdown, sin backticks, sin texto adicional:
+{"mentalidad":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"dinero":{"resumen":"...","interpretacion":"...","margen_porcentaje":X,"alerta":"..." o null,"recomendacion":"..."},"clientes":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"tiempo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"rumbo":{"resumen":"...","interpretacion":"...","alerta":"..." o null,"recomendacion":"..."},"prioridad":{"resumen":"...","interpretacion":"...","modulo_recomendado":"...","siguiente_paso":"..."}}`
+
+async function callAnthropicAnalysis(reportData: DiagnosticoReportData): Promise<AiAnalysis | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) return null
+
+  try {
+    const Anthropic = (await import('@anthropic-ai/sdk')).default
+    const client = new Anthropic({ apiKey })
+
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6-20250514',
+      max_tokens: 2000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: JSON.stringify(reportData) }],
+    })
+
+    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+    return JSON.parse(text) as AiAnalysis
+  } catch (e) {
+    console.error('callAnthropicAnalysis error:', e)
+    return null
+  }
+}
+
 // ── Helpers de formato ─────────────────────────────────────────────────────
 
 function formatEuros(value: string): string {
@@ -36,14 +125,36 @@ function escHtml(str: string): string {
 
 // ── Generación del HTML ────────────────────────────────────────────────────
 
+function aiSectionBlock(section: AiSection): string {
+  return `
+    <div style="margin-top:20px;padding:16px;border-radius:8px;border:1px solid #e5e7eb;background:#fafafa">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-bottom:10px">
+        Lo que ve el consultor
+      </div>
+      <p style="font-size:13px;color:#111;line-height:1.7;margin:0 0 12px">${escHtml(section.interpretacion)}</p>
+      ${section.alerta ? `
+      <div style="background:#fff7ed;border:1px solid #fb923c;border-radius:6px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Alerta</div>
+        <div style="font-size:13px;color:#111">${escHtml(section.alerta)}</div>
+      </div>` : ''}
+      <div style="border-left:3px solid #FF4D6A;padding:10px 14px;background:#fff">
+        <div style="font-size:11px;font-weight:700;color:#FF4D6A;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Siguiente paso</div>
+        <div style="font-size:13px;font-weight:600;color:#111">${escHtml(section.recomendacion)}</div>
+      </div>
+    </div>`
+}
+
 function buildHtml(
   data: DiagnosticoReportData,
   fullName: string,
   businessName: string,
   businessSector: string,
-  fecha: string
+  fecha: string,
+  aiAnalysis: AiAnalysis | null
 ): string {
-  const margen = calcMargen(data.dinero.facturacion_mensual, data.dinero.beneficio_neto)
+  const margen = aiAnalysis
+    ? `${aiAnalysis.dinero.margen_porcentaje} %`
+    : calcMargen(data.dinero.facturacion_mensual, data.dinero.beneficio_neto)
 
   const headerHtml = `
     <div class="report-header">
@@ -122,6 +233,11 @@ function buildHtml(
     </a>
   </div>
 
+  ${!aiAnalysis ? `
+  <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:12px;color:#92400e">
+    El análisis personalizado no pudo generarse. Contacta con soporte.
+  </div>` : ''}
+
   <!-- ══════════════════════════════════════════════════════════════
        SECCIÓN 1: Tu mentalidad de partida
   ══════════════════════════════════════════════════════════════════ -->
@@ -157,6 +273,7 @@ function buildHtml(
         <div class="response-block">${val(data.mentalidad.paso_mas_pequeno)}</div>
       </div>
     </div>
+    ${aiAnalysis ? aiSectionBlock(aiAnalysis.mentalidad) : ''}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
@@ -219,6 +336,7 @@ function buildHtml(
         <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ Paso de mejora</div>
         <div style="font-size:13px;color:#111">${escHtml(data.dinero.mira_numeros_kaizen)}</div>
       </div>` : ''}
+    ${aiAnalysis ? aiSectionBlock(aiAnalysis.dinero) : ''}
     </div>
   </div>
 
@@ -271,6 +389,7 @@ function buildHtml(
         <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ Lo que te dijo un cliente</div>
         <div style="font-size:13px;color:#111">${escHtml(data.clientes.kaizen_pregunta_cliente)}</div>
       </div>` : ''}
+    ${aiAnalysis ? aiSectionBlock(aiAnalysis.clientes) : ''}
     </div>
   </div>
 
@@ -311,6 +430,7 @@ function buildHtml(
         <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ Tareas donde eres prescindible</div>
         <div style="font-size:13px;color:#111">${escHtml(data.tiempo.apunta_horas_kaizen)}</div>
       </div>` : ''}
+    ${aiAnalysis ? aiSectionBlock(aiAnalysis.tiempo) : ''}
     </div>
   </div>
 
@@ -353,6 +473,7 @@ function buildHtml(
           </div>` : ''}
         </div>
       </div>` : ''}
+    ${aiAnalysis ? aiSectionBlock(aiAnalysis.rumbo) : ''}
     </div>
   </div>
 
@@ -372,6 +493,16 @@ function buildHtml(
         <div class="cita">${val(data.prioridad.respuesta_que_duele, 'Pendiente de completar el paso de mejora de la lección 4.')}</div>
       </div>
 
+      ${aiAnalysis ? `
+      <div class="no-break" style="margin-top:20px;padding:16px;border-radius:8px;border:1px solid #e5e7eb;background:#fafafa;margin-bottom:24px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#6b7280;margin-bottom:10px">Lo que ve el consultor</div>
+        <p style="font-size:13px;color:#111;line-height:1.7;margin:0 0 16px">${escHtml(aiAnalysis.prioridad.interpretacion)}</p>
+        <div style="padding:20px;background:#111;border-radius:8px;color:#fff">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#9ca3af;margin-bottom:8px">Tu próximo módulo</div>
+          <div style="font-size:20px;font-weight:800;margin-bottom:8px">${escHtml(aiAnalysis.prioridad.modulo_recomendado)}</div>
+          <div style="font-size:13px;color:#d1d5db;line-height:1.6">${escHtml(aiAnalysis.prioridad.siguiente_paso)}</div>
+        </div>
+      </div>` : `
       <div class="no-break" style="padding:20px;border:2px solid #111;border-radius:8px;margin-bottom:32px">
         <p style="font-size:16px;font-weight:700;margin:0 0 8px;color:#111">
           Este es tu punto de partida. Ahora vamos a trabajar sobre él.
@@ -380,7 +511,7 @@ function buildHtml(
           Cada módulo que completes va a atacar uno de los puntos que acabas de identificar.
           Con método. Sin humo.
         </p>
-      </div>
+      </div>`}
     </div>
 
     <!-- Pie del informe -->
@@ -432,17 +563,20 @@ export async function GET(_req: Request, { params }: Props) {
     return new NextResponse('No hay respuestas guardadas todavía.', { status: 404 })
   }
 
+  // Análisis de IA (puede fallar silenciosamente → aiAnalysis = null)
+  const aiAnalysis = await callAnthropicAnalysis(reportData)
+
   // Guardar / actualizar en evolution_reports (idempotente)
   await supabase.from('evolution_reports').upsert(
     {
       user_id: user.id,
       report_type: 'diagnostico_inicial',
-      report_data: reportData as unknown as Record<string, unknown>,
+      report_data: { rawData: reportData, aiAnalysis } as unknown as Record<string, unknown>,
     },
     { onConflict: 'user_id,report_type' }
   )
 
-  const html = buildHtml(reportData, fullName, businessName, businessSector, fecha)
+  const html = buildHtml(reportData, fullName, businessName, businessSector, fecha, aiAnalysis)
 
   return new NextResponse(html, {
     headers: { 'Content-Type': 'text/html; charset=utf-8' },
