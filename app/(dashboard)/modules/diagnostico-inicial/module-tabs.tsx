@@ -109,61 +109,58 @@ export default function DiagnosticoModuleTabs({
   completedIds,
 }: Props) {
   return (
-    <div className="space-y-8">
-      <Tabs defaultValue="video">
-        <TabsList>
-          <TabsTrigger value="video">🎬 Vídeo introductorio</TabsTrigger>
-          <TabsTrigger value="descripcion">📄 Descripción</TabsTrigger>
-        </TabsList>
+    <Tabs defaultValue="explicacion">
+      <TabsList>
+        <TabsTrigger value="explicacion">📄 Explicación del módulo</TabsTrigger>
+        <TabsTrigger value="video">🎬 Vídeo</TabsTrigger>
+      </TabsList>
 
-        {/* Vídeo */}
-        <TabsContent value="video" className="mt-6 space-y-6">
-          {videoIntroText && (
-            <div className="space-y-3 max-w-[720px]">
-              {videoIntroText.split('\n\n').map((para, i) => (
-                <p key={i} className="text-base leading-relaxed text-foreground/90">
-                  {renderBold(para)}
-                </p>
-              ))}
-            </div>
-          )}
-          <div className="max-w-[720px]">
-            {vimeoId ? (
-              <div className="aspect-video rounded-xl overflow-hidden">
-                <iframe
-                  src={`https://player.vimeo.com/video/${vimeoId}?badge=0&autopause=0&player_id=0&app_id=58479`}
-                  className="w-full h-full"
-                  allow="autoplay; fullscreen; picture-in-picture"
-                  title="Diagnóstico Inicial — introducción"
-                />
-              </div>
-            ) : (
-              <VideoPlaceholder />
-            )}
+      {/* Explicación del módulo */}
+      <TabsContent value="explicacion" className="mt-6 space-y-8">
+        {description ? (
+          <div className="space-y-4 max-w-[720px]">
+            {description.split('\n\n').map((para, i) => (
+              <p key={i} className="text-base leading-relaxed text-foreground/90">
+                {renderBold(para)}
+              </p>
+            ))}
           </div>
-        </TabsContent>
+        ) : (
+          <p className="text-sm text-muted-foreground">Descripción no disponible.</p>
+        )}
 
-        {/* Descripción */}
-        <TabsContent value="descripcion" className="mt-6 max-w-[720px]">
-          {description ? (
-            <div className="space-y-4">
-              {description.split('\n\n').map((para, i) => (
-                <p key={i} className="text-base leading-relaxed text-foreground/90">
-                  {renderBold(para)}
-                </p>
-              ))}
+        {/* Lista de lecciones — solo visible en móvil (sidebar oculto en desktop) */}
+        <div className="md:hidden">
+          <LessonList lessons={lessons} completedIds={completedIds} />
+        </div>
+      </TabsContent>
+
+      {/* Vídeo */}
+      <TabsContent value="video" className="mt-6 space-y-6">
+        {videoIntroText && (
+          <div className="space-y-3 max-w-[720px]">
+            {videoIntroText.split('\n\n').map((para, i) => (
+              <p key={i} className="text-base leading-relaxed text-foreground/90">
+                {renderBold(para)}
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="max-w-[720px]">
+          {vimeoId ? (
+            <div className="aspect-video rounded-xl overflow-hidden">
+              <iframe
+                src={`https://player.vimeo.com/video/${vimeoId}?badge=0&autopause=0&player_id=0&app_id=58479`}
+                className="w-full h-full"
+                allow="autoplay; fullscreen; picture-in-picture"
+                title="Diagnóstico Inicial — introducción"
+              />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Descripción no disponible.</p>
+            <VideoPlaceholder />
           )}
-        </TabsContent>
-      </Tabs>
-
-      {/* Lista de lecciones — siempre visible */}
-      <LessonList lessons={lessons} completedIds={completedIds} />
-
-      {/* Móvil: lista de lecciones dentro de tabs también */}
-      <div className="md:hidden" />
-    </div>
+        </div>
+      </TabsContent>
+    </Tabs>
   )
 }
