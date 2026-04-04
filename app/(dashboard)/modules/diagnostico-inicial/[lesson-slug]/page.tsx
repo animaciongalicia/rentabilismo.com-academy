@@ -67,6 +67,19 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
   const isAlreadyCompleted = completedIds.includes(lesson.id)
 
+  // Si la lección ya está completada, cargar las respuestas guardadas para mostrarlas
+  let savedResponses: Record<string, Record<string, string | boolean>> = {}
+  if (isAlreadyCompleted && exercises.length > 0) {
+    const { data: respData } = await supabase
+      .from('exercise_responses')
+      .select('exercise_id, response')
+      .eq('user_id', user.id)
+      .in('exercise_id', exercises.map((e) => e.id))
+    for (const row of respData ?? []) {
+      savedResponses[row.exercise_id] = row.response as Record<string, string | boolean>
+    }
+  }
+
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
@@ -121,6 +134,7 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
             nextSlug={nextLesson?.slug ?? null}
             isAlreadyCompleted={isAlreadyCompleted}
             isLocked={isLocked}
+            savedResponses={savedResponses}
           />
         </div>
       </main>

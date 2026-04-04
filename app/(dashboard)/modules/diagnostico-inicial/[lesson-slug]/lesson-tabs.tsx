@@ -38,6 +38,7 @@ type Props = {
   nextSlug: string | null
   isAlreadyCompleted: boolean
   isLocked: boolean
+  savedResponses?: Record<string, Record<string, string | boolean>>
 }
 
 // ── Config types ───────────────────────────────────────────────────────────
@@ -80,9 +81,16 @@ function renderBold(text: string): React.ReactNode[] {
 
 // ── State init ─────────────────────────────────────────────────────────────
 
-function initResponses(exercises: Exercise[]): Responses {
+function initResponses(
+  exercises: Exercise[],
+  saved: Record<string, Record<string, string | boolean>> = {}
+): Responses {
   const init: Responses = {}
   for (const ex of exercises) {
+    if (saved[ex.id] && Object.keys(saved[ex.id]).length > 0) {
+      init[ex.id] = saved[ex.id]
+      continue
+    }
     if (ex.type === 'open_reflection' || ex.type === 'kaizen_step') {
       init[ex.id] = { value: '' }
     } else if (ex.type === 'number_input') {
@@ -145,11 +153,12 @@ function SaveButton({
 // ── Exercise renderers ─────────────────────────────────────────────────────
 
 function OpenReflection({
-  exercise, responses, onSet, isAuthenticated, saveState, onSave,
+  exercise, responses, onSet, isAuthenticated, saveState, onSave, readOnly,
 }: {
   exercise: Exercise; responses: Responses
   onSet: (id: string, key: string, val: string) => void
   isAuthenticated: boolean; saveState: SaveState; onSave: (id: string) => void
+  readOnly?: boolean
 }) {
   const cfg = exercise.config as OpenReflectionConfig
   return (
@@ -163,20 +172,22 @@ function OpenReflection({
         value={(responses[exercise.id]?.value as string) ?? ''}
         onChange={(e) => onSet(exercise.id, 'value', e.target.value)}
         rows={4}
-        className="resize-none bg-background"
+        disabled={readOnly}
+        className="resize-none bg-background disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
       />
       {cfg.note && <p className="text-xs text-foreground/70 italic">{cfg.note}</p>}
-      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
+      {!readOnly && <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />}
     </div>
   )
 }
 
 function NumberInputExercise({
-  exercise, responses, onSet, isAuthenticated, saveState, onSave,
+  exercise, responses, onSet, isAuthenticated, saveState, onSave, readOnly,
 }: {
   exercise: Exercise; responses: Responses
   onSet: (id: string, key: string, val: string) => void
   isAuthenticated: boolean; saveState: SaveState; onSave: (id: string) => void
+  readOnly?: boolean
 }) {
   const cfg = exercise.config as NumberInputConfig
   return (
@@ -199,7 +210,8 @@ function NumberInputExercise({
             placeholder={field.placeholder}
             value={(responses[exercise.id]?.[field.id] as string) ?? ''}
             onChange={(e) => onSet(exercise.id, field.id, e.target.value)}
-            className="bg-background max-w-xs"
+            disabled={readOnly}
+            className="bg-background max-w-xs disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
           />
           {field.note && (
             <p className="text-xs text-foreground/70 mt-1">{field.note}</p>
@@ -207,17 +219,18 @@ function NumberInputExercise({
         </div>
       ))}
       {cfg.note && <p className="text-xs text-foreground/70 italic">{cfg.note}</p>}
-      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
+      {!readOnly && <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />}
     </div>
   )
 }
 
 function TextInputExercise({
-  exercise, responses, onSet, isAuthenticated, saveState, onSave,
+  exercise, responses, onSet, isAuthenticated, saveState, onSave, readOnly,
 }: {
   exercise: Exercise; responses: Responses
   onSet: (id: string, key: string, val: string) => void
   isAuthenticated: boolean; saveState: SaveState; onSave: (id: string) => void
+  readOnly?: boolean
 }) {
   const cfg = exercise.config as TextInputConfig
   return (
@@ -240,7 +253,8 @@ function TextInputExercise({
                 step={1}
                 value={(responses[exercise.id]?.[field.id] as string) || String(field.min)}
                 onChange={(e) => onSet(exercise.id, field.id, e.target.value)}
-                className="flex-1 accent-primary"
+                disabled={readOnly}
+                className="flex-1 accent-primary disabled:opacity-100 disabled:cursor-default"
               />
               <span className="text-xs text-muted-foreground tabular-nums w-4">{field.max}</span>
               <span className="text-base font-semibold tabular-nums w-6 text-center">
@@ -254,22 +268,24 @@ function TextInputExercise({
               value={(responses[exercise.id]?.[field.id] as string) ?? ''}
               onChange={(e) => onSet(exercise.id, field.id, e.target.value)}
               rows={3}
-              className="resize-none bg-background"
+              disabled={readOnly}
+              className="resize-none bg-background disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
             />
           )}
         </div>
       ))}
-      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
+      {!readOnly && <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />}
     </div>
   )
 }
 
 function MultipleChoiceExercise({
-  exercise, responses, onSet, isAuthenticated, saveState, onSave,
+  exercise, responses, onSet, isAuthenticated, saveState, onSave, readOnly,
 }: {
   exercise: Exercise; responses: Responses
   onSet: (id: string, key: string, val: string) => void
   isAuthenticated: boolean; saveState: SaveState; onSave: (id: string) => void
+  readOnly?: boolean
 }) {
   const cfg = exercise.config as MultipleChoiceConfig
   const selectedOption = (responses[exercise.id]?.selected_option as string) ?? ''
@@ -287,21 +303,22 @@ function MultipleChoiceExercise({
         {cfg.options.map((opt) => (
           <label
             key={opt.id}
-            className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+            className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-muted/40'}`}
           >
             <input
               type="radio"
               name={`${exercise.id}-option`}
               value={opt.id}
               checked={selectedOption === opt.id}
+              disabled={readOnly}
               onChange={() => {
+                if (readOnly) return
                 onSet(exercise.id, 'selected_option', opt.id)
-                // reset follow_up fields when option changes
                 onSet(exercise.id, 'freno', '')
                 onSet(exercise.id, 'otra_razon', '')
                 onSet(exercise.id, 'follow_up_text', '')
               }}
-              className="accent-primary"
+              className="accent-primary disabled:cursor-default"
             />
             <span className="text-sm leading-snug">{opt.label}</span>
           </label>
@@ -316,15 +333,16 @@ function MultipleChoiceExercise({
             {followUp.options.map((opt) => (
               <label
                 key={opt.id}
-                className="flex items-center gap-3 rounded-lg border border-border px-3 py-2.5 cursor-pointer hover:bg-background transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                className={`flex items-center gap-3 rounded-lg border border-border px-3 py-2.5 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-background'}`}
               >
                 <input
                   type="radio"
                   name={`${exercise.id}-freno`}
                   value={opt.id}
                   checked={(responses[exercise.id]?.freno as string) === opt.id}
-                  onChange={() => onSet(exercise.id, 'freno', opt.id)}
-                  className="accent-primary"
+                  disabled={readOnly}
+                  onChange={() => !readOnly && onSet(exercise.id, 'freno', opt.id)}
+                  className="accent-primary disabled:cursor-default"
                 />
                 <span className="text-sm">{opt.label}</span>
               </label>
@@ -339,7 +357,8 @@ function MultipleChoiceExercise({
                 value={(responses[exercise.id]?.otra_razon as string) ?? ''}
                 onChange={(e) => onSet(exercise.id, 'otra_razon', e.target.value)}
                 rows={2}
-                className="resize-none bg-background"
+                disabled={readOnly}
+                className="resize-none bg-background disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
               />
             </div>
           )}
@@ -354,22 +373,24 @@ function MultipleChoiceExercise({
             value={(responses[exercise.id]?.follow_up_text as string) ?? ''}
             onChange={(e) => onSet(exercise.id, 'follow_up_text', e.target.value)}
             rows={3}
-            className="resize-none bg-background"
+            disabled={readOnly}
+            className="resize-none bg-background disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
           />
         </div>
       )}
 
-      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
+      {!readOnly && <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />}
     </div>
   )
 }
 
 function ScaleExercise({
-  exercise, responses, onSet, isAuthenticated, saveState, onSave,
+  exercise, responses, onSet, isAuthenticated, saveState, onSave, readOnly,
 }: {
   exercise: Exercise; responses: Responses
   onSet: (id: string, key: string, val: string) => void
   isAuthenticated: boolean; saveState: SaveState; onSave: (id: string) => void
+  readOnly?: boolean
 }) {
   const cfg = exercise.config as ScaleConfig
   const currentValue = (responses[exercise.id]?.value as string) || ''
@@ -389,11 +410,12 @@ function ScaleExercise({
             <button
               key={n}
               type="button"
-              onClick={() => onSet(exercise.id, 'value', String(n))}
-              className={`w-11 h-11 rounded-lg border text-sm font-semibold transition-colors ${
+              onClick={() => !readOnly && onSet(exercise.id, 'value', String(n))}
+              disabled={readOnly}
+              className={`w-11 h-11 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-default ${
                 numValue === n
                   ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border bg-background hover:border-primary/60 hover:bg-muted/40'
+                  : 'border-border bg-background' + (readOnly ? '' : ' hover:border-primary/60 hover:bg-muted/40')
               }`}
             >
               {n}
@@ -415,21 +437,23 @@ function ScaleExercise({
           value={(responses[exercise.id]?.que_falta as string) ?? ''}
           onChange={(e) => onSet(exercise.id, 'que_falta', e.target.value)}
           rows={3}
-          className="resize-none bg-background"
+          disabled={readOnly}
+          className="resize-none bg-background disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
         />
       </div>
 
-      <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
+      {!readOnly && <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />}
     </div>
   )
 }
 
 function MejoraStep({
-  exercise, responses, onSet, isAuthenticated, saveState, onSave,
+  exercise, responses, onSet, isAuthenticated, saveState, onSave, readOnly,
 }: {
   exercise: Exercise; responses: Responses
   onSet: (id: string, key: string, val: string) => void
   isAuthenticated: boolean; saveState: SaveState; onSave: (id: string) => void
+  readOnly?: boolean
 }) {
   const cfg = exercise.config as MejoraConfig
   return (
@@ -455,15 +479,18 @@ function MejoraStep({
           value={(responses[exercise.id]?.value as string) ?? ''}
           onChange={(e) => onSet(exercise.id, 'value', e.target.value)}
           rows={3}
-          className="resize-none bg-background"
+          disabled={readOnly}
+          className="resize-none bg-background disabled:bg-muted/50 disabled:cursor-default disabled:opacity-100"
         />
       </div>
-      <SaveButton
-        isAuthenticated={isAuthenticated}
-        saveState={saveState}
-        onSave={() => onSave(exercise.id)}
-        label="Guardar y marcar como hecho"
-      />
+      {!readOnly && (
+        <SaveButton
+          isAuthenticated={isAuthenticated}
+          saveState={saveState}
+          onSave={() => onSave(exercise.id)}
+          label="Guardar y marcar como hecho"
+        />
+      )}
     </div>
   )
 }
@@ -482,11 +509,12 @@ export default function DiagnosticoLessonTabs({
   nextSlug,
   isAlreadyCompleted,
   isLocked,
+  savedResponses = {},
 }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [responses, setResponses] = useState<Responses>(() => initResponses(exercises))
+  const [responses, setResponses] = useState<Responses>(() => initResponses(exercises, savedResponses))
   const [completed, setCompleted] = useState(isAlreadyCompleted)
   const [navigateTo, setNavigateTo] = useState<string | null>(null)
   const [saveStates, setSaveStates] = useState<Record<string, SaveState>>({})
@@ -668,6 +696,9 @@ export default function DiagnosticoLessonTabs({
 
         {/* Ejercicios */}
         <TabsContent value="ejercicios" className="mt-6 space-y-8 max-w-[720px]">
+          {isAlreadyCompleted && (
+            <p className="text-xs text-muted-foreground">Esto es lo que respondiste. Solo lectura.</p>
+          )}
           {regularExercises.length === 0 ? (
             <p className="text-sm text-muted-foreground">No hay ejercicios para esta lección.</p>
           ) : (
@@ -675,23 +706,28 @@ export default function DiagnosticoLessonTabs({
               <div key={ex.id}>
                 {ex.type === 'open_reflection' && (
                   <OpenReflection exercise={ex} responses={responses} onSet={setResponse}
-                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave}
+                    readOnly={isAlreadyCompleted} />
                 )}
                 {ex.type === 'number_input' && (
                   <NumberInputExercise exercise={ex} responses={responses} onSet={setResponse}
-                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave}
+                    readOnly={isAlreadyCompleted} />
                 )}
                 {ex.type === 'text_input' && (
                   <TextInputExercise exercise={ex} responses={responses} onSet={setResponse}
-                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave}
+                    readOnly={isAlreadyCompleted} />
                 )}
                 {ex.type === 'multiple_choice' && (
                   <MultipleChoiceExercise exercise={ex} responses={responses} onSet={setResponse}
-                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave}
+                    readOnly={isAlreadyCompleted} />
                 )}
                 {ex.type === 'scale' && (
                   <ScaleExercise exercise={ex} responses={responses} onSet={setResponse}
-                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave} />
+                    isAuthenticated={isAuthenticated} saveState={saveStates[ex.id] ?? 'idle'} onSave={handleSave}
+                    readOnly={isAlreadyCompleted} />
                 )}
               </div>
             ))
@@ -701,9 +737,13 @@ export default function DiagnosticoLessonTabs({
 
         {/* Mejora */}
         <TabsContent value="mejora" className="mt-6 space-y-8 max-w-[720px]">
+          {isAlreadyCompleted && (
+            <p className="text-xs text-muted-foreground">Esto es lo que respondiste. Solo lectura.</p>
+          )}
           {mejoraExercise ? (
             <MejoraStep exercise={mejoraExercise} responses={responses} onSet={setResponse}
-              isAuthenticated={isAuthenticated} saveState={saveStates[mejoraExercise.id] ?? 'idle'} onSave={handleSave} />
+              isAuthenticated={isAuthenticated} saveState={saveStates[mejoraExercise.id] ?? 'idle'} onSave={handleSave}
+              readOnly={isAlreadyCompleted} />
           ) : (
             <p className="text-sm text-muted-foreground">No hay paso de mejora para esta lección.</p>
           )}
