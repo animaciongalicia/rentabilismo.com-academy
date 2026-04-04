@@ -156,7 +156,7 @@ function OpenReflection({
     <div className="space-y-3">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground/80 leading-relaxed">{exercise.description}</p>
       </div>
       <Textarea
         placeholder={cfg.placeholder}
@@ -165,7 +165,7 @@ function OpenReflection({
         rows={4}
         className="resize-none bg-background"
       />
-      {cfg.note && <p className="text-xs text-muted-foreground italic">{cfg.note}</p>}
+      {cfg.note && <p className="text-xs text-foreground/70 italic">{cfg.note}</p>}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
   )
@@ -183,7 +183,7 @@ function NumberInputExercise({
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground/80 leading-relaxed">{exercise.description}</p>
       </div>
       {cfg.fields.map((field) => (
         <div key={field.id} className="space-y-1.5">
@@ -203,7 +203,7 @@ function NumberInputExercise({
           />
         </div>
       ))}
-      {cfg.note && <p className="text-xs text-muted-foreground italic">{cfg.note}</p>}
+      {cfg.note && <p className="text-xs text-foreground/70 italic">{cfg.note}</p>}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
   )
@@ -221,7 +221,7 @@ function TextInputExercise({
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground/80 leading-relaxed">{exercise.description}</p>
       </div>
       {cfg.fields.map((field) => (
         <div key={field.id} className="space-y-1.5">
@@ -276,7 +276,7 @@ function MultipleChoiceExercise({
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground/80 leading-relaxed">{exercise.description}</p>
       </div>
 
       {/* Radio options */}
@@ -376,7 +376,7 @@ function ScaleExercise({
     <div className="space-y-5">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground/80 leading-relaxed">{exercise.description}</p>
       </div>
 
       {/* Scale selector — buttons 1–10 */}
@@ -442,7 +442,7 @@ function MejoraStep({
       </div>
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground/80 leading-relaxed">{exercise.description}</p>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor={`${exercise.id}-mejora`}>{cfg.action_prompt}</Label>
