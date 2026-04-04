@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 
 export type CompleteLessonResult = { error: string } | { ok: true }
@@ -22,11 +23,15 @@ export async function completeLesson(
       .insert({ user_id: user.id, lesson_id: lessonId, responses })
 
     if (error) {
-      if (error.code === '23505') return { ok: true }
+      if (error.code === '23505') {
+        revalidatePath('/modules/diagnostico-inicial', 'layout')
+        return { ok: true }
+      }
       console.error('completeLesson error:', error.code, error.message)
       return { error: 'Error al guardar el progreso. Inténtalo de nuevo.' }
     }
 
+    revalidatePath('/modules/diagnostico-inicial', 'layout')
     return { ok: true }
   } catch (e) {
     console.error('completeLesson CATCH:', e)
