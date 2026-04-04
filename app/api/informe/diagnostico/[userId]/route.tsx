@@ -100,9 +100,10 @@ async function callAnthropicAnalysis(reportData: DiagnosticoReportData): Promise
     })
 
     const text = message.content[0].type === 'text' ? message.content[0].text : ''
-    return JSON.parse(text) as AiAnalysis
-  } catch (e) {
-    console.error('callAnthropicAnalysis error:', e)
+    const clean = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+    return JSON.parse(clean) as AiAnalysis
+  } catch (err) {
+    console.error('ANTHROPIC ERROR:', err)
     return null
   }
 }
@@ -593,18 +594,34 @@ export async function GET(_req: Request, { params }: Props) {
     return new NextResponse('No hay respuestas guardadas todavía.', { status: 404 })
   }
 
-  // Análisis de IA (puede fallar silenciosamente → aiAnalysis = null)
-  const aiAnalysis = await callAnthropicAnalysis(reportData)
+  // Comprobar si ya existe un informe generado con análisis de IA
+  const { data: existingReport } = await supabase
+    .from('evolution_reports')
+    .select('report_data')
+    .eq('user_id', user.id)
+    .eq('report_type', 'diagnostico_inicial')
+    .single()
 
-  // Guardar / actualizar en evolution_reports (idempotente)
-  await supabase.from('evolution_reports').upsert(
-    {
-      user_id: user.id,
-      report_type: 'diagnostico_inicial',
-      report_data: { rawData: reportData, aiAnalysis } as unknown as Record<string, unknown>,
-    },
-    { onConflict: 'user_id,report_type' }
-  )
+  const cachedAnalysis = (existingReport?.report_data as Record<string, unknown> | null)
+    ?.aiAnalysis as AiAnalysis | null | undefined
+
+  let aiAnalysis: AiAnalysis | null
+
+  if (cachedAnalysis) {
+    // Servir desde caché — no llamar a la IA
+    aiAnalysis = cachedAnalysis
+  } else {
+    // Primera vez: llamar a la IA y guardar resultado
+    aiAnalysis = await callAnthropicAnalysis(reportData)
+    await supabase.from('evolution_reports').upsert(
+      {
+        user_id: user.id,
+        report_type: 'diagnostico_inicial',
+        report_data: { rawData: reportData, aiAnalysis } as unknown as Record<string, unknown>,
+      },
+      { onConflict: 'user_id,report_type' }
+    )
+  }
 
   const html = buildHtml(reportData, fullName, businessName, businessSector, fecha, aiAnalysis)
 
