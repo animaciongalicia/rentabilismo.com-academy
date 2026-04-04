@@ -103,7 +103,6 @@ function LessonList({ lessons, completedIds }: { lessons: Lesson[]; completedIds
 
 export default function DiagnosticoModuleTabs({
   vimeoId,
-  description: _description,
   videoIntroText,
   lessons,
   completedIds,
