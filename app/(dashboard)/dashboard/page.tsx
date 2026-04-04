@@ -152,8 +152,8 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login')
 
-  // Tres queries en paralelo
-  const [profileResult, modulesResult, progressResult] = await Promise.all([
+  // Queries en paralelo
+  const [profileResult, modulesResult, progressResult, informeResult] = await Promise.all([
     supabase
       .from('profiles')
       .select('full_name, current_streak, has_paid, access_expires_at')
@@ -168,6 +168,12 @@ export default async function DashboardPage() {
       .from('user_progress')
       .select('module_id')
       .eq('user_id', user.id),
+    supabase
+      .from('evolution_reports')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('report_type', 'diagnostico_inicial')
+      .maybeSingle(),
   ])
 
   const profile = profileResult.data
@@ -175,6 +181,7 @@ export default async function DashboardPage() {
   const completedIds = new Set<string>(
     (progressResult.data ?? []).map((r) => r.module_id as string)
   )
+  const hasDiagnosticoInforme = !!informeResult.data
 
   const firstName = (profile?.full_name ?? 'Empresario').split(' ')[0]
   const streak = profile?.current_streak ?? 0
@@ -219,6 +226,28 @@ export default async function DashboardPage() {
           </div>
           <Progress value={progressPercent} className="h-2" />
         </div>
+
+        {/* ── Informe de diagnóstico ── */}
+        {hasDiagnosticoInforme && (
+          <Card className="border-green-500/30 bg-green-500/5">
+            <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-semibold">Tu Informe de Diagnóstico está listo</p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Tu punto de partida real. Con tus números, tus palabras, tu negocio.
+                </p>
+              </div>
+              <Link
+                href={`/api/informe/diagnostico/${user.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-8 px-4 text-sm font-medium hover:bg-primary/80 transition-colors"
+              >
+                Ver Informe →
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── CTA si no tiene acceso activo ── */}
         {!hasActiveAccess && (
