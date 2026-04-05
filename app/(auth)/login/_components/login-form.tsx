@@ -52,7 +52,15 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Contraseña</Label>
+              <Link
+                href="/auth/reset-password"
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-primary"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <Input
               id="password"
               name="password"
