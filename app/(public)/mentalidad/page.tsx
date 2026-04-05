@@ -58,6 +58,7 @@ export default async function MentalidadPage() {
         lessons={lessons}
         completedIds={completedIds}
         activeSlug={null}
+        moduleSlug="mentalidad"
       />
 
       <main className="flex-1 min-w-0">

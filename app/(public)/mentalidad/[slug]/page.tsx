@@ -78,6 +78,7 @@ export default async function LessonPage({ params }: Props) {
         lessons={allLessons}
         completedIds={completedIds}
         activeSlug={lesson.slug}
+        moduleSlug="mentalidad"
       />
 
       <main className="flex-1 min-w-0">

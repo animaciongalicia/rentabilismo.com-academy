@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 // Rutas que requieren autenticación
-const PROTECTED_PREFIXES = ['/dashboard', '/onboarding']
+const PROTECTED_PREFIXES = ['/dashboard', '/onboarding', '/cuartel-general']
 
 function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
@@ -46,6 +46,12 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/onboarding/')) {
       if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
       if (hasActiveAccess) return NextResponse.redirect(new URL('/dashboard', request.url))
+      return response
+    }
+
+    // — Cuartel General (solo requiere onboarding, no pago) —
+    if (pathname.startsWith('/cuartel-general')) {
+      if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
       return response
     }
 

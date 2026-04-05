@@ -11,6 +11,7 @@ type Props = {
   lessons: Lesson[]
   completedIds: string[]
   activeSlug?: string | null
+  moduleSlug?: string
 }
 
 export default function ModuleSidebar({
@@ -21,6 +22,7 @@ export default function ModuleSidebar({
   lessons,
   completedIds,
   activeSlug,
+  moduleSlug,
 }: Props) {
   const completed = new Set(completedIds)
 
@@ -75,6 +77,31 @@ export default function ModuleSidebar({
             )
           })}
         </nav>
+        {moduleSlug === 'mentalidad' && (
+          <div className="pt-4 border-t border-border space-y-3">
+            <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+              Tu consultor
+            </p>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">El Espejo</p>
+              <p className="text-xs text-muted-foreground leading-snug">
+                El consultor que coge tus respuestas y te las devuelve ordenadas. Sin filtro.
+              </p>
+            </div>
+            <Link
+              href="/cuartel-general/el-espejo"
+              className="block w-full text-center rounded-md bg-primary text-primary-foreground text-xs font-medium py-2 hover:bg-primary/80 transition-colors"
+            >
+              Conoce a El Espejo
+            </Link>
+            <Link
+              href="/cuartel-general"
+              className="block w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Ver todos los consultores
+            </Link>
+          </div>
+        )}
       </div>
     </aside>
   )
