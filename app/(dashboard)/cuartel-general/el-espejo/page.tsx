@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import EspejoClient from './espejo-client'
@@ -84,7 +85,23 @@ export default async function EspejoPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="max-w-[1040px] px-8 py-10">
+      <main className="max-w-[1040px] px-8 py-10 space-y-8">
+        <nav>
+          <Link
+            href="/cuartel-general"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← El Ejército de Consultores
+          </Link>
+        </nav>
+
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">El Espejo</h1>
+          <p className="text-base text-muted-foreground">
+            Tu consultor de mentalidad empresarial
+          </p>
+        </div>
+
         <EspejoClient formattedResponses={formattedResponses} />
       </main>
     </div>

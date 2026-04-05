@@ -128,6 +128,23 @@ export default async function LessonPage({ params }: Props) {
             completionLabel={completionLabel}
             cta={<CtaBlock isAuthenticated={!!user} hasPaid={hasPaid} paymentsCount={paymentsCount} />}
           />
+
+          {/* CTA El Espejo — solo visible en móvil (en desktop lo muestra el sidebar) */}
+          <div className="md:hidden mt-10 pt-6 border-t border-border space-y-3">
+            <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+              Tu consultor
+            </p>
+            <p className="text-sm font-semibold text-foreground">El Espejo</p>
+            <p className="text-sm text-muted-foreground leading-snug">
+              El consultor que coge tus respuestas y te las devuelve ordenadas. Sin filtro.
+            </p>
+            <Link
+              href="/cuartel-general/el-espejo"
+              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-12 px-5 hover:bg-primary/80 transition-colors"
+            >
+              Conoce a El Espejo
+            </Link>
+          </div>
         </div>
       </main>
     </div>

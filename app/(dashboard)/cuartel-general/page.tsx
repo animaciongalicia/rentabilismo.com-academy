@@ -83,6 +83,15 @@ export default async function CuartelGeneralPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-[1040px] px-8 py-10 space-y-8">
+        <nav>
+          <Link
+            href="/dashboard"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Dashboard
+          </Link>
+        </nav>
+
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">El Ejército de Consultores</h1>
           <p className="text-base text-muted-foreground leading-relaxed">

@@ -108,33 +108,26 @@ export default function EspejoClient({ formattedResponses }: Props) {
       <Tabs defaultValue="consultor">
         <TabsList>
           <TabsTrigger value="consultor">El Consultor</TabsTrigger>
-          <TabsTrigger value="como-usarlo">Como usarlo</TabsTrigger>
-          <TabsTrigger value="crealo">Crealo tu mismo</TabsTrigger>
+          <TabsTrigger value="como-usarlo">Cómo usarlo</TabsTrigger>
+          <TabsTrigger value="crealo">Créalo tú mismo</TabsTrigger>
         </TabsList>
 
         {/* Pestaña 1 — El Consultor */}
         <TabsContent value="consultor" className="mt-6 space-y-8 max-w-[720px]">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">El Espejo</h1>
-            <p className="mt-1 text-base text-muted-foreground">
-              Tu consultor de mentalidad empresarial
-            </p>
-          </div>
-
           <div className="space-y-6">
-            <Section titulo="Quien es">
+            <Section titulo="Quién es">
               El Espejo no te dice lo que quieres oír. Te muestra lo que ya sabes pero llevas
               tiempo mirando para otro lado. Es el consultor que coge tus propias palabras y te las
               devuelve ordenadas — para que veas con claridad lo que está frenando tu negocio y lo
               que te está costando cada mes que pasa.
             </Section>
 
-            <Section titulo="Que hace">
+            <Section titulo="Qué hace">
               Cruza tus respuestas del módulo, detecta el patrón de bloqueo y arranca directo. Sin
               calentamiento. Sin teoría. Solo tus datos y las preguntas que nadie más te hace.
             </Section>
 
-            <Section titulo="Para que momento">
+            <Section titulo="Para qué momento">
               Acabas de terminar las 4 lecciones de Tu Cabeza Manda. Estás pensando. Algo se ha
               movido por dentro. Ese es el momento — cuando estás caliente y todavía no has
               racionalizado el cambio.
@@ -150,7 +143,7 @@ export default function EspejoClient({ formattedResponses }: Props) {
 
         {/* Pestaña 2 — Cómo usarlo */}
         <TabsContent value="como-usarlo" className="mt-6 space-y-6 max-w-[720px]">
-          <h2 className="text-xl font-bold">Como usarlo</h2>
+          <h2 className="text-xl font-bold">Cómo usarlo</h2>
 
           <ol className="space-y-5">
             {[
@@ -194,7 +187,7 @@ export default function EspejoClient({ formattedResponses }: Props) {
 
         {/* Pestaña 3 — Créalo tú mismo */}
         <TabsContent value="crealo" className="mt-6 space-y-6 max-w-[720px]">
-          <h2 className="text-xl font-bold">Crealo tu mismo</h2>
+          <h2 className="text-xl font-bold">Créalo tú mismo</h2>
           <p className="text-base text-foreground/90 leading-relaxed">
             Si quieres tener El Espejo en tu propia cuenta de ChatGPT como GPT personalizado, aquí
             tienes el prompt completo para configurarlo.
