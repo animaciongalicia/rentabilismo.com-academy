@@ -37,8 +37,28 @@ export default async function CuartelGeneralPage() {
             </p>
           </div>
 
+          {/* El Espejo — tarjeta destacada ancho completo */}
+          <div className="rounded-lg border border-border bg-card p-7 flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
+            <div className="flex-1 space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Agente 00
+              </p>
+              <h2 className="text-2xl font-bold">{AGENTES[0].nombre}</h2>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                {AGENTES[0].descripcion}
+              </p>
+            </div>
+            <Link
+              href={AGENTES[0].href!}
+              className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-semibold h-12 px-8 hover:bg-primary/80 transition-colors shrink-0"
+            >
+              Ver ficha
+            </Link>
+          </div>
+
+          {/* Resto de agentes — grid secundario */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {AGENTES.map((agente) => (
+            {AGENTES.slice(1).map((agente) => (
               <div
                 key={agente.id}
                 className="rounded-lg border border-border bg-card p-5 space-y-3 flex flex-col"
@@ -46,23 +66,12 @@ export default async function CuartelGeneralPage() {
                 <div className="space-y-0.5 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-semibold text-sm leading-snug">{agente.nombre}</p>
-                    {!agente.activo && (
-                      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground border border-border rounded px-1.5 py-0.5">
-                        Próximamente
-                      </span>
-                    )}
+                    <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 border border-border/50 rounded px-1.5 py-0.5">
+                      Próximamente
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground">{agente.descripcion}</p>
                 </div>
-
-                {agente.activo && agente.href && (
-                  <Link
-                    href={agente.href}
-                    className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-medium h-8 px-3 hover:bg-primary/80 transition-colors"
-                  >
-                    Ver ficha
-                  </Link>
-                )}
               </div>
             ))}
           </div>

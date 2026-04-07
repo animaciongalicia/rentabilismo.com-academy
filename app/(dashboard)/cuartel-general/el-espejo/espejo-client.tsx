@@ -6,42 +6,30 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 const CHATGPT_URL =
   'https://chatgpt.com/g/g-69d163b95fbc819199d66e5a349a4164-agente-mentalidad-el-espejo'
 
-const PROMPT_COMPLETO = `Eres El Espejo, el consultor de mentalidad empresarial de Rentabilismo Academy.
-No eres un coach, no eres un motivador. Eres el consultor que le dice al empresario lo que lleva tiempo sabiendo pero no quiere ver. Hablas con respeto y sin anestesia. No atacas — muestras. Y lo que muestras siempre son sus propias respuestas convertidas en espejo.
-
-El empresario que te consulta acaba de completar el módulo gratuito de Rentabilismo Academy — "Tu Cabeza Manda". Ha respondido 4 lecciones sobre su mentalidad empresarial, sus bloqueos y sus patrones. Recibirás esas respuestas al inicio del chat. Úsalas desde el primer mensaje. Son tu munición. No las ignores.
-
-Lo que más te importa de esas respuestas:
-- Qué le pesa más de su negocio ahora mismo
-- Qué parte de él está frenando su propio negocio
-- Qué ha estado evitando decidir
-- Por qué cree que este momento podría ser el indicado para cambiar
+const PROMPT_COMPLETO = `Eres El Espejo, un consultor de mentalidad empresarial.
+No eres un coach ni un motivador. Eres el consultor que le dice al empresario lo que lleva tiempo sabiendo pero no quiere ver. Hablas con respeto y sin anestesia. No atacas — muestras.
 
 Reglas inamovibles:
-- Habla siempre en segunda persona: tú, tu negocio, te pasa, llevas
+- Habla siempre en segunda persona: tú, tu negocio, te pasa
 - Haz UNA pregunta por turno, nunca varias
-- No valides excusas — nómbralas y córtalas usando sus propios datos
+- No valides excusas — nómbralas y córtalas con sus propios datos
 - No des listas — da UNA cosa clara que resuene
 - No uses más de 150 palabras por respuesta
-- Nada de "¡Excelente!", "Gran reflexión" ni peloteo de ningún tipo
-- Conecta siempre tus respuestas con algo concreto que él escribió
-- Si detectas la excusa del dinero: calcula con sus propios datos cuánto le ha costado el problema hasta hoy
-- Si detectas "no es el momento": pregúntale cuándo dijo eso la última vez y qué cambió mientras esperaba
-- Si detectas "no sé si funcionará": recuérdale que llevar tiempo haciendo lo mismo da los mismos resultados
+- Nada de "¡Excelente!", "Gran reflexión" ni peloteo
+- Conecta siempre tus respuestas con algo concreto que el empresario escribió
 
-Cuando el empresario pegue su contexto, responde exactamente así:
-"Llevo unos segundos leyendo lo que has escrito. Y hay algo que se repite.
+Cuando arranques la conversación, responde así:
+"No has venido a preguntarme qué puedo hacer por ti.
+Has venido porque algo en tu negocio no está donde debería.
+Llevo unos segundos leyendo lo que has escrito. Y hay algo que se repite.
 Antes de seguir — ¿cuánto tiempo llevas sabiendo que algo en tu negocio tiene que cambiar?"
 
 Después de cada respuesta:
-1. Usa algo concreto que escribió — una frase, un dato, una contradicción
-2. Muéstrale el coste real de seguir igual — en tiempo, en dinero, en energía
+1. Usa algo concreto que el empresario escribió
+2. Muéstrale el coste real de seguir igual
 3. Una sola pregunta que profundice en lo que está evitando
 
-Cuando la conversación llegue a su punto de claridad máxima:
-"Ya sabes lo que está pasando. Ya sabes lo que te cuesta cada mes que pasa.
-Solo te queda decidir si esto lo resuelves solo — como hasta ahora — o con método y acompañamiento.
-Vuelve a la plataforma. El siguiente paso está ahí esperándote."`
+Cierra siempre con una acción concreta. Pequeña. Ejecutable hoy.`
 
 type Props = {
   formattedResponses: string | null
@@ -89,21 +77,6 @@ export default function EspejoClient({ formattedResponses }: Props) {
         </div>
       )}
 
-      {/* Botón principal */}
-      <div className="mb-8">
-        <button
-          onClick={handleAbrirEspejo}
-          className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
-        >
-          Abrir El Espejo en ChatGPT
-        </button>
-        {!formattedResponses && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Completa las lecciones de Tu Cabeza Manda para que El Espejo use tus respuestas reales.
-          </p>
-        )}
-      </div>
-
       {/* Pestañas */}
       <Tabs defaultValue="consultor">
         <TabsList>
@@ -138,6 +111,20 @@ export default function EspejoClient({ formattedResponses }: Props) {
               negocio, cuánto te está costando eso cada mes, y cuál es el siguiente paso real. No
               una lista de reflexiones — una decisión.
             </Section>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={handleAbrirEspejo}
+              className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
+            >
+              Abrir El Espejo en ChatGPT
+            </button>
+            {!formattedResponses && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Completa las lecciones de Tu Cabeza Manda para que El Espejo use tus respuestas reales.
+              </p>
+            )}
           </div>
         </TabsContent>
 
@@ -183,46 +170,80 @@ export default function EspejoClient({ formattedResponses }: Props) {
               preguntas. Para que funcione, necesita verdad.
             </p>
           </div>
+
+          <div className="pt-2">
+            <button
+              onClick={handleAbrirEspejo}
+              className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
+            >
+              Abrir El Espejo en ChatGPT
+            </button>
+            {!formattedResponses && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Completa las lecciones de Tu Cabeza Manda para que El Espejo use tus respuestas reales.
+              </p>
+            )}
+          </div>
         </TabsContent>
 
         {/* Pestaña 3 — Créalo tú mismo */}
         <TabsContent value="crealo" className="mt-6 space-y-6 max-w-[720px]">
-          <h2 className="text-xl font-bold">Créalo tú mismo</h2>
-          <p className="text-base text-foreground/90 leading-relaxed">
-            Si quieres tener El Espejo en tu propia cuenta de ChatGPT como GPT personalizado, aquí
-            tienes el prompt completo para configurarlo.
-          </p>
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold">Crea tu propio Espejo en ChatGPT</h2>
+            <p className="text-base text-muted-foreground leading-relaxed">
+              Copia el prompt de abajo y sigue los pasos. En 2 minutos lo tienes listo.
+            </p>
+          </div>
 
-          <ol className="space-y-2">
+          <ol className="space-y-3">
             {[
-              'Ve a chatgpt.com → Explorar GPTs → Crear',
-              'En Instrucciones, pega el prompt completo de abajo',
-              'Nombre: El Espejo | Rentabilismo',
-              'Descripción: El consultor que te dice lo que llevas tiempo sabiendo pero no quieres ver',
-              'Guárdalo como privado',
+              'Ve a chatgpt.com → tu nombre → "Mis GPTs" → "Crear GPT"',
+              'En la pestaña "Configurar", pega el prompt en el campo "Instrucciones"',
+              'Nombre: El Espejo | Consultor de Mentalidad',
+              'Guárdalo como privado → "Solo yo"',
             ].map((paso, i) => (
-              <li key={i} className="flex gap-3 text-sm text-foreground/90">
-                <span className="shrink-0 font-mono text-muted-foreground">{i + 1}.</span>
-                <span>{paso}</span>
+              <li key={i} className="flex gap-4">
+                <span className="shrink-0 w-7 h-7 rounded-full bg-muted text-foreground text-xs font-bold flex items-center justify-center">
+                  {i + 1}
+                </span>
+                <p className="text-sm leading-relaxed text-foreground/90 pt-0.5">{paso}</p>
               </li>
             ))}
           </ol>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                Prompt completo
+                PROMPT COMPLETO — cópialo todo
               </p>
               <button
                 onClick={handleCopiarPrompt}
-                className="text-xs font-medium text-primary hover:text-primary/70 transition-colors underline underline-offset-2"
+                className="shrink-0 h-9 px-4 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/80 transition-colors"
               >
                 Copiar prompt
               </button>
             </div>
-            <pre className="rounded-lg border border-border bg-muted/30 p-4 text-xs leading-relaxed text-foreground/80 whitespace-pre-wrap overflow-x-auto">
+            <pre className="rounded-lg border border-border bg-muted/30 p-4 text-xs leading-relaxed text-foreground/80 whitespace-pre-wrap max-h-64 overflow-y-auto">
               {PROMPT_COMPLETO}
             </pre>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Este es el prompt base público. El Espejo completo, con acceso a tus respuestas del
+              módulo, está disponible en la plataforma.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={handleAbrirEspejo}
+              className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
+            >
+              Abrir El Espejo en ChatGPT
+            </button>
+            {!formattedResponses && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Completa las lecciones de Tu Cabeza Manda para que El Espejo use tus respuestas reales.
+              </p>
+            )}
           </div>
         </TabsContent>
       </Tabs>
