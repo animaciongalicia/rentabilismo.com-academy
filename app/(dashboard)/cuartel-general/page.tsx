@@ -57,20 +57,20 @@ export default async function CuartelGeneralPage() {
           </div>
 
           {/* Resto de agentes — grid secundario */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {AGENTES.slice(1).map((agente) => (
               <div
                 key={agente.id}
                 className="rounded-lg border border-border bg-card p-5 space-y-3 flex flex-col"
               >
-                <div className="space-y-0.5 flex-1">
+                <div className="space-y-1.5 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-semibold text-sm leading-snug">{agente.nombre}</p>
                     <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 border border-border/50 rounded px-1.5 py-0.5">
                       Próximamente
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{agente.descripcion}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{agente.descripcion}</p>
                 </div>
               </div>
             ))}
