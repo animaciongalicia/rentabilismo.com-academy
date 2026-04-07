@@ -111,7 +111,7 @@ export default function EspejoClient({ formattedResponses }: Props) {
         </TabsList>
 
         {/* Pestaña 1 — El Consultor */}
-        <TabsContent value="consultor" className="mt-6 space-y-8 max-w-[720px]">
+        <TabsContent value="consultor" className="mt-6 space-y-6 max-w-[720px]">
           <div className="space-y-6">
             <Section titulo="Quién es">
               El Espejo no te dice lo que quieres oír. Te muestra lo que ya sabes pero llevas
@@ -138,7 +138,7 @@ export default function EspejoClient({ formattedResponses }: Props) {
             </Section>
           </div>
 
-          <div className="pt-2">
+          <div>
             <button
               onClick={handleAbrirEspejo}
               className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
@@ -196,7 +196,7 @@ export default function EspejoClient({ formattedResponses }: Props) {
             </p>
           </div>
 
-          <div className="pt-2">
+          <div>
             <button
               onClick={handleAbrirEspejo}
               className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
@@ -257,7 +257,7 @@ export default function EspejoClient({ formattedResponses }: Props) {
             </p>
           </div>
 
-          <div className="pt-2">
+          <div>
             <button
               onClick={handleAbrirEspejo}
               className="h-12 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"

@@ -42,7 +42,9 @@ export default async function AppHeader() {
         <div className="flex items-center gap-4 md:gap-6">
           {/* Progreso — solo desktop */}
           <span className="hidden md:block text-sm text-muted-foreground">
-            {completedCount} de {totalModules} módulos completados
+            {completedCount > 0
+              ? `${completedCount} de ${totalModules} módulos completados`
+              : 'Empieza tu primer módulo'}
           </span>
 
           {/* Nombre */}

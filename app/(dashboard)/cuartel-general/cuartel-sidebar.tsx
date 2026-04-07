@@ -8,7 +8,7 @@ type Props = {
 
 export default function CuartelSidebar({ activeHref }: Props) {
   return (
-    <aside className="hidden md:flex flex-col sticky top-0 h-screen w-[280px] shrink-0 border-r border-border bg-muted/40 overflow-y-auto">
+    <aside className="hidden md:flex flex-col sticky top-14 h-[calc(100vh-3.5rem)] w-[320px] shrink-0 border-r border-border bg-muted/40 overflow-y-auto">
       <div className="p-5 space-y-6">
         {/* Header */}
         <Link

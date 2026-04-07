@@ -1,7 +1,14 @@
+import AppHeader from '@/components/layout/app-header'
+
 export default function PublicLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <AppHeader />
+      {children}
+    </>
+  )
 }
