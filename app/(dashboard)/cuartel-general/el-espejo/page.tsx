@@ -12,9 +12,9 @@ type RawRow = {
     order_number: number
     lessons: {
       order_number: number
-      modules: { slug: string }[]
-    }[]
-  }[]
+      modules: { slug: string }
+    }
+  }
 }
 
 function formatResponse(type: string, response: Record<string, unknown>): string {
@@ -54,23 +54,23 @@ export default async function EspejoPage() {
 
   const rows = ((data ?? []) as unknown as RawRow[])
     .filter((row) => {
-      const ex = row.exercises?.[0]
-      const lesson = ex?.lessons?.[0]
-      const mod = lesson?.modules?.[0]
+      const ex = row.exercises
+      const lesson = ex?.lessons
+      const mod = lesson?.modules
       return mod?.slug === 'mentalidad'
     })
     .sort((a, b) => {
-      const lessonA = a.exercises?.[0]?.lessons?.[0]?.order_number ?? 0
-      const lessonB = b.exercises?.[0]?.lessons?.[0]?.order_number ?? 0
+      const lessonA = a.exercises?.lessons?.order_number ?? 0
+      const lessonB = b.exercises?.lessons?.order_number ?? 0
       if (lessonA !== lessonB) return lessonA - lessonB
-      return (a.exercises?.[0]?.order_number ?? 0) - (b.exercises?.[0]?.order_number ?? 0)
+      return (a.exercises?.order_number ?? 0) - (b.exercises?.order_number ?? 0)
     })
 
   let formattedResponses: string | null = null
   if (rows.length > 0) {
     const lines = rows
       .map((row) => {
-        const ex = row.exercises?.[0]
+        const ex = row.exercises
         const title = ex?.title ?? ''
         const type = ex?.type ?? ''
         const value = formatResponse(type, row.response)
