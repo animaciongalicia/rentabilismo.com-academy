@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import EspejoClient from './espejo-client'
+import CuartelSidebar from '../cuartel-sidebar'
 
 type RawRow = {
   response: Record<string, unknown>
@@ -84,25 +85,32 @@ export default async function EspejoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="max-w-[1040px] px-8 py-10 space-y-8">
-        <nav>
-          <Link
-            href="/cuartel-general"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← El Ejército de Consultores
-          </Link>
-        </nav>
+    <div className="min-h-screen bg-background md:flex">
+      <CuartelSidebar activeHref="/cuartel-general/el-espejo" />
 
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">El Espejo</h1>
-          <p className="text-base text-muted-foreground">
-            Tu consultor de mentalidad empresarial
-          </p>
+      <main className="flex-1 min-w-0">
+        <div className="max-w-[1040px] px-8 py-6">
+          <nav className="mb-6 md:hidden">
+            <Link
+              href="/cuartel-general"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← El Ejército de Consultores
+            </Link>
+          </nav>
+
+          <div className="space-y-1 mb-8">
+            <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+              Agente 00
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight">El Espejo</h1>
+            <p className="text-base text-muted-foreground">
+              Tu consultor de mentalidad empresarial
+            </p>
+          </div>
+
+          <EspejoClient formattedResponses={formattedResponses} />
         </div>
-
-        <EspejoClient formattedResponses={formattedResponses} />
       </main>
     </div>
   )
