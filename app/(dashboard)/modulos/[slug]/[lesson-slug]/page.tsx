@@ -83,8 +83,8 @@ export default async function DashboardLessonPage({ params }: Props) {
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
-  const moduleHref = `/dashboard/modulos/${mod.slug}`
-  const lessonHrefPrefix = `/dashboard/modulos/${mod.slug}`
+  const moduleHref = `/modulos/${mod.slug}`
+  const lessonHrefPrefix = `/modulos/${mod.slug}`
   const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
 
   return (

@@ -100,7 +100,7 @@ function ModuleCard({
 
   return (
     <Link
-      href={`/dashboard/modulos/${module.slug}`}
+      href={`/modulos/${module.slug}`}
       className={cn(
         'group flex flex-col gap-4 rounded-lg border p-5 transition-colors hover:border-foreground/30',
         isRecommended && 'border-primary/60 bg-primary/5',

@@ -78,7 +78,7 @@ function HeroModuleCard({ module }: { module: Module }) {
 
 function ModuleCard({ module, status }: { module: Module; status: ModuleStatus }) {
   const isClickable = (status === 'available' || status === 'completed') && !!module.slug
-  const href = `/dashboard/modulos/${module.slug}`
+  const href = `/modulos/${module.slug}`
 
   const card = (
     <Card

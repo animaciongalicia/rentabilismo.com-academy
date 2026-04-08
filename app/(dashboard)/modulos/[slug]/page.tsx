@@ -63,8 +63,8 @@ export default async function DashboardModulePage({ params }: Props) {
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
 
   const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
-  const moduleHref = `/dashboard/modulos/${mod.slug}`
-  const lessonHrefPrefix = `/dashboard/modulos/${mod.slug}`
+  const moduleHref = `/modulos/${mod.slug}`
+  const lessonHrefPrefix = `/modulos/${mod.slug}`
 
   return (
     <div className="min-h-screen bg-background md:flex">
