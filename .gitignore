@@ -37,3 +37,6 @@ MODULO-1-COMPLETO-PARA-PROGRAMAR-v2.md
 *.tsbuildinfo
 next-env.d.ts
 .mcp.json
+
+# Claude Code
+.claude/
