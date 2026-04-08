@@ -12,7 +12,7 @@ export const AGENTES: Agente[] = [
     nombre: 'El Espejo',
     descripcion: 'Tu consultor de mentalidad empresarial',
     activo: true,
-    href: '/cuartel-general/el-espejo',
+    href: '/cuartel/el-espejo',
   },
   {
     id: 1,

@@ -48,8 +48,8 @@ export async function POST(request: Request): Promise<Response> {
       metadata: {
         supabase_user_id: user.id,
       },
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pricing`,
+      success_url: `${appUrl}/pago-completado/exito?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/precio`,
     }
 
     // Código promo: si se aporta uno, usarlo directamente; si no, mostrar campo en Stripe

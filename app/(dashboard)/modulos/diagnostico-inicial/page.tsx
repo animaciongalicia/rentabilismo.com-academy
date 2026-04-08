@@ -15,7 +15,7 @@ export default async function DiagnosticoModulePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login?redirectTo=/modules/diagnostico-inicial')
+  if (!user) redirect('/login?redirectTo=/modulos/diagnostico-inicial')
 
   const [moduleResult, profileResult] = await Promise.all([
     supabase

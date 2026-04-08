@@ -92,7 +92,7 @@ export default async function MentalidadPage() {
               El consultor que coge tus respuestas y te las devuelve ordenadas. Sin filtro.
             </p>
             <Link
-              href="/cuartel-general/el-espejo"
+              href="/cuartel/el-espejo"
               className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-12 px-5 hover:bg-primary/80 transition-colors"
             >
               Conoce a El Espejo

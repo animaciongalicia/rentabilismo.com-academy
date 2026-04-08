@@ -9,7 +9,7 @@ type Props = { searchParams: { session_id?: string } }
 export default async function CheckoutSuccessPage({ searchParams }: Props) {
   const sessionId = searchParams.session_id
 
-  if (!sessionId) redirect('/pricing')
+  if (!sessionId) redirect('/precio')
 
   // Verificar con Stripe server-side que el pago es real
   let paymentOk = false
@@ -34,7 +34,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
             Si el problema persiste, contáctanos.
           </p>
           <a
-            href="/pricing"
+            href="/precio"
             className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-10 px-5 text-sm font-medium hover:bg-primary/80 transition-colors"
           >
             Volver a precios

@@ -316,7 +316,7 @@ export default function LessonTabs({
             <p className="text-sm text-muted-foreground leading-relaxed">
               Crea una cuenta gratuita para guardar tus respuestas y seguir desde donde lo dejaste.
             </p>
-            <Link href="/register"
+            <Link href="/registro"
               className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-9 px-4 text-sm font-medium hover:bg-primary/80 transition-colors">
               Crear cuenta gratis
             </Link>

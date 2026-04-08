@@ -12,7 +12,7 @@ export default function CuartelSidebar({ activeHref }: Props) {
       <div className="p-5 space-y-6">
         {/* Header */}
         <Link
-          href="/cuartel-general"
+          href="/cuartel"
           className={cn(
             'block rounded-md px-2 py-1 -mx-2 transition-colors',
             !activeHref

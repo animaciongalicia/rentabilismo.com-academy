@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import DiagnosticoSidebar from '../module-sidebar'
-import DiagnosticoLessonTabs, { type Exercise } from './lesson-tabs'
+import ModuleSidebar from '@/components/modules/module-sidebar'
+import LessonTabs, { type Exercise } from '@/components/modules/lesson-tabs'
 
-type Props = { params: { 'lesson-slug': string } }
+type Props = { params: { slug: string; 'lesson-slug': string } }
 
 export async function generateMetadata({ params }: Props) {
   const supabase = await getSupabaseServerClient()
@@ -15,32 +15,44 @@ export async function generateMetadata({ params }: Props) {
     .single()
   return {
     title: lesson
-      ? `${lesson.title} — Diagnóstico Inicial · Rentabilismo Academy`
+      ? `${lesson.title} · Rentabilismo Academy`
       : 'Rentabilismo Academy',
   }
 }
 
-export default async function DiagnosticoLessonPage({ params }: Props) {
+export default async function DashboardLessonPage({ params }: Props) {
   const supabase = await getSupabaseServerClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  if (!user) redirect(`/login?redirectTo=/modules/diagnostico-inicial/${params['lesson-slug']}`)
-
-  const profileResult = await supabase
+  // Verificar acceso de pago
+  const { data: profile } = await supabase
     .from('profiles')
-    .select('has_paid')
+    .select('has_paid, access_expires_at')
     .eq('id', user.id)
     .single()
 
-  if (!profileResult.data?.has_paid) redirect('/onboarding/mentalidad')
+  const accessExpired = profile?.access_expires_at
+    ? new Date(profile.access_expires_at) < new Date()
+    : false
+  if (!profile?.has_paid || accessExpired) redirect('/precio')
 
+  // Módulo por slug (para validar que la lección pertenece a este módulo)
+  const { data: mod } = await supabase
+    .from('modules')
+    .select('id, order_number, slug, title')
+    .eq('slug', params.slug)
+    .single()
+
+  if (!mod) notFound()
+
+  // Lección por slug
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, title, slug, order_number, frase_clave, apertura, audio_url, module_id')
+    .select('id, title, slug, order_number, frase_clave, apertura, audio_url, texto_audio, contexto_ejercicios, contexto_mejora, cierre_mejora, module_id')
     .eq('slug', params['lesson-slug'])
+    .eq('module_id', mod.id)
     .single()
 
   if (!lesson) notFound()
@@ -54,7 +66,7 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
     supabase
       .from('lessons')
       .select('id, slug, order_number, title')
-      .eq('module_id', lesson.module_id)
+      .eq('module_id', mod.id)
       .order('order_number'),
     supabase
       .from('lesson_progress')
@@ -67,29 +79,21 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
   const isAlreadyCompleted = completedIds.includes(lesson.id)
 
-  // Si la lección ya está completada, cargar las respuestas guardadas para mostrarlas
-  const savedResponses: Record<string, Record<string, string | boolean>> = {}
-  if (isAlreadyCompleted && exercises.length > 0) {
-    const { data: respData } = await supabase
-      .from('exercise_responses')
-      .select('exercise_id, response')
-      .eq('user_id', user.id)
-      .in('exercise_id', exercises.map((e) => e.id))
-    for (const row of respData ?? []) {
-      savedResponses[row.exercise_id] = row.response as Record<string, string | boolean>
-    }
-  }
-
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
-  // Lección bloqueada si la anterior no está completada
-  const isLocked = prevLesson ? !completedIds.includes(prevLesson.id) : false
+  const moduleHref = `/dashboard/modulos/${mod.slug}`
+  const lessonHrefPrefix = `/dashboard/modulos/${mod.slug}`
+  const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <DiagnosticoSidebar
+      <ModuleSidebar
+        moduleLabel={moduleLabel}
+        modTitle={mod.title}
+        moduleHref={moduleHref}
+        lessonHrefPrefix={lessonHrefPrefix}
         lessons={allLessons}
         completedIds={completedIds}
         activeSlug={lesson.slug}
@@ -99,7 +103,7 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
         {/* Mobile stepper */}
         <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">
           <Link
-            href={prevLesson ? `/modules/diagnostico-inicial/${prevLesson.slug}` : '/modules/diagnostico-inicial'}
+            href={prevLesson ? `${lessonHrefPrefix}/${prevLesson.slug}` : moduleHref}
             className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Lección anterior"
           >
@@ -110,7 +114,7 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
           </span>
           {nextLesson ? (
             <Link
-              href={`/modules/diagnostico-inicial/${nextLesson.slug}`}
+              href={`${lessonHrefPrefix}/${nextLesson.slug}`}
               className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               aria-label="Siguiente lección"
             >
@@ -122,19 +126,25 @@ export default async function DiagnosticoLessonPage({ params }: Props) {
         </div>
 
         <div className="max-w-[1040px] px-8 py-6">
-          <DiagnosticoLessonTabs
+          <LessonTabs
             lessonId={lesson.id}
             lessonTitle={lesson.title}
             lessonOrder={lesson.order_number}
-            fraseClave={lesson.frase_clave ?? ''}
+            fraseClave={lesson.frase_clave}
             apertura={lesson.apertura ?? null}
             audioUrl={lesson.audio_url ?? null}
+            textoAudio={lesson.texto_audio ?? null}
+            contextoEjercicios={lesson.contexto_ejercicios ?? null}
+            contextoMejora={lesson.contexto_mejora ?? null}
+            cierreMejora={lesson.cierre_mejora ?? null}
             exercises={exercises}
             isAuthenticated={true}
-            nextSlug={nextLesson?.slug ?? null}
             isAlreadyCompleted={isAlreadyCompleted}
-            isLocked={isLocked}
-            savedResponses={savedResponses}
+            nextSlug={nextLesson?.slug ?? null}
+            lessonHrefPrefix={lessonHrefPrefix}
+            completionRedirect={moduleHref}
+            completionLabel="Volver al módulo →"
+            moduleId={mod.id}
           />
         </div>
       </main>

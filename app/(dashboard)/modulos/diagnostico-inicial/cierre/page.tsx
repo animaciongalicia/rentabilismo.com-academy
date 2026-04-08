@@ -15,7 +15,7 @@ export default async function CierrePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login?redirectTo=/modules/diagnostico-inicial/cierre')
+  if (!user) redirect('/login?redirectTo=/modulos/diagnostico-inicial/cierre')
 
   const profileResult = await supabase
     .from('profiles')
@@ -32,7 +32,7 @@ export default async function CierrePage() {
   )
 
   if (!isComplete && firstIncompleteLessonSlug) {
-    redirect(`/modules/diagnostico-inicial/${firstIncompleteLessonSlug}`)
+    redirect(`/modulos/diagnostico-inicial/${firstIncompleteLessonSlug}`)
   }
 
   return (

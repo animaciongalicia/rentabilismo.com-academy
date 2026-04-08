@@ -86,13 +86,13 @@ export default async function EspejoPage() {
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <CuartelSidebar activeHref="/cuartel-general/el-espejo" />
+      <CuartelSidebar activeHref="/cuartel/el-espejo" />
 
       <main className="flex-1 min-w-0">
         <div className="max-w-[1040px] px-8 py-6">
           <nav className="mb-6 md:hidden">
             <Link
-              href="/cuartel-general"
+              href="/cuartel"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               ← El Ejército de Consultores

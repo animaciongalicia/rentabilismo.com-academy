@@ -89,13 +89,13 @@ export default function ModuleSidebar({
               </p>
             </div>
             <Link
-              href="/cuartel-general/el-espejo"
+              href="/cuartel/el-espejo"
               className="block w-full text-center rounded-md bg-primary text-primary-foreground text-xs font-medium py-2 hover:bg-primary/80 transition-colors"
             >
               Conoce a El Espejo
             </Link>
             <Link
-              href="/cuartel-general"
+              href="/cuartel"
               className="block w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               Ver todos los consultores

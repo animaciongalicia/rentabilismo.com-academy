@@ -78,7 +78,7 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
           <p className="text-center text-sm text-muted-foreground">
             ¿No tienes cuenta?{' '}
             <Link
-              href="/register"
+              href="/registro"
               className="underline underline-offset-4 hover:text-primary"
             >
               Regístrate

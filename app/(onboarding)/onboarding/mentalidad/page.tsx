@@ -116,7 +116,7 @@ export default async function MentalidadPage() {
         </CardContent>
         <CardFooter>
           <Link
-            href="/pricing"
+            href="/precio"
             className="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground h-11 px-8 text-sm font-medium hover:bg-primary/90"
           >
             Ver planes y precios

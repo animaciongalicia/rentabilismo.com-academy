@@ -76,7 +76,7 @@ function LessonList({ lessons, completedIds }: { lessons: Lesson[]; completedIds
           return (
             <Link
               key={lesson.id}
-              href={`/modules/diagnostico-inicial/${lesson.slug}`}
+              href={`/modulos/diagnostico-inicial/${lesson.slug}`}
               className={cn(
                 'flex items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors',
                 isCompleted

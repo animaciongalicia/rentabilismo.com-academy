@@ -100,7 +100,7 @@ function ModuleCard({
 
   return (
     <Link
-      href={`/dashboard/modules/${module.slug}`}
+      href={`/dashboard/modulos/${module.slug}`}
       className={cn(
         'group flex flex-col gap-4 rounded-lg border p-5 transition-colors hover:border-foreground/30',
         isRecommended && 'border-primary/60 bg-primary/5',
@@ -172,7 +172,7 @@ export default async function ModulesPage() {
   const accessExpired = profile?.access_expires_at
     ? new Date(profile.access_expires_at) < new Date()
     : false
-  if (!profile?.has_paid || accessExpired) redirect('/pricing')
+  if (!profile?.has_paid || accessExpired) redirect('/precio')
 
   // Módulos 0-10 (el 0 es mentalidad, zona pública)
   const [modulesResult, lessonsResult, progressResult] = await Promise.all([

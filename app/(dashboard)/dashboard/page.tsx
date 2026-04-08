@@ -78,7 +78,7 @@ function HeroModuleCard({ module }: { module: Module }) {
 
 function ModuleCard({ module, status }: { module: Module; status: ModuleStatus }) {
   const isClickable = (status === 'available' || status === 'completed') && !!module.slug
-  const href = `/dashboard/modules/${module.slug}`
+  const href = `/dashboard/modulos/${module.slug}`
 
   const card = (
     <Card
@@ -264,7 +264,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <Link
-                href="/pricing"
+                href="/precio"
                 className="shrink-0 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-8 px-4 text-sm font-medium hover:bg-primary/80 transition-colors"
               >
                 Ver planes

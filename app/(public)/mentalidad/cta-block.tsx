@@ -125,7 +125,7 @@ export default function CtaBlock({ isAuthenticated, hasPaid, paymentsCount }: Pr
           </Button>
         ) : (
           <Link
-            href="/register"
+            href="/registro"
             className="flex items-center justify-center rounded-lg bg-primary text-primary-foreground h-12 px-6 text-sm font-medium hover:bg-primary/80 transition-colors w-full"
           >
             Quiero entrar — Registrarme

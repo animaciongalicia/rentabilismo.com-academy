@@ -23,7 +23,7 @@ export default function DiagnosticoSidebar({ lessons, completedIds, activeSlug }
       <div className="p-5 space-y-6">
         {/* Módulo header */}
         <Link
-          href="/modules/diagnostico-inicial"
+          href="/modulos/diagnostico-inicial"
           className={cn(
             'block rounded-md px-2 py-1 -mx-2 transition-colors',
             !activeSlug ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
@@ -62,7 +62,7 @@ export default function DiagnosticoSidebar({ lessons, completedIds, activeSlug }
             return (
               <Link
                 key={lesson.id}
-                href={`/modules/diagnostico-inicial/${lesson.slug}`}
+                href={`/modulos/diagnostico-inicial/${lesson.slug}`}
                 className={cn(
                   'flex items-start gap-2.5 rounded-md px-3 py-2.5 text-sm transition-colors',
                   isActive

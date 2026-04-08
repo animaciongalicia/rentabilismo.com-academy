@@ -35,7 +35,7 @@ export default async function DashboardModulePage({ params }: Props) {
   const accessExpired = profile?.access_expires_at
     ? new Date(profile.access_expires_at) < new Date()
     : false
-  if (!profile?.has_paid || accessExpired) redirect('/pricing')
+  if (!profile?.has_paid || accessExpired) redirect('/precio')
 
   // Módulo por slug
   const { data: mod } = await supabase
@@ -63,8 +63,8 @@ export default async function DashboardModulePage({ params }: Props) {
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
 
   const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
-  const moduleHref = `/dashboard/modules/${mod.slug}`
-  const lessonHrefPrefix = `/dashboard/modules/${mod.slug}`
+  const moduleHref = `/dashboard/modulos/${mod.slug}`
+  const lessonHrefPrefix = `/dashboard/modulos/${mod.slug}`
 
   return (
     <div className="min-h-screen bg-background md:flex">

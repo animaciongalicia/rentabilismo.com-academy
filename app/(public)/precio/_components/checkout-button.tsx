@@ -24,7 +24,7 @@ export default function CheckoutButton() {
       const data = await res.json() as { url?: string; error?: string }
 
       if (res.status === 401) {
-        window.location.href = '/login?redirectTo=/pricing'
+        window.location.href = '/login?redirectTo=/precio'
         return
       }
 

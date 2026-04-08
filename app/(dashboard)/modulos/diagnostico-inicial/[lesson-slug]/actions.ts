@@ -24,14 +24,14 @@ export async function completeLesson(
 
     if (error) {
       if (error.code === '23505') {
-        revalidatePath('/modules/diagnostico-inicial', 'layout')
+        revalidatePath('/modulos/diagnostico-inicial', 'layout')
         return { ok: true }
       }
       console.error('completeLesson error:', error.code, error.message)
       return { error: 'Error al guardar el progreso. Inténtalo de nuevo.' }
     }
 
-    revalidatePath('/modules/diagnostico-inicial', 'layout')
+    revalidatePath('/modulos/diagnostico-inicial', 'layout')
     return { ok: true }
   } catch (e) {
     console.error('completeLesson CATCH:', e)

@@ -65,7 +65,7 @@ export default async function LessonPage({ params }: Props) {
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
 
-  const completionRedirect = hasPaid ? '/dashboard' : '/pricing'
+  const completionRedirect = hasPaid ? '/dashboard' : '/precio'
   const completionLabel = hasPaid ? 'Ir al dashboard →' : 'Ver acceso completo →'
 
   return (
@@ -139,7 +139,7 @@ export default async function LessonPage({ params }: Props) {
               El consultor que coge tus respuestas y te las devuelve ordenadas. Sin filtro.
             </p>
             <Link
-              href="/cuartel-general/el-espejo"
+              href="/cuartel/el-espejo"
               className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-12 px-5 hover:bg-primary/80 transition-colors"
             >
               Conoce a El Espejo

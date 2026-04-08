@@ -558,10 +558,10 @@ export default function DiagnosticoLessonTabs({
       }
       setCompleted(true)
       if (nextSlug) {
-        setNavigateTo(`/modules/diagnostico-inicial/${nextSlug}`)
+        setNavigateTo(`/modulos/diagnostico-inicial/${nextSlug}`)
       } else {
         // Última lección → pantalla de cierre
-        setNavigateTo('/modules/diagnostico-inicial/cierre')
+        setNavigateTo('/modulos/diagnostico-inicial/cierre')
       }
     })
   }
@@ -582,14 +582,14 @@ export default function DiagnosticoLessonTabs({
           <span className="text-green-600 dark:text-green-400 font-medium">✓ Lección completada</span>
           {nextSlug ? (
             <Link
-              href={`/modules/diagnostico-inicial/${nextSlug}`}
+              href={`/modulos/diagnostico-inicial/${nextSlug}`}
               className="text-primary underline underline-offset-4 hover:no-underline text-sm"
             >
               Siguiente lección →
             </Link>
           ) : (
             <Link
-              href="/modules/diagnostico-inicial/cierre"
+              href="/modulos/diagnostico-inicial/cierre"
               className="text-primary underline underline-offset-4 hover:no-underline text-sm"
             >
               Ver mi Informe de Diagnóstico →
