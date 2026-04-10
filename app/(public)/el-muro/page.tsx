@@ -35,11 +35,11 @@ export default async function ElMuroPage() {
   const isEmpty = wall.length === 0
 
   return (
-    <main className="min-h-screen px-6 py-16">
-      <div className="w-full max-w-5xl mx-auto space-y-12">
+    <main className="px-8 py-10">
+      <div className="space-y-12">
 
         {/* Cabecera */}
-        <section className="space-y-3 text-center max-w-2xl mx-auto">
+        <section className="space-y-3">
           <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight">
             {TITULO}
           </h1>

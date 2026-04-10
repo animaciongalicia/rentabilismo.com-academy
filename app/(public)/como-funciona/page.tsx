@@ -83,8 +83,8 @@ const CHECKS_CTA = [
 
 export default function ComoFuncionaPage() {
   return (
-    <div className="min-h-full px-6 py-16">
-      <div className="w-full max-w-xl mx-auto space-y-16">
+    <div className="px-8 py-10">
+      <div className="space-y-16">
 
         {/* ── BLOQUE 1: HEADER ── */}
         <section className="space-y-4">

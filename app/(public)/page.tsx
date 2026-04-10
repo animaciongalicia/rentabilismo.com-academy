@@ -2,11 +2,11 @@ import Link from 'next/link'
 
 export default function PublicHomePage() {
   return (
-    <main className="min-h-full flex flex-col items-center justify-center px-6 py-16">
-      <div className="w-full max-w-xl space-y-16">
+    <main className="px-8 py-10">
+      <div className="space-y-16">
 
         {/* BLOQUE 1 — Headline */}
-        <section className="space-y-4 text-center">
+        <section className="space-y-4">
           <h1 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight">
             Trabajas más que nadie y a fin de mes el número no cuadra.
           </h1>
@@ -51,7 +51,7 @@ export default function PublicHomePage() {
         </section>
 
         {/* BLOQUE 4 — CTA */}
-        <section className="space-y-4 text-center">
+        <section className="space-y-4">
           <Link
             href="/mentalidad"
             className="inline-block w-full md:w-auto px-8 py-3 bg-[#1D9E75] text-white text-sm font-semibold rounded-sm hover:opacity-90 transition-opacity"
