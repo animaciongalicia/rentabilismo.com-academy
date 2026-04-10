@@ -214,3 +214,14 @@ Racha: 🔥 X días
 - `.mcp.json` debe estar en la raíz del proyecto con formato exacto de Bearer token
 - Añadir `.mcp.json` a `.gitignore`
 - Claude Code NO puede verificar configuraciones de Vercel, Supabase o Stripe dashboards — Pablo lo hace manualmente
+
+## Cambios recientes
+
+### Sesiones completadas (Abril 2026)
+- Sidebar nuevo: `components/layout/app-sidebar.tsx` + `components/layout/sidebar-nav-client.tsx`
+- Sidebar ancho: `w-60` (240px) — el layout antiguo usaba sidebars secundarios por sección de `w-[320px]`; el sidebar global de navegación no existía antes de la sesión 1 de abril
+- Layout dashboard: `flex h-screen overflow-hidden`, sidebar fijo + main scrollable (`flex-1 overflow-y-auto`)
+- Páginas nuevas: `/` (reescrita), `/el-muro`, `/perfil`, `/dolores` (redirect permanente a `/`)
+- `lib/utils/avatar.ts`: funciones `getAvatarColor` y `getInitials` compartidas entre `/el-muro` y `/perfil`
+- Rutas públicas pendientes (dan 404): `/como-funciona`, `/programa`, `/cuartel-general`, `/informes`
+- Layout `/mentalidad` pendiente de unificar — sigue usando el header top antiguo (`AppHeader`), no el sidebar
