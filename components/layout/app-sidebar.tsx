@@ -42,7 +42,7 @@ export default async function AppSidebar() {
   }
 
   return (
-    <aside className="hidden md:flex flex-col w-56 shrink-0 h-screen sticky top-0 border-r border-border bg-background">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-border bg-background">
       <SidebarNavClient hasPaid={hasPaid} userInfo={userInfo} />
     </aside>
   )

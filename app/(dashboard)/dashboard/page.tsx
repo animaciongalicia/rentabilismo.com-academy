@@ -197,7 +197,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-10 space-y-10">
+      <div className="px-8 py-10 space-y-10">
 
         {/* ── Cabecera ── */}
         <div>

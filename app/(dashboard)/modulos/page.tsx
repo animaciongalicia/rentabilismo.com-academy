@@ -217,7 +217,7 @@ export default async function ModulesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-10 space-y-10">
+      <div className="px-8 py-10 space-y-10">
 
         {/* Cabecera */}
         <div className="space-y-1">
@@ -236,11 +236,13 @@ export default async function ModulesPage() {
           <Progress value={overallPercent} className="h-2" />
         </div>
 
-        {/* Grid de módulos */}
+        {/* Módulo 00 — ancho completo */}
+        {mentalidadModule && (
+          <MentalidadCard module={mentalidadModule} />
+        )}
+
+        {/* Módulos 01-10 — grid 2 columnas */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {mentalidadModule && (
-            <MentalidadCard key={mentalidadModule.id} module={mentalidadModule} />
-          )}
           {paidModules.map((module) => {
             const lc = lessonCounts.get(module.id) ?? { module_id: module.id, total: 0, completed: 0 }
             return (
