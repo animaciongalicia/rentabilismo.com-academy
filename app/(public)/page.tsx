@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function PublicHomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-full flex flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-xl space-y-16">
 
         {/* BLOQUE 1 — Headline */}

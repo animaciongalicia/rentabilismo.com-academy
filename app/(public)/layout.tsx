@@ -1,4 +1,4 @@
-import AppHeader from '@/components/layout/app-header'
+import AppSidebar from '@/components/layout/app-sidebar'
 
 export default function PublicLayout({
   children,
@@ -6,9 +6,11 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
-      <AppHeader />
-      {children}
-    </>
+    <div className="flex h-screen overflow-hidden">
+      <AppSidebar />
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
+    </div>
   )
 }
