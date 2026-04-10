@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import ModuleSidebar from '@/components/modules/module-sidebar'
 import LessonTabs, { type Exercise } from '@/components/modules/lesson-tabs'
 import CtaBlock from '../cta-block'
 
@@ -70,17 +69,6 @@ export default async function LessonPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <ModuleSidebar
-        moduleLabel="Módulo 0"
-        modTitle="Tu Cabeza Manda"
-        moduleHref="/mentalidad"
-        lessonHrefPrefix="/mentalidad"
-        lessons={allLessons}
-        completedIds={completedIds}
-        activeSlug={lesson.slug}
-        moduleSlug="mentalidad"
-      />
-
       <main className="flex-1 min-w-0">
         {/* Mobile stepper */}
         <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">

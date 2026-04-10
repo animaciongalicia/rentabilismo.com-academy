@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import CuartelSidebar from './cuartel-sidebar'
 import { AGENTES } from './agentes'
 
 export default async function CuartelGeneralPage() {
@@ -14,8 +13,6 @@ export default async function CuartelGeneralPage() {
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <CuartelSidebar />
-
       <main className="flex-1 min-w-0">
         <div className="max-w-[1040px] px-8 py-6">
           <nav className="mb-6">

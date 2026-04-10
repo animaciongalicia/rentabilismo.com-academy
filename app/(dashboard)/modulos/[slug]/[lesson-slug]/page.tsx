@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import ModuleSidebar from '@/components/modules/module-sidebar'
 import LessonTabs, { type Exercise } from '@/components/modules/lesson-tabs'
 
 type Props = { params: { slug: string; 'lesson-slug': string } }
@@ -85,20 +84,9 @@ export default async function DashboardLessonPage({ params }: Props) {
 
   const moduleHref = `/modulos/${mod.slug}`
   const lessonHrefPrefix = `/modulos/${mod.slug}`
-  const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <ModuleSidebar
-        moduleLabel={moduleLabel}
-        modTitle={mod.title}
-        moduleHref={moduleHref}
-        lessonHrefPrefix={lessonHrefPrefix}
-        lessons={allLessons}
-        completedIds={completedIds}
-        activeSlug={lesson.slug}
-      />
-
       <main className="flex-1 min-w-0">
         {/* Mobile stepper */}
         <div className="md:hidden sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between">

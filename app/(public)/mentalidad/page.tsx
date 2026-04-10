@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import ModuleSidebar from '@/components/modules/module-sidebar'
 import ModuleTabs from '@/components/modules/module-tabs'
 import CtaBlock from './cta-block'
 
@@ -51,17 +50,6 @@ export default async function MentalidadPage() {
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <ModuleSidebar
-        moduleLabel="Módulo 0"
-        modTitle={mod?.title ?? 'Tu Cabeza Manda'}
-        moduleHref="/mentalidad"
-        lessonHrefPrefix="/mentalidad"
-        lessons={lessons}
-        completedIds={completedIds}
-        activeSlug={null}
-        moduleSlug="mentalidad"
-      />
-
       <main className="flex-1 min-w-0">
         <div className="max-w-[1040px] px-8 py-6">
           <div className="space-y-3 mb-8">

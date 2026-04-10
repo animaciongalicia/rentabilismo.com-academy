@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import EspejoClient from './espejo-client'
-import CuartelSidebar from '../cuartel-sidebar'
 
 type RawRow = {
   response: Record<string, unknown>
@@ -86,8 +85,6 @@ export default async function EspejoPage() {
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <CuartelSidebar activeHref="/cuartel/el-espejo" />
-
       <main className="flex-1 min-w-0">
         <div className="max-w-[1040px] px-8 py-6">
           <nav className="mb-6 md:hidden">

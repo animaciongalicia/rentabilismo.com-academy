@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import ModuleSidebar from '@/components/modules/module-sidebar'
 import ModuleTabs from '@/components/modules/module-tabs'
 
 type Props = { params: { slug: string } }
@@ -46,38 +45,20 @@ export default async function DashboardModulePage({ params }: Props) {
 
   if (!mod) notFound()
 
-  // Lecciones + progreso del usuario
-  const [lessonsResult, progressResult] = await Promise.all([
-    supabase
-      .from('lessons')
-      .select('id, title, slug, order_number')
-      .eq('module_id', mod.id)
-      .order('order_number'),
-    supabase
-      .from('lesson_progress')
-      .select('lesson_id')
-      .eq('user_id', user.id),
-  ])
+  // Lecciones del módulo
+  const lessonsResult = await supabase
+    .from('lessons')
+    .select('id, title, slug, order_number')
+    .eq('module_id', mod.id)
+    .order('order_number')
 
   const lessons = lessonsResult.data ?? []
-  const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
 
   const moduleLabel = `Módulo ${String(mod.order_number).padStart(2, '0')}`
-  const moduleHref = `/modulos/${mod.slug}`
   const lessonHrefPrefix = `/modulos/${mod.slug}`
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <ModuleSidebar
-        moduleLabel={moduleLabel}
-        modTitle={mod.title}
-        moduleHref={moduleHref}
-        lessonHrefPrefix={lessonHrefPrefix}
-        lessons={lessons}
-        completedIds={completedIds}
-        activeSlug={null}
-      />
-
       <main className="flex-1 min-w-0">
         <div className="max-w-[1040px] px-8 py-6">
           <div className="space-y-3 mb-8">
