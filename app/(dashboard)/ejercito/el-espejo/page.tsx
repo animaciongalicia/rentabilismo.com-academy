@@ -89,7 +89,7 @@ export default async function EspejoPage() {
         <div className="max-w-[1040px] px-8 py-6">
           <nav className="mb-6 md:hidden">
             <Link
-              href="/cuartel"
+              href="/ejercito"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               ← El Ejército de Consultores

@@ -21,17 +21,14 @@ export default async function AppSidebar() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let hasPaid = false
   let userInfo = null
 
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name, has_paid, access_type')
+      .select('full_name, access_type')
       .eq('id', user.id)
       .single()
-
-    hasPaid = profile?.has_paid ?? false
 
     const fullName = profile?.full_name ?? user.email ?? 'Empresario'
     userInfo = {
@@ -43,7 +40,7 @@ export default async function AppSidebar() {
 
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-border bg-background">
-      <SidebarNavClient hasPaid={hasPaid} userInfo={userInfo} />
+      <SidebarNavClient userInfo={userInfo} />
     </aside>
   )
 }

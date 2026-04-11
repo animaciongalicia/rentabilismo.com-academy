@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { AGENTES } from './agentes'
 
-export default async function CuartelGeneralPage() {
+export default async function EjercitoPage() {
   const supabase = await getSupabaseServerClient()
   const {
     data: { user },
@@ -26,7 +26,7 @@ export default async function CuartelGeneralPage() {
 
           <div className="space-y-2 mb-8">
             <p className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
-              Cuartel General
+              El Ejército
             </p>
             <h1 className="text-3xl font-bold tracking-tight">El Ejército de Consultores</h1>
             <p className="text-base text-muted-foreground leading-relaxed">
