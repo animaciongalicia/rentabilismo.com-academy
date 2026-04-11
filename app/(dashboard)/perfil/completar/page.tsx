@@ -17,7 +17,7 @@ export default async function CompletarPerfilPage() {
     .eq('id', user.id)
     .single()
 
-  if (!profile?.has_paid) redirect('/programa')
+  if (!profile?.has_paid) redirect('/precio')
   if (profile.profile_completed) redirect('/dashboard')
 
   const fullName = profile.full_name ?? user.email ?? 'Empresario'

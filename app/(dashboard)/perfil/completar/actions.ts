@@ -25,10 +25,25 @@ export async function completarPerfilAction(
   const businessSize = formData.get('business_size') as string
   const avatarFile = formData.get('avatar') as File | null
 
+  if (!businessType) {
+    return { error: 'Por favor, selecciona el sector de tu negocio.' }
+  }
+  if (!businessSize) {
+    return { error: 'Por favor, indica el tamaño de tu equipo.' }
+  }
+
   let avatarUrl: string | undefined
 
   // Subir avatar si se proporcionó uno
   if (avatarFile && avatarFile.size > 0) {
+    const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp']
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+    if (!ALLOWED_MIME.includes(avatarFile.type)) {
+      return { error: 'Solo se permiten imágenes JPG, PNG o WebP.' }
+    }
+    if (avatarFile.size > MAX_SIZE_BYTES) {
+      return { error: 'La foto no puede superar 5 MB.' }
+    }
     const fileExt = avatarFile.name.split('.').pop()
     const filePath = `${user.id}/avatar.${fileExt}`
 

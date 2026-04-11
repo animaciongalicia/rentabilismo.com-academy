@@ -108,6 +108,7 @@ export default function CompletarForm({ fullName, initials, avatarColor }: Compl
         <select
           id="business_type"
           name="business_type"
+          required
           className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="">Selecciona tu sector</option>
@@ -134,7 +135,7 @@ export default function CompletarForm({ fullName, initials, avatarColor }: Compl
       <div className="space-y-3">
         <Label>¿Cuántas personas trabajan en tu negocio?</Label>
         <div className="grid grid-cols-3 gap-3">
-          {TAMANIOS.map(({ value, label }) => (
+          {TAMANIOS.map(({ value, label }, index) => (
             <label
               key={value}
               className="relative flex cursor-pointer flex-col items-center justify-center rounded-lg border border-input bg-background p-4 text-center text-sm font-medium transition-colors hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:text-primary"
@@ -144,6 +145,7 @@ export default function CompletarForm({ fullName, initials, avatarColor }: Compl
                 name="business_size"
                 value={value}
                 className="sr-only"
+                required={index === 0}
               />
               {label}
             </label>
