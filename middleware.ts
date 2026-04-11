@@ -36,9 +36,9 @@ export async function middleware(request: NextRequest) {
     .eq('id', user.id)
     .single()
 
-  // Gate 2: Autenticado + sin pago + rutas de pago → /programa
+  // Gate 2: Autenticado + sin pago + rutas de pago → /precio
   if (!profile?.has_paid && matchesPrefix(pathname, PAID_REQUIRED)) {
-    return NextResponse.redirect(new URL('/programa', request.url))
+    return NextResponse.redirect(new URL('/precio', request.url))
   }
 
   // Gate 3: Pagado + perfil incompleto → /perfil/completar
@@ -56,12 +56,20 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/modulos/') &&
     !pathname.startsWith('/modulos/diagnostico-inicial')
   ) {
-    const { data: progress } = await supabase
-      .from('user_progress')
-      .select('completed_at')
-      .eq('user_id', user.id)
-      .eq('module_id', 1)
-      .maybeSingle()
+    const { data: diagModule } = await supabase
+      .from('modules')
+      .select('id')
+      .eq('slug', 'diagnostico-inicial')
+      .single()
+
+    const { data: progress } = diagModule
+      ? await supabase
+          .from('user_progress')
+          .select('completed_at')
+          .eq('user_id', user.id)
+          .eq('module_id', diagModule.id)
+          .maybeSingle()
+      : { data: null }
 
     if (!progress) {
       return NextResponse.redirect(new URL('/modulos/diagnostico-inicial', request.url))
