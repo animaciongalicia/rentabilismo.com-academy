@@ -2,67 +2,73 @@ import { NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 // Rutas que requieren autenticación
-const PROTECTED_PREFIXES = ['/dashboard', '/onboarding', '/ejercito']
+const AUTH_REQUIRED = ['/dashboard', '/modulos', '/ejercito', '/perfil']
 
-function isProtectedPath(pathname: string): boolean {
-  return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+// Rutas que además requieren pago activo
+const PAID_REQUIRED = ['/dashboard', '/modulos', '/ejercito']
+
+function matchesPrefix(pathname: string, prefixes: string[]): boolean {
+  return prefixes.some((p) => pathname === p || pathname.startsWith(p + '/'))
 }
 
 export async function middleware(request: NextRequest) {
   const { supabase, response, user } = await updateSession(request)
-
   const { pathname } = request.nextUrl
 
-  // 1. Sin sesión → login (solo para rutas protegidas)
-  if (isProtectedPath(pathname) && !user) {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/login'
-    loginUrl.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(loginUrl)
+  // Gate 1: No autenticado + ruta protegida → login
+  if (!user && matchesPrefix(pathname, AUTH_REQUIRED)) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('redirectTo', pathname)
+    return NextResponse.redirect(url)
   }
 
-  // 2-4. Usuario autenticado en rutas protegidas → comprobar estado de perfil
-  if (user && isProtectedPath(pathname)) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('onboarding_completed_at, has_paid, access_expires_at')
-      .eq('id', user.id)
-      .single()
+  // Usuario no autenticado en zona pública → pasar
+  if (!user) return response
 
-    const completedOnboarding = !!profile?.onboarding_completed_at
-    const accessExpired = profile?.access_expires_at
-      ? new Date(profile.access_expires_at) < new Date()
-      : false
-    const hasActiveAccess = !!profile?.has_paid && !accessExpired
+  // Usuario autenticado fuera de rutas protegidas → pasar
+  if (!matchesPrefix(pathname, AUTH_REQUIRED)) return response
 
-    // — Wizard de onboarding (/onboarding exacto) —
-    if (pathname === '/onboarding') {
-      if (!completedOnboarding) return response
-      if (hasActiveAccess) return NextResponse.redirect(new URL('/dashboard', request.url))
-      return NextResponse.redirect(new URL('/onboarding/mentalidad', request.url))
+  // Consultar perfil (una sola query, solo en rutas protegidas)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('has_paid, profile_completed')
+    .eq('id', user.id)
+    .single()
+
+  // Gate 2: Autenticado + sin pago + rutas de pago → /programa
+  if (!profile?.has_paid && matchesPrefix(pathname, PAID_REQUIRED)) {
+    return NextResponse.redirect(new URL('/programa', request.url))
+  }
+
+  // Gate 3: Pagado + perfil incompleto → /perfil/completar
+  if (profile?.has_paid && !profile?.profile_completed) {
+    if (!pathname.startsWith('/perfil/completar')) {
+      return NextResponse.redirect(new URL('/perfil/completar', request.url))
     }
+    return response // ya está en /perfil/completar, no redirigir
+  }
 
-    // — Sub-rutas de onboarding (/onboarding/*) —
-    if (pathname.startsWith('/onboarding/')) {
-      if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
-      if (hasActiveAccess) return NextResponse.redirect(new URL('/dashboard', request.url))
-      return response
-    }
+  // Gate 4: Pagado + perfil completo + /modulos/[slug] (no diagnóstico) + diagnóstico no completado
+  if (
+    profile?.has_paid &&
+    profile?.profile_completed &&
+    pathname.startsWith('/modulos/') &&
+    !pathname.startsWith('/modulos/diagnostico-inicial')
+  ) {
+    const { data: progress } = await supabase
+      .from('user_progress')
+      .select('completed_at')
+      .eq('user_id', user.id)
+      .eq('module_id', 1)
+      .maybeSingle()
 
-    // — El Ejército (solo requiere onboarding, no pago) —
-    if (pathname.startsWith('/ejercito')) {
-      if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
-      return response
-    }
-
-    // — Dashboard (requiere pago activo) —
-    if (pathname.startsWith('/dashboard')) {
-      if (!completedOnboarding) return NextResponse.redirect(new URL('/onboarding', request.url))
-      if (!hasActiveAccess) return NextResponse.redirect(new URL('/onboarding/mentalidad', request.url))
-      return response
+    if (!progress) {
+      return NextResponse.redirect(new URL('/modulos/diagnostico-inicial', request.url))
     }
   }
 
+  // Gate 5: acceso total
   return response
 }
 
