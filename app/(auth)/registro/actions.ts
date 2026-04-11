@@ -18,12 +18,6 @@ export async function registerAction(
   const fullName = formData.get('fullName') as string
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const confirmPassword = formData.get('confirmPassword') as string
-
-  if (password !== confirmPassword) {
-    return { error: 'Las contraseñas no coinciden.', success: false, email }
-  }
-
   if (password.length < 6) {
     return { error: 'La contraseña debe tener al menos 6 caracteres.', success: false, email }
   }
@@ -47,7 +41,7 @@ export async function registerAction(
 
   // Email confirm desactivado → sesión activa inmediata
   if (data.session) {
-    redirect('/onboarding')
+    redirect('/mentalidad')
   }
 
   // Email de confirmación enviado

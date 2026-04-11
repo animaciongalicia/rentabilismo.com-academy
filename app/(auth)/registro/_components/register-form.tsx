@@ -96,17 +96,6 @@ export default function RegisterForm() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="Repite tu contraseña"
-              required
-              autoComplete="new-password"
-            />
-          </div>
         </CardContent>
 
         <CardFooter className="flex flex-col gap-4">
