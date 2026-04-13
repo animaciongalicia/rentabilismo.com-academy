@@ -1,75 +1,91 @@
 import Link from 'next/link'
 
+export const metadata = {
+  title: 'Rentabilismo Academy — Consultoría guiada para empresarios',
+  description:
+    'No necesitas más información. Necesitas un sistema que te obligue a mirar los números, tomar decisiones y dejar de improvisar.',
+}
+
+const DOLORES = [
+  {
+    titulo: 'Tu dinero',
+    texto:
+      'Facturas, pero no sabes cuánto te queda. Confundes lo que cobras con lo que ganas. Y tus precios llevan dos años sin moverse.',
+  },
+  {
+    titulo: 'Tu tiempo',
+    texto:
+      'Eres el primero en llegar y el último en irte. Si te vas una semana, el negocio se para. Apagar fuegos es tu trabajo real.',
+  },
+  {
+    titulo: 'Tus clientes',
+    texto:
+      'No sabes cuáles te dejan dinero y cuáles te lo quitan. Atraes a los que buscan precio, no a los que buscan valor.',
+  },
+  {
+    titulo: 'Tu rumbo',
+    texto:
+      'Intuyes que podrías ganar más pero no sabes por dónde empezar. Llevas tiempo posponiendo decisiones que sabes que tienes que tomar.',
+  },
+]
+
 export default function PublicHomePage() {
   return (
-    <main className="px-8 py-10">
-      <div className="space-y-16">
+    <div className="bg-zinc-950">
 
-        {/* BLOQUE 1 — Headline */}
-        <section className="space-y-4">
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight">
-            Trabajas más que nadie y a fin de mes el número no cuadra.
-          </h1>
-          <p className="text-base md:text-lg text-muted-foreground">
-            No es tu culpa. Es que nadie te enseñó a dirigir un negocio. Aquí sí.
-          </p>
-        </section>
+      {/* SECCIÓN 1 — HERO */}
+      <section className="px-8 py-16 max-w-3xl">
+        <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-6">
+          Cambia tu forma de pensar la empresa. Lo demás vendrá detrás.
+        </h1>
+        <p className="text-lg text-zinc-400 max-w-2xl leading-relaxed mb-10">
+          No necesitas más información. Necesitas un sistema que te obligue a mirar los números,
+          tomar decisiones y dejar de improvisar. Un consultor que trabaja contigo, no para ti.
+          Con tus datos reales, no con teoría.
+        </p>
+        <Link
+          href="/programa"
+          className="inline-flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-semibold h-12 px-8 hover:bg-zinc-200 transition-colors"
+        >
+          Descubre cómo funciona
+        </Link>
+      </section>
 
-        {/* BLOQUE 2 — ¿Es para ti? */}
-        <section className="space-y-5">
-          <h2 className="text-xl font-semibold">
-            Si has llegado hasta aquí, es por algo.
-          </h2>
-          <ul className="space-y-3">
-            {[
-              'Tu asesor lleva los números pero no te entiende',
-              'Trabajas más horas que nadie y ganas menos de lo que mereces',
-              'Has probado métodos y ninguno encajó en tu realidad',
-              'Tienes claro que algo hay que cambiar pero no sabes por dónde empezar',
-              'Has pagado cursos que prometían el cambio y todo volvió a ser igual',
-            ].map((dolor) => (
-              <li key={dolor} className="flex items-start gap-3 text-sm md:text-base">
-                <span className="mt-0.5 text-[#1D9E75] font-bold shrink-0">—</span>
-                <span>{dolor}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm md:text-base text-muted-foreground pt-1">
-            Si te reconoces en algo de esto, estás en el sitio correcto.
-          </p>
-        </section>
+      {/* SECCIÓN 2 — DOLORES */}
+      <section className="px-8 py-16 border-t border-zinc-800">
+        <h2 className="text-2xl font-bold text-white mb-10">¿Te suena esto?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+          {DOLORES.map((d) => (
+            <div
+              key={d.titulo}
+              className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 space-y-2"
+            >
+              <p className="text-sm font-bold text-white">{d.titulo}</p>
+              <p className="text-sm text-zinc-400 leading-relaxed">{d.texto}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        {/* BLOQUE 3 — Qué es esto */}
-        <section className="space-y-2 border-l-2 border-[#1D9E75] pl-4">
-          <p className="text-sm md:text-base font-medium">Rentabilismo no es un curso.</p>
-          <p className="text-sm md:text-base">
-            Es consultoría guiada. Trabajas sobre tu negocio real, con tus números reales.
-          </p>
-          <p className="text-sm md:text-base">
-            Yo pongo el método. Tú pones el trabajo. Los dos ponemos la honestidad.
-          </p>
-        </section>
+      {/* SECCIÓN 3 — DIFERENCIACIÓN + CTA */}
+      <section className="px-8 py-16 border-t border-zinc-800 max-w-3xl space-y-6">
+        <h2 className="text-2xl font-bold text-white">Esto no es un curso más.</h2>
+        <p className="text-zinc-400 leading-relaxed">
+          Has probado formaciones, vídeos, libros, mentorías. Y siempre faltaba algo: que alguien
+          trabajara contigo sobre TU negocio, con TUS números, sin teoría genérica.
+        </p>
+        <p className="text-zinc-400 leading-relaxed">
+          Rentabilismo es consultoría guiada. Tú trabajas sobre tu negocio real. Un sistema con
+          método, ejercicios con tus datos, y un ejército de consultores que no te hacen la pelota.
+        </p>
+        <Link
+          href="/programa"
+          className="inline-flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-semibold h-12 px-8 hover:bg-zinc-200 transition-colors"
+        >
+          Descubre cómo funciona
+        </Link>
+      </section>
 
-        {/* BLOQUE 4 — CTA */}
-        <section className="space-y-4">
-          <Link
-            href="/mentalidad"
-            className="inline-block w-full md:w-auto px-8 py-3 bg-[#1D9E75] text-white text-sm font-semibold rounded-sm hover:opacity-90 transition-opacity"
-          >
-            Empieza gratis con Mentalidad →
-          </Link>
-          <p className="text-xs text-muted-foreground">
-            Sin tarjeta. Sin compromiso. Si convence, das el siguiente paso.
-          </p>
-          <Link
-            href="/programa"
-            className="block text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
-          >
-            Ver el programa completo
-          </Link>
-        </section>
-
-      </div>
-    </main>
+    </div>
   )
 }
