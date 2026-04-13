@@ -11,6 +11,10 @@ export type SignPactoInput = {
 export type SignPactoResult = { ok: true } | { error: string }
 
 export async function signPacto(data: SignPactoInput): Promise<SignPactoResult> {
+  if (!data.startingPoint?.trim() || !data.desiredDestination?.trim()) {
+    return { error: 'Por favor, responde a las dos preguntas antes de firmar.' }
+  }
+
   try {
     const supabase = await getSupabaseServerClient()
     const {

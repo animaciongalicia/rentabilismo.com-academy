@@ -31,13 +31,13 @@ export default async function DiagnosticoModulePage() {
   const profile = profileResult.data
   const hasPaid = profile?.has_paid ?? false
 
-  if (!hasPaid) redirect('/onboarding/mentalidad')
+  if (!hasPaid) redirect('/precio')
 
   // Gate: mostrar Pacto si aún no ha sido firmado
   if (!profile?.entrepreneur_pact) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <PactoEmpresario fullName={profile?.full_name ?? ''} />
+        <PactoEmpresario fullName={profile?.full_name ?? 'Empresario'} />
       </div>
     )
   }
