@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import LessonTabs, { type Exercise } from '@/components/modules/lesson-tabs'
 import CtaBlock from '../cta-block'
+import MentalidadGate from '../mentalidad-gate'
 
 type Props = { params: { slug: string } }
 
@@ -24,6 +25,10 @@ export default async function LessonPage({ params }: Props) {
   const supabase = await getSupabaseServerClient()
 
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return <MentalidadGate redirectTo={`/mentalidad/${params.slug}`} />
+  }
 
   const { data: lesson } = await supabase
     .from('lessons')

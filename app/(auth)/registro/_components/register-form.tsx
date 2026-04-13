@@ -17,7 +17,7 @@ import {
 
 const initialState: RegisterState = { error: null, success: false, email: '' }
 
-export default function RegisterForm() {
+export default function RegisterForm({ redirectTo }: { redirectTo: string }) {
   const [state, formAction] = useFormState(registerAction, initialState)
 
   if (state.success) {
@@ -53,6 +53,7 @@ export default function RegisterForm() {
       </CardHeader>
 
       <form action={formAction}>
+        <input type="hidden" name="redirectTo" value={redirectTo} />
         <CardContent className="space-y-4">
           {state.error && (
             <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">

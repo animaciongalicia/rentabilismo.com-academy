@@ -5,6 +5,11 @@ export const metadata = {
   description: 'Crea tu cuenta y empieza tu camino hacia la rentabilidad',
 }
 
-export default function RegisterPage() {
-  return <RegisterForm />
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirectTo?: string }>
+}) {
+  const { redirectTo = '/mentalidad' } = await searchParams
+  return <RegisterForm redirectTo={redirectTo} />
 }

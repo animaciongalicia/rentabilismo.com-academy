@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { Lock } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 import { Progress } from '@/components/ui/progress'
@@ -154,6 +155,85 @@ function ModuleCard({
   )
 }
 
+// ── Tarjeta Diagnóstico (módulo 01 — siempre accesible) ───────────────────
+
+function DiagnosticoCard({
+  module,
+  lc,
+  isDiagCompletado,
+}: {
+  module: Module
+  lc: LessonCount
+  isDiagCompletado: boolean
+}) {
+  const isCompleted = getStatus(lc) === 'completado'
+  return (
+    <Link
+      href={`/modulos/${module.slug}`}
+      className={cn(
+        'group flex flex-col gap-4 rounded-lg border p-5 transition-colors hover:border-foreground/30 col-span-1 sm:col-span-2',
+        !isDiagCompletado && !isCompleted && 'border-primary/80 bg-primary/5',
+        isCompleted && 'border-green-500/30 bg-green-500/5',
+        isDiagCompletado && !isCompleted && 'border-border bg-card',
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="font-mono text-sm text-muted-foreground font-semibold">
+          {pad(module.order_number)}
+        </span>
+        <div className="flex items-center gap-2">
+          {!isDiagCompletado && !isCompleted && (
+            <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+              Empieza aquí
+            </Badge>
+          )}
+          {isCompleted && (
+            <Badge variant="outline" className="border-green-500/50 text-green-600 text-xs">
+              ✓ Completado
+            </Badge>
+          )}
+        </div>
+      </div>
+      <div className="space-y-1.5 flex-1">
+        <h3 className="font-semibold text-base leading-snug group-hover:text-foreground/80 transition-colors">
+          {module.title}
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+          {module.description}
+        </p>
+      </div>
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Lecciones</span>
+          <span>{lc.completed}/{lc.total}</span>
+        </div>
+        <Progress value={lc.total > 0 ? Math.round((lc.completed / lc.total) * 100) : 0} className="h-1.5" />
+      </div>
+    </Link>
+  )
+}
+
+// ── Tarjeta bloqueada (módulos 2-10 sin diagnóstico) ──────────────────────
+
+function LockedModuleCard({ module }: { module: Module }) {
+  return (
+    <div className="flex flex-col gap-4 rounded-lg border border-border bg-card/50 p-5 opacity-50 cursor-not-allowed">
+      <div className="flex items-start justify-between gap-3">
+        <span className="font-mono text-sm text-muted-foreground font-semibold">
+          {pad(module.order_number)}
+        </span>
+        <Lock className="h-4 w-4 text-muted-foreground" />
+      </div>
+      <div className="space-y-1.5 flex-1">
+        <h3 className="font-semibold text-base leading-snug">{module.title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+          {module.description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default async function ModulesPage() {
@@ -192,20 +272,36 @@ export default async function ModulesPage() {
 
   const allModules: Module[] = (modulesResult.data ?? []).filter((m) => m.slug)
   const mentalidadModule = allModules.find((m) => m.order_number === 0) ?? null
-  const paidModules = allModules.filter((m) => m.order_number > 0)
+  const diagModule = allModules.find((m) => m.order_number === 1) ?? null
+  const otherPaidModules = allModules.filter((m) => m.order_number > 1)
 
   const allLessons = lessonsResult.data ?? []
   const completedLessonIds = new Set((progressResult.data ?? []).map((r) => r.lesson_id))
 
-  // Calcular progreso por módulo (solo módulos de pago)
+  // Todos los módulos de pago (diagnóstico + módulos 2-10)
+  const allPaidModules = allModules.filter((m) => m.order_number > 0)
+
+  // Calcular progreso por módulo (todos los de pago)
   const lessonCounts = new Map<string, LessonCount>()
-  for (const mod of paidModules) {
+  for (const mod of allPaidModules) {
     const moduleLessons = allLessons.filter((l) => l.module_id === mod.id)
     const completed = moduleLessons.filter((l) => completedLessonIds.has(l.id)).length
     lessonCounts.set(mod.id, { module_id: mod.id, total: moduleLessons.length, completed })
   }
 
-  const nextRecommendedId = getNextRecommended(paidModules, lessonCounts)
+  const nextRecommendedId = getNextRecommended(allPaidModules, lessonCounts)
+
+  // Comprobar si el diagnóstico está completado
+  const diagProgress = diagModule
+    ? (await supabase
+        .from('user_progress')
+        .select('status')
+        .eq('user_id', user.id)
+        .eq('module_id', diagModule.id)
+        .maybeSingle()
+      ).data
+    : null
+  const isDiagCompletado = diagProgress?.status === 'completed'
 
   // Progreso total excluye lecciones del módulo 0 (zona pública)
   const paidLessons = mentalidadModule
@@ -236,6 +332,16 @@ export default async function ModulesPage() {
           <Progress value={overallPercent} className="h-2" />
         </div>
 
+        {/* Banner de bloqueo */}
+        {!isDiagCompletado && (
+          <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-5 py-4">
+            <Lock className="h-4 w-4 text-primary shrink-0" />
+            <p className="text-sm font-medium text-foreground">
+              Completa el Diagnóstico Inicial para desbloquear todos los módulos
+            </p>
+          </div>
+        )}
+
         {/* Módulo 00 — ancho completo */}
         {mentalidadModule && (
           <MentalidadCard module={mentalidadModule} />
@@ -243,8 +349,21 @@ export default async function ModulesPage() {
 
         {/* Módulos 01-10 — grid 2 columnas */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {paidModules.map((module) => {
+          {/* Módulo 01 — Diagnóstico (siempre accesible, destacado si no completado) */}
+          {diagModule && (
+            <DiagnosticoCard
+              key={diagModule.id}
+              module={diagModule}
+              lc={lessonCounts.get(diagModule.id) ?? { module_id: diagModule.id, total: 0, completed: 0 }}
+              isDiagCompletado={isDiagCompletado}
+            />
+          )}
+          {/* Módulos 02-10 — bloqueados si diagnóstico no completado */}
+          {otherPaidModules.map((module) => {
             const lc = lessonCounts.get(module.id) ?? { module_id: module.id, total: 0, completed: 0 }
+            if (!isDiagCompletado) {
+              return <LockedModuleCard key={module.id} module={module} />
+            }
             return (
               <ModuleCard
                 key={module.id}

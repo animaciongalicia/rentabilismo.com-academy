@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import ModuleTabs from '@/components/modules/module-tabs'
 import CtaBlock from './cta-block'
+import MentalidadGate from './mentalidad-gate'
 
 export const metadata = {
   title: 'Tu Cabeza Manda — Módulo 0 · Rentabilismo Academy',
@@ -14,6 +15,10 @@ export default async function MentalidadPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  if (!user) {
+    return <MentalidadGate redirectTo="/mentalidad" />
+  }
 
   const moduleResult = await supabase
     .from('modules')
