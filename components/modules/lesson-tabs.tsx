@@ -130,10 +130,10 @@ function OpenReflection({ exercise, responses, onSet, isAuthenticated, saveState
     <div className="space-y-3">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <Textarea placeholder={cfg.placeholder} value={(responses[exercise.id]?.value as string) ?? ''}
-        onChange={(e) => onSet(exercise.id, 'value', e.target.value)} rows={4} className="resize-none bg-background border-gray-300" />
+        onChange={(e) => onSet(exercise.id, 'value', e.target.value)} rows={4} className="resize-none bg-background border-border" />
       {cfg.note && <p className="text-xs text-muted-foreground italic">{cfg.note}</p>}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
     </div>
@@ -150,14 +150,14 @@ function TextInputExercise({ exercise, responses, onSet, isAuthenticated, saveSt
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground leading-relaxed">{exercise.description}</p>
       </div>
       {cfg.fields.map((field) => (
         <div key={field.id} className="space-y-1.5">
           <Label htmlFor={`${exercise.id}-${field.id}`}>{field.label}</Label>
           <Input id={`${exercise.id}-${field.id}`} placeholder={field.placeholder}
             value={(responses[exercise.id]?.[field.id] as string) ?? ''}
-            onChange={(e) => onSet(exercise.id, field.id, e.target.value)} className="bg-background border-gray-300" />
+            onChange={(e) => onSet(exercise.id, field.id, e.target.value)} className="bg-background border-border" />
         </div>
       ))}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
@@ -175,7 +175,7 @@ function ChecklistExercise({ exercise, responses, onSet, isAuthenticated, saveSt
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <div className="space-y-2.5">
         {cfg.items.map((item) => (
@@ -195,7 +195,7 @@ function ChecklistExercise({ exercise, responses, onSet, isAuthenticated, saveSt
           <Textarea id={`${exercise.id}-follow-up`} placeholder={cfg.follow_up.placeholder}
             value={(responses[exercise.id]?.follow_up as string) ?? ''}
             onChange={(e) => onSet(exercise.id, 'follow_up', e.target.value)}
-            rows={3} className="resize-none bg-background border-gray-300" />
+            rows={3} className="resize-none bg-background border-border" />
         </div>
       )}
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState} onSave={() => onSave(exercise.id)} />
@@ -218,14 +218,14 @@ function MejoraStep({ exercise, responses, onSet, isAuthenticated, saveState, on
       </div>
       <div className="space-y-1">
         <p className="font-semibold text-base">{exercise.title}</p>
-        <p className="text-base text-muted-foreground leading-relaxed">{exercise.description}</p>
+        <p className="text-base text-foreground leading-relaxed">{exercise.description}</p>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor={`${exercise.id}-mejora`}>{cfg.action_prompt}</Label>
         <Textarea id={`${exercise.id}-mejora`} placeholder="Escribe aquí..."
           value={(responses[exercise.id]?.value as string) ?? ''}
           onChange={(e) => onSet(exercise.id, 'value', e.target.value)}
-          rows={3} className="resize-none bg-background border-gray-300" />
+          rows={3} className="resize-none bg-background border-border" />
       </div>
       <SaveButton isAuthenticated={isAuthenticated} saveState={saveState}
         onSave={() => onSave(exercise.id)} label="Guardar y marcar como hecho" />

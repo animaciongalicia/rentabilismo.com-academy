@@ -11,7 +11,7 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Flame, FileText } from 'lucide-react'
+import { Flame, FileText, Lock } from 'lucide-react'
 
 export const metadata = {
   title: 'Dashboard - Rentabilismo Academy',
@@ -24,7 +24,7 @@ const FRASE_MOTIVACIONAL = 'Cada día que trabajas en tu negocio es un día que 
 const REPORT_LABELS: Record<string, string> = {
   diagnostico_inicial: 'Diagnóstico de tu negocio',
   motivacional: 'Informe motivacional',
-  progreso_50: 'Informe de progreso',
+  progreso: 'Informe de progreso',
   final: 'Informe final',
 }
 
@@ -61,14 +61,17 @@ function pad(n: number): string {
 function getModuleStatus(
   module: Module,
   progressMap: Map<string, string>,
-  hasActiveAccess: boolean
+  hasActiveAccess: boolean,
+  isDiagCompleted: boolean
 ): ModuleStatus {
   const status = progressMap.get(module.id)
   if (status === 'completed') return 'completed'
   if (status === 'in_progress') return 'in_progress'
   if (module.is_free) return 'free'
-  if (hasActiveAccess) return 'available'
-  return 'locked'
+  if (!hasActiveAccess) return 'locked'
+  // Módulos 2-10 bloqueados hasta completar diagnóstico
+  if (module.order_number >= 2 && !isDiagCompleted) return 'locked'
+  return 'available'
 }
 
 function formatDate(iso: string | null): string {
@@ -140,7 +143,9 @@ function ModuleCard({ module, status }: { module: Module; status: ModuleStatus }
             <Badge className="text-xs bg-primary/10 text-primary border-primary/30 border">En progreso</Badge>
           )}
           {status === 'locked' && (
-            <Badge variant="secondary" className="text-xs">Acceso completo</Badge>
+            <Badge variant="secondary" className="text-xs flex items-center gap-1">
+              <Lock className="h-3 w-3" /> Bloqueado
+            </Badge>
           )}
           {status === 'available' && (
             <Badge variant="outline" className="text-xs">Disponible</Badge>
@@ -193,7 +198,7 @@ export default async function DashboardPage() {
   const [profileResult, modulesResult, progressResult, reportsResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name, current_streak, last_active_at, has_paid, access_expires_at')
+      .select('full_name, current_streak, has_paid, access_expires_at')
       .eq('id', user.id)
       .single(),
     supabase
@@ -232,6 +237,10 @@ export default async function DashboardPage() {
   const totalModules = paidModules.length || 10
   const completedCount = paidModules.filter((m) => progressMap.get(m.id) === 'completed').length
   const progressPercent = Math.round((completedCount / totalModules) * 100)
+
+  // Diagnóstico completado — derivado del progressMap (sin query extra)
+  const diagModule = modules.find((m) => m.slug === 'diagnostico')
+  const isDiagCompleted = diagModule ? progressMap.get(diagModule.id) === 'completed' : false
 
   // Módulo de continuación: primero in_progress, luego primer available sin empezar
   const continueModule =
@@ -321,7 +330,7 @@ export default async function DashboardPage() {
           {/* Módulos 01-10 — grid 2 columnas */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {modules.slice(1).map((module) => {
-              const status = getModuleStatus(module, progressMap, hasActiveAccess)
+              const status = getModuleStatus(module, progressMap, hasActiveAccess, isDiagCompleted)
               return (
                 <ModuleCard key={module.id} module={module} status={status} />
               )
