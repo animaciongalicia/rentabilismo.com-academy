@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import DiagnosticoSidebar from './module-sidebar'
 import DiagnosticoModuleTabs from './module-tabs'
+import PactoEmpresario from './_components/pacto-empresario'
 
 export const metadata = {
   title: 'Diagnóstico Inicial — Módulo 1 · Rentabilismo Academy',
@@ -23,13 +24,23 @@ export default async function DiagnosticoModulePage() {
       .select('id, title, description, vimeo_id, video_intro_text')
       .eq('slug', 'diagnostico-inicial')
       .single(),
-    supabase.from('profiles').select('has_paid').eq('id', user.id).single(),
+    supabase.from('profiles').select('has_paid, entrepreneur_pact, full_name').eq('id', user.id).single(),
   ])
 
   const mod = moduleResult.data
-  const hasPaid = profileResult.data?.has_paid ?? false
+  const profile = profileResult.data
+  const hasPaid = profile?.has_paid ?? false
 
   if (!hasPaid) redirect('/onboarding/mentalidad')
+
+  // Gate: mostrar Pacto si aún no ha sido firmado
+  if (!profile?.entrepreneur_pact) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <PactoEmpresario fullName={profile?.full_name ?? ''} />
+      </div>
+    )
+  }
 
   const lessonsResult = await supabase
     .from('lessons')
