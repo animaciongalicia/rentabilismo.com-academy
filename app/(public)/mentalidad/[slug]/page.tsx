@@ -7,6 +7,7 @@ import MentalidadGate from '../mentalidad-gate'
 
 type Props = { params: { slug: string } }
 
+// TODO: si se replica este patrón en módulos de pago, añadir check de auth en generateMetadata
 export async function generateMetadata({ params }: Props) {
   const supabase = await getSupabaseServerClient()
   const { data: lesson } = await supabase
@@ -49,13 +50,9 @@ export default async function LessonPage({ params }: Props) {
       .select('id, slug, order_number, title')
       .eq('module_id', lesson.module_id)
       .order('order_number'),
-    user
-      ? supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id)
-      : Promise.resolve({ data: [] as { lesson_id: string }[] }),
+    supabase.from('lesson_progress').select('lesson_id').eq('user_id', user.id),
     supabase.rpc('get_completed_payments_count'),
-    user
-      ? supabase.from('profiles').select('has_paid').eq('id', user.id).single()
-      : Promise.resolve({ data: null }),
+    supabase.from('profiles').select('has_paid').eq('id', user.id).single(),
   ])
 
   const exercises = (exercisesResult.data ?? []) as Exercise[]
@@ -63,7 +60,7 @@ export default async function LessonPage({ params }: Props) {
   const completedIds = (progressResult.data ?? []).map((r) => r.lesson_id)
   const isAlreadyCompleted = completedIds.includes(lesson.id)
   const paymentsCount = Number(countResult.data ?? 0)
-  const hasPaid = (profileResult.data as { has_paid: boolean } | null)?.has_paid ?? false
+  const hasPaid = profileResult.data?.has_paid ?? false
 
   const currentIndex = allLessons.findIndex((l) => l.id === lesson.id)
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null

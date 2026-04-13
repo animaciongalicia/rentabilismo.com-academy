@@ -18,7 +18,8 @@ export async function registerAction(
   const fullName = formData.get('fullName') as string
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const redirectTo = (formData.get('redirectTo') as string) || '/mentalidad'
+  const rawRedirect = (formData.get('redirectTo') as string) || '/mentalidad'
+  const redirectTo = rawRedirect.startsWith('/') ? rawRedirect : '/mentalidad'
   if (password.length < 6) {
     return { error: 'La contraseña debe tener al menos 6 caracteres.', success: false, email }
   }
