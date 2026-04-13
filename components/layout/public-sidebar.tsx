@@ -8,9 +8,11 @@ import { Menu, X } from 'lucide-react'
 const NAV_ITEMS = [
   { label: 'Inicio', href: '/' },
   { label: 'Cómo funciona', href: '/como-funciona' },
-  { label: 'Programa', href: '/programa' },
-  { label: 'Precio', href: '/precio' },
-  { label: 'Empresarios', href: '/el-muro' },
+  { label: '¿Eres tú?', href: '/eres-tu' },
+  { label: 'Empieza aquí', href: '/mentalidad' },
+  { label: 'El Programa', href: '/programa' },
+  { label: 'El Ejército', href: '/ejercito-preview' },
+  { label: 'El Muro', href: '/el-muro' },
 ]
 
 function isActive(pathname: string, href: string): boolean {
@@ -56,7 +58,7 @@ export default function PublicSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-60 shrink-0 h-screen sticky top-0 bg-zinc-950 border-r border-zinc-800">
+      <aside className="hidden md:flex flex-col w-[280px] shrink-0 h-screen sticky top-0 bg-zinc-950 border-r border-zinc-800">
         {/* Logo */}
         <div className="px-4 py-5 border-b border-zinc-800">
           <Link
@@ -84,8 +86,17 @@ export default function PublicSidebar() {
             href="/registro"
             className="flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-medium h-9 px-4 hover:bg-zinc-200 transition-colors"
           >
-            Prueba gratis
+            Únete gratis
           </Link>
+          <hr className="border-zinc-800 my-2" />
+          <p className="px-2 text-xs text-zinc-600">Rentabilismo · Pablo García Dacosta</p>
+          <p className="px-2 text-xs text-zinc-600">
+            <Link href="/aviso-legal" className="hover:text-zinc-400 transition-colors">Aviso legal</Link>
+            {' · '}
+            <Link href="/privacidad" className="hover:text-zinc-400 transition-colors">Privacidad</Link>
+            {' · '}
+            <Link href="/cookies" className="hover:text-zinc-400 transition-colors">Cookies</Link>
+          </p>
         </div>
       </aside>
 
@@ -151,8 +162,17 @@ export default function PublicSidebar() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-medium h-9 px-4 hover:bg-zinc-200 transition-colors"
               >
-                Prueba gratis
+                Únete gratis
               </Link>
+              <hr className="border-zinc-800 my-2" />
+              <p className="px-2 text-xs text-zinc-600">Rentabilismo · Pablo García Dacosta</p>
+              <p className="px-2 text-xs text-zinc-600">
+                <Link href="/aviso-legal" onClick={() => setMobileOpen(false)} className="hover:text-zinc-400 transition-colors">Aviso legal</Link>
+                {' · '}
+                <Link href="/privacidad" onClick={() => setMobileOpen(false)} className="hover:text-zinc-400 transition-colors">Privacidad</Link>
+                {' · '}
+                <Link href="/cookies" onClick={() => setMobileOpen(false)} className="hover:text-zinc-400 transition-colors">Cookies</Link>
+              </p>
             </div>
           </div>
         </div>
