@@ -1,29 +1,96 @@
 import Link from 'next/link'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import CheckoutButton from '../precio/_components/checkout-button'
 
 export const metadata = {
   title: 'El Programa — Rentabilismo Academy',
   description: 'Los 11 módulos, los 10 agentes consultores y todo lo que incluye Rentabilismo.',
 }
 
+const BENEFITS = [
+  '90 días para transformar tu negocio, con metodología y acompañamiento',
+  '30 días trabajando el programa — mentalidad, números, procesos, ventas y estrategia',
+  '60 días analizando y corrigiendo — aplicas, mides y ajustas',
+  '90 días en mejora continua — construyes el sistema que sostiene el crecimiento',
+  'Cuartel General — comunidad privada de empresarios reales',
+  'El Muro — accountability diario para no perder el ritmo',
+]
+
 export default function ProgramaPage() {
   return (
-    <div className="px-8 py-16 max-w-2xl">
-      <p className="text-xs uppercase tracking-widest font-semibold text-zinc-500 mb-4">
-        El programa completo
-      </p>
-      <h1 className="text-3xl font-bold text-white mb-4">
-        Próximamente
-      </h1>
-      <p className="text-zinc-400 leading-relaxed mb-8">
-        Aquí verás los 11 módulos, los 10 agentes consultores especializados y todo lo que incluye
-        Rentabilismo. Estamos preparando esta página.
-      </p>
-      <Link
-        href="/precio"
-        className="inline-flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-medium h-11 px-6 hover:bg-zinc-200 transition-colors"
-      >
-        Ver precio →
-      </Link>
+    <div className="px-8 py-10 max-w-2xl space-y-16">
+
+      {/* Cabecera */}
+      <section className="space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+          El programa completo
+        </p>
+        <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 leading-tight tracking-tight">
+          Consultoría guiada para empresarios que quieren resultados reales.
+        </h1>
+        <p className="text-zinc-600 leading-relaxed">
+          11 módulos. 10 agentes consultores. Un sistema que te obliga a mirar los números,
+          tomar decisiones y dejar de improvisar.
+        </p>
+        <Link
+          href="#precio"
+          className="inline-flex items-center justify-center rounded-md bg-zinc-900 text-white text-sm font-semibold h-11 px-6 hover:bg-zinc-700 transition-colors"
+        >
+          Ver precio →
+        </Link>
+      </section>
+
+      {/* Sección de precio */}
+      <section id="precio" className="space-y-8">
+        <div className="border-t border-zinc-200 pt-16 space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+            Acceso completo
+          </p>
+          <h2 className="text-3xl font-bold text-zinc-900 leading-tight tracking-tight">
+            Un único pago.<br />90 días para transformar tu negocio.
+          </h2>
+          <p className="text-zinc-600 text-lg leading-relaxed">
+            Sin mensualidades. Sin sorpresas. Pagas una vez y empiezas hoy.
+          </p>
+        </div>
+
+        <Card className="bg-white border border-zinc-200 shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-end gap-3">
+              <span className="text-zinc-400 line-through text-2xl">1.200€</span>
+              <span className="text-5xl font-bold tracking-tight text-zinc-900">799€</span>
+            </div>
+            <p className="text-sm text-zinc-500 mt-1">
+              Pago único · IVA incluido
+            </p>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            <ul className="space-y-2.5">
+              {BENEFITS.map((benefit) => (
+                <li key={benefit} className="flex items-start gap-2 text-sm text-zinc-700">
+                  <span className="mt-0.5 shrink-0 text-[#1D9E75] font-bold">—</span>
+                  <span>{benefit}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="border-t border-zinc-200" />
+
+            <CheckoutButton />
+
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              <strong>Primeros 50 accesos:</strong> precio garantizado para siempre.
+              A partir del acceso 51, el precio pasa a ser anual. Reserva tu plaza ahora.
+            </p>
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-sm text-zinc-500">
+          Si en los primeros 7 días sientes que no es para ti, te devolvemos el dinero sin preguntas.
+        </p>
+      </section>
+
     </div>
   )
 }

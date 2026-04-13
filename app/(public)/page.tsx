@@ -31,29 +31,31 @@ const DOLORES = [
 
 export default function PublicHomePage() {
   return (
-    <div className="bg-zinc-950">
+    <div>
 
-      {/* SECCIÓN 1 — HERO */}
-      <section className="px-8 py-16 max-w-3xl">
-        <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-6">
-          Cambia tu forma de pensar la empresa. Lo demás vendrá detrás.
-        </h1>
-        <p className="text-lg text-zinc-400 max-w-2xl leading-relaxed mb-10">
-          No necesitas más información. Necesitas un sistema que te obligue a mirar los números,
-          tomar decisiones y dejar de improvisar. Un consultor que trabaja contigo, no para ti.
-          Con tus datos reales, no con teoría.
-        </p>
-        <Link
-          href="/programa"
-          className="inline-flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-semibold h-12 px-8 hover:bg-zinc-200 transition-colors"
-        >
-          Descubre cómo funciona
-        </Link>
+      {/* SECCIÓN 1 — HERO (bloque oscuro como override local) */}
+      <section className="bg-zinc-900 px-8 py-16">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-6">
+            Cambia tu forma de pensar la empresa. Lo demás vendrá detrás.
+          </h1>
+          <p className="text-lg text-zinc-400 max-w-2xl leading-relaxed mb-10">
+            No necesitas más información. Necesitas un sistema que te obligue a mirar los números,
+            tomar decisiones y dejar de improvisar. Un consultor que trabaja contigo, no para ti.
+            Con tus datos reales, no con teoría.
+          </p>
+          <Link
+            href="/programa"
+            className="inline-flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-semibold h-12 px-8 hover:bg-zinc-200 transition-colors"
+          >
+            Descubre cómo funciona
+          </Link>
+        </div>
       </section>
 
-      {/* SECCIÓN 2 — DOLORES */}
-      <section className="px-8 py-16 border-t border-zinc-800">
-        <h2 className="text-2xl font-bold text-white mb-10">¿Te suena esto?</h2>
+      {/* SECCIÓN 2 — DOLORES (cards oscuras sobre fondo claro = contraste) */}
+      <section className="px-8 py-16 border-t border-zinc-200">
+        <h2 className="text-2xl font-bold text-zinc-900 mb-10">¿Te suena esto?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
           {DOLORES.map((d) => (
             <div
@@ -67,20 +69,20 @@ export default function PublicHomePage() {
         </div>
       </section>
 
-      {/* SECCIÓN 3 — DIFERENCIACIÓN + CTA */}
-      <section className="px-8 py-16 border-t border-zinc-800 max-w-3xl space-y-6">
-        <h2 className="text-2xl font-bold text-white">Esto no es un curso más.</h2>
-        <p className="text-zinc-400 leading-relaxed">
+      {/* SECCIÓN 3 — DIFERENCIACIÓN + CTA (fondo claro) */}
+      <section className="px-8 py-16 border-t border-zinc-200 max-w-3xl space-y-6">
+        <h2 className="text-2xl font-bold text-zinc-900">Esto no es un curso más.</h2>
+        <p className="text-zinc-600 leading-relaxed">
           Has probado formaciones, vídeos, libros, mentorías. Y siempre faltaba algo: que alguien
           trabajara contigo sobre TU negocio, con TUS números, sin teoría genérica.
         </p>
-        <p className="text-zinc-400 leading-relaxed">
+        <p className="text-zinc-600 leading-relaxed">
           Rentabilismo es consultoría guiada. Tú trabajas sobre tu negocio real. Un sistema con
           método, ejercicios con tus datos, y un ejército de consultores que no te hacen la pelota.
         </p>
         <Link
           href="/programa"
-          className="inline-flex items-center justify-center rounded-md bg-white text-zinc-950 text-sm font-semibold h-12 px-8 hover:bg-zinc-200 transition-colors"
+          className="inline-flex items-center justify-center rounded-md bg-zinc-900 text-white text-sm font-semibold h-12 px-8 hover:bg-zinc-700 transition-colors"
         >
           Descubre cómo funciona
         </Link>
