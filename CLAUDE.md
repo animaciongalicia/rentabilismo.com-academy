@@ -49,7 +49,7 @@ Dominio: rentabilismo.com
 |------|--------|------|---------------------|
 | 1 | Landing | `/` | Ve dolores, solución, CTA "prueba gratis" |
 | 2 | Programa (venta) | `/programa` | Ve los 11 módulos + 10 agentes + informes como catálogo |
-| 3 | Muro de empresarios | `/empresarios` | Ve tarjetas de empresarios (prueba social) |
+| 3 | Muro de empresarios | `/el-muro` | Ve tarjetas de empresarios (prueba social) |
 | 4 | Registro | `/registro` | Se registra con email + nombre (mínimo) |
 | 5 | Módulo Mentalidad | `/mentalidad` | Trabaja el módulo gratuito completo. SIN dashboard, SIN sidebar |
 | 6 | Post-Mentalidad | (pantalla transición) | Ve programa completo + CTA pago. Solo al completar el módulo |
@@ -76,13 +76,22 @@ Dominio: rentabilismo.com
 ## Arquitectura de rutas
 
 ```
-/app/(public)/                          ← Zona pública
+/app/(public)/                          ← Zona pública (con sidebar)
   page.tsx                              ← Landing (dolores + solución + CTA)
-  programa/page.tsx                     ← Catálogo de venta (11 módulos + agentes)
-  empresarios/page.tsx                  ← Muro público de empresarios
-  mentalidad/                           ← Módulo Mentalidad (requiere registro)
-    page.tsx                            ← Página del módulo
-    [slug]/page.tsx                     ← Lecciones individuales
+  como-funciona/page.tsx                ← Cómo funciona el método
+  eres-tu/page.tsx                      ← ¿Eres tú? (perfil del empresario)
+  programa/page.tsx                     ← Catálogo de venta (11 módulos + agentes + precio)
+  el-muro/page.tsx                      ← Muro público de empresarios (prueba social)
+  ejercito-preview/page.tsx             ← Preview de El Ejército de agentes
+  precio/page.tsx                       ← Precio (sin navegación, integrado en /programa)
+  aviso-legal/page.tsx                  ← Aviso legal
+  privacidad/page.tsx                   ← Política de privacidad
+  cookies/page.tsx                      ← Política de cookies
+
+/app/(mentalidad)/                      ← Módulo Mentalidad (sin sidebar pública)
+  mentalidad/
+    page.tsx                            ← Módulo Mentalidad (requiere registro, gate de registro)
+    [slug]/page.tsx                     ← Lecciones individuales del módulo Mentalidad
 
 /app/(auth)/                            ← Autenticación
   login/page.tsx                        ← Login
@@ -205,7 +214,7 @@ id (UUID PK), module_id (FK), title, description, sector, lesson_learned,
 is_published, created_at
 
 **RLS en TODAS las tablas:** cada usuario solo ve/edita sus propios datos.
-**community_wall:** lectura pública (para el muro de /empresarios).
+**community_wall:** lectura pública (para el muro de /el-muro).
 **modules, lessons, exercises, gpt_agents, case_library:** lectura pública para contenido publicado.
 
 ---
@@ -257,7 +266,7 @@ Cuando access_expires_at < now():
 - Se generan como HTML con Tailwind + CSS print rules. NUNCA librerías de PDF directas
 
 ### Muro de empresarios
-- Página PÚBLICA en `/empresarios` — es elemento de VENTA, no funcionalidad de trabajo
+- Página PÚBLICA en `/el-muro` — es elemento de VENTA, no funcionalidad de trabajo
 - Tarjetas con: nombre, sector, ubicación, frase de objetivo
 - Dos estados visuales: usuarios gratuitos (un color) vs. usuarios de pago (otro color)
 - Usuarios de pago pueden ver email de contacto de otros usuarios de pago
