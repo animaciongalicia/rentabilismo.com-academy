@@ -18,7 +18,7 @@ const BENEFITS = [
 
 export default function ProgramaPage() {
   return (
-    <div className="px-8 py-10 max-w-2xl space-y-16">
+    <div className="space-y-16">
 
       {/* Cabecera */}
       <section className="space-y-4">

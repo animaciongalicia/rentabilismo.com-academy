@@ -34,7 +34,7 @@ export default function PublicHomePage() {
     <div>
 
       {/* SECCIÓN 1 — HERO (bloque oscuro como override local) */}
-      <section className="bg-zinc-900 px-8 py-16">
+      <section className="bg-zinc-900 py-16">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-6">
             Cambia tu forma de pensar la empresa. Lo demás vendrá detrás.
@@ -54,7 +54,7 @@ export default function PublicHomePage() {
       </section>
 
       {/* SECCIÓN 2 — DOLORES (cards oscuras sobre fondo claro = contraste) */}
-      <section className="px-8 py-16 border-t border-zinc-200">
+      <section className="py-16 border-t border-zinc-200">
         <h2 className="text-2xl font-bold text-zinc-900 mb-10">¿Te suena esto?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
           {DOLORES.map((d) => (
@@ -70,7 +70,7 @@ export default function PublicHomePage() {
       </section>
 
       {/* SECCIÓN 3 — DIFERENCIACIÓN + CTA (fondo claro) */}
-      <section className="px-8 py-16 border-t border-zinc-200 max-w-3xl space-y-6">
+      <section className="py-16 border-t border-zinc-200 space-y-6">
         <h2 className="text-2xl font-bold text-zinc-900">Esto no es un curso más.</h2>
         <p className="text-zinc-600 leading-relaxed">
           Has probado formaciones, vídeos, libros, mentorías. Y siempre faltaba algo: que alguien

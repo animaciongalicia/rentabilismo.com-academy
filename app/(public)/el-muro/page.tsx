@@ -35,7 +35,7 @@ export default async function ElMuroPage() {
   const isEmpty = wall.length === 0
 
   return (
-    <main className="px-8 py-10">
+    <div>
       <div className="space-y-12">
 
         {/* Cabecera */}
@@ -116,6 +116,6 @@ export default async function ElMuroPage() {
         </section>
 
       </div>
-    </main>
+    </div>
   )
 }
